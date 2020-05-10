@@ -1,0 +1,12 @@
+# ignore everything
+/*
+/*/
+
+# except
+!/bin/
+!/templates/
+!/test/
+!.npmignore
+!package-lock.json
+!package.json
+!.gitignore

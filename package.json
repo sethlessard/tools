@@ -1,0 +1,21 @@
+{
+  "name": "tools",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bin": {
+    "tools": "./bin/index.js"
+  },
+  "dependencies": {
+    "chalk": "4.0.0",
+    "clui": "0.3.6",
+    "inquirer": "7.1.0",
+    "minimist": "1.2.5"
+  }
+}
