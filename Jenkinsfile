@@ -3,6 +3,7 @@ pipeline {
     docker {
       image "node:13"
       label "master"
+      args "-u root:root"
     }
   }
 
