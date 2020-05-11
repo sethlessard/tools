@@ -10,7 +10,6 @@ pipeline {
     stage("Test") {
       steps {
         sh '''
-        !#/bin/bash
         npm test
         '''
       }
