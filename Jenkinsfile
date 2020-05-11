@@ -8,9 +8,9 @@ pipeline {
   }
 
   stages {
-    stage("Install Test Dependencies") {
+    stage("Install Dependencies") {
       steps {
-        sh "npm install -g mocha"
+        sh "npm install"
       }
     }
     stage("Test") {
