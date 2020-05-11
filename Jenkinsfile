@@ -7,11 +7,14 @@ pipeline {
   }
 
   stages {
+    stage("Install Test Dependencies") {
+      steps {
+        sh "npm install -g mocha"
+      }
+    }
     stage("Test") {
       steps {
-        sh '''
-        npm test
-        '''
+        sh "npm test"
       }
     }
   }
