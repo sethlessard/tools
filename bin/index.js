@@ -34,8 +34,8 @@ tools template [language] [templateType]            Create a file based off of a
 const create = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
-    console.error("Nothing to create.");
-    process.exit(1);
+    showHelp();
+    // TODO: showCreateHelp();
   }
 
   // determine the language
