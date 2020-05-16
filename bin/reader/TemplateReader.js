@@ -17,7 +17,7 @@ class TemplateReader {
    * @returns {string} the template.
    */
   read(template) {
-    const templatePath = path.join(process.cwd(), "templates", "templates", this._language, `${template}.template`);
+    const templatePath = path.join(global.appRoot, "templates", "templates", this._language, `${template}.template`);
     if (!fs.existsSync(templatePath)) {
       return "";
     }

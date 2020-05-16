@@ -1,6 +1,12 @@
 #!/usr/bin/env node
+// determine the root of the tools project
+const path = require("path");
+global.appRoot = path.dirname(__dirname);
+
+// import npm modules
 const argv = require("minimist")(process.argv.slice(2));
 
+// import local modules
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
 
@@ -26,8 +32,11 @@ tools template [language] [templateType]            Create a file based off of a
     - html                                          HTML template
     - css                                           CSS template
     - docker                                        Docker template
+    - c                                             C template
+    - cpp or c++                                    C++ template
   [templateType]:
     - class                                         Class template (javascript, python)
+    - singleton                                     Singleton template (javascript, python)
 `.trim();
 
 /**
@@ -120,6 +129,9 @@ const template = () => {
       const js = new JavascriptTemplateCreator(argv);
       js.create();
       break;
+    case "c":
+    case "cpp":
+    case "c++":
     case "css":
     case "docker":
     case "html":
