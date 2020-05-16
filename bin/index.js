@@ -73,7 +73,6 @@ const main = () => {
       showHelp();
   }
 };
-main();
 
 /**
  * Show help.
@@ -86,3 +85,5 @@ const showHelp = () => {
 process.on("SIGINT", function() {
   
 });
+
+main();
