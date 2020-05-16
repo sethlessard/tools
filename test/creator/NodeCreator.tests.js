@@ -16,7 +16,9 @@ describe("NodeCreator", () => {
 
   it("Should be able to create a simple NodeJS api", () => {
     const appPath = path.join(".tmp", "nodejs-simple-api");
-    const creator = new NodeCreator(appPath, "api");
+    const creator = new NodeCreator({
+      _: ["create", "node", "api", appPath],
+    });
     creator.create();
 
     assert.isTrue(fs.existsSync(appPath));

@@ -1,0 +1,23 @@
+
+let _instance = null;
+
+/**
+ * Get the $1 instance.
+ * @returns {$1} the $1 instance.
+ */
+const get$1Instance = () => {
+  if (_instance == null) {
+    _instance = new $1();
+  }
+  return _instance;
+};
+
+class $1 {
+
+  constructor() {
+
+  }
+}
+
+export default $1;
+export { get$1Instance };

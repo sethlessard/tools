@@ -10,6 +10,6 @@ class JsonReader {
   read(file) {
     return JSON.parse(fs.readFileSync(file).toString("utf8"));
   }
-};
+}
 
 module.exports = JsonReader;

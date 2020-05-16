@@ -6,19 +6,19 @@ const path = require("path");
 const JsonReader = require("../reader/JsonReader");
 const JsonWriter = require("../writer/JsonWriter");
 
-const SIMPLE_API = path.join("templates", "node", "simple-api");
+const SIMPLE_API_PATH = path.join("templates", "projects", "node", "simple-api");
 
 class NodeCreator {
 
   /**
    * NodeCreator constructor.
-   * @param {string} projectPath the path to the new node project.
-   * @param {string} type the type of NodeJS app to create.
+   * @param {object} argv the arguments passed to the tools command.
    */
-  constructor(projectPath, type) {
-    this._path = projectPath;
-    this._type = type;
-    this._packagePath = path.join(projectPath, "package.json");
+  constructor(argv) {
+    const positionalArgs = argv["_"];
+    this._type = positionalArgs[2];
+    this._path = positionalArgs[3];
+    this._packagePath = path.join(this._path, "package.json");
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
@@ -67,7 +67,7 @@ class NodeCreator {
     }
     pack.main = "dist/index.js"
     // write the package.json file.
-    this._jsonWriter.write(pack, this._packagePath);
+    this._jsonWriter.write(this._packagePath, pack);
 
     // install the dependencies
     const dependencies = [
@@ -96,7 +96,7 @@ class NodeCreator {
     this._installDevDepencencies(devDependencies);
 
     // copy the template
-    fse.copySync(SIMPLE_API, this._path);
+    fse.copySync(SIMPLE_API_PATH, this._path);
   }
 
   /**

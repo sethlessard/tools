@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-
 const argv = require("minimist")(process.argv.slice(2));
+
+const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
 
+// TODO: update with template stuff
 const HELP_MSG = `
 Usage:
 
@@ -46,8 +48,20 @@ const create = () => {
 
   switch (language) {
     case "node":
-      const nc = new NodeCreator(positionalArgs[3], type);
+      const nc = new NodeCreator(argv);
       nc.create();
+      break;
+    case "c":
+    case "cpp":
+    case "c++":
+    case "python":
+    case "react":
+      console.error(`"${language}" not yet implemented.`);
+      process.exit(1);
+      break;
+    default:
+      console.error(`Unkown language "${language}"`);
+      process.exit(1);
       break;
   }
 };
@@ -69,6 +83,9 @@ const main = () => {
     case "create":
       create();
       break;
+    case "template":
+      template();
+      break;
     default:
       showHelp();
   }
@@ -80,6 +97,40 @@ const main = () => {
 const showHelp = () => {
   console.log(HELP_MSG);
   process.exit(0);
+};
+
+/**
+ * Create a new file based off of a template.
+ */
+const template = () => {
+  const positionalArgs = argv["_"];
+  if (positionalArgs.length <= 1) {
+    showHelp();
+    // TODO: showTemplateHelp();
+  }
+
+  // determine the language
+  const language = positionalArgs[1];
+
+  // determine the type of project
+  const type = positionalArgs[2];
+
+  switch (language) {
+    case "javascript":
+      const js = new JavascriptTemplateCreator(argv);
+      js.create();
+      break;
+    case "css":
+    case "docker":
+    case "html":
+    case "python":
+      // TODO: implement
+      console.error(`Templates for "${language}" are not completed yet.`);
+      break;
+    default:
+      showHelp();
+      break;
+  }
 };
 
 process.on("SIGINT", function() {
