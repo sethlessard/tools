@@ -6,15 +6,17 @@ const path = require("path");
 const JsonReader = require("../reader/JsonReader");
 const JsonWriter = require("../writer/JsonWriter");
 
-const SIMPLE_API_PATH = path.join(`${global.appRoot}`, "templates", "projects", "node", "simple-api");
+const SIMPLE_API_PATH = "templates/projects/node/simple-api";
 
 class NodeCreator {
 
   /**
    * NodeCreator constructor.
+   * @param {string} appBase the path to the base of the tools app.
    * @param {object} argv the arguments passed to the tools command.
    */
-  constructor(argv) {
+  constructor(appBase, argv) {
+    this._appBase = appBase;
     const positionalArgs = argv["_"];
     this._type = positionalArgs[2];
     this._path = positionalArgs[3];
@@ -96,7 +98,7 @@ class NodeCreator {
     this._installDevDepencencies(devDependencies);
 
     // copy the template
-    fse.copySync(SIMPLE_API_PATH, this._path);
+    fse.copySync(path.join(this._appBase, SIMPLE_API_PATH), this._path);
   }
 
   /**
