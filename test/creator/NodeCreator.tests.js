@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = require("rimraf");
 
+// define the global.appPath
+global.appPath = path.dirname(path.dirname(__dirname));
+
 const NodeCreator = require("../../bin/creator/NodeCreator");
 
 describe("NodeCreator", () => {

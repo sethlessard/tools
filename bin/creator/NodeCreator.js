@@ -6,7 +6,7 @@ const path = require("path");
 const JsonReader = require("../reader/JsonReader");
 const JsonWriter = require("../writer/JsonWriter");
 
-const SIMPLE_API_PATH = path.join(global.appRoot, "templates", "projects", "node", "simple-api");
+const SIMPLE_API_PATH = path.join(`${global.appRoot}`, "templates", "projects", "node", "simple-api");
 
 class NodeCreator {
 
