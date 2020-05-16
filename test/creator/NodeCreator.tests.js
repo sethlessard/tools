@@ -3,17 +3,19 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = require("rimraf");
 
-// define the global.appPath
-global.appPath = path.dirname(path.dirname(__dirname));
-
-const NodeCreator = require("../../bin/creator/NodeCreator");
-
 describe("NodeCreator", () => {
-  beforeEach((done) => {
+  let NodeCreator;
+  before(done => {
+    global.appPath = path.dirname(path.dirname(__dirname));
+    NodeCreator = require("../../bin/creator/NodeCreator");
+    done();
+  });
+
+  beforeEach(done => {
     rimraf(".tmp", done);
   });
 
-  afterEach((done) => {
+  afterEach(done => {
     rimraf(".tmp", done);
   });
 
