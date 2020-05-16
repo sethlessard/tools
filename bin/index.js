@@ -57,7 +57,7 @@ const create = () => {
 
   switch (language) {
     case "node":
-      const nc = new NodeCreator(argv);
+      const nc = new NodeCreator(global.appRoot, argv);
       nc.create();
       break;
     case "c":
