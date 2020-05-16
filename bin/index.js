@@ -3,6 +3,31 @@
 const argv = require("minimist")(process.argv.slice(2));
 const NodeCreator = require("./creator/NodeCreator");
 
+const HELP_MSG = `
+Usage:
+
+tools create [language] [projectType]               Create a new project.
+  [language]:
+    - node                                          NodeJS project
+    - python                                        Python project
+    - c                                             C project
+    - cpp or c++                                    C++ project
+    - react                                         ReactJS project
+  [projectType]:
+    - api                                           Basic API (node & python)
+    - socket.io                                     Basic socket.io server (node)
+
+tools template [language] [templateType]            Create a file based off of a template.
+  [language]:
+    - javascript                                    JavaScript template
+    - python                                        Python template
+    - html                                          HTML template
+    - css                                           CSS template
+    - docker                                        Docker template
+  [templateType]:
+    - class                                         Class template (javascript, python)
+`.trim();
+
 /**
  * Create a new something.
  */
@@ -32,14 +57,31 @@ const create = () => {
  */
 const main = () => {
   const positionalArgs = argv["_"];
+  if (argv["debug"]) {
+    console.log(JSON.stringify(argv));
+  }
+
+  if (argv["h"] || argv["help"]) {
+    showHelp();
+  }
 
   switch (positionalArgs[0]) {
     case "create":
       create();
       break;
+    default:
+      showHelp();
   }
 };
 main();
+
+/**
+ * Show help.
+ */
+const showHelp = () => {
+  console.log(HELP_MSG);
+  process.exit(0);
+};
 
 process.on("SIGINT", function() {
   
