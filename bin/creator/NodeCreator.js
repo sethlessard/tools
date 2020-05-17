@@ -7,6 +7,7 @@ const JsonReader = require("../reader/JsonReader");
 const JsonWriter = require("../writer/JsonWriter");
 
 const SIMPLE_API_PATH = "templates/projects/node/simple-api";
+const SIMPLE_SOCKETIO_PATH = "templates/projects/node/simple-socketio-server";
 
 class NodeCreator {
 
@@ -40,8 +41,9 @@ class NodeCreator {
       case "api":
         this._initializeApi(pack);
         break;
-      case "socketio":
-        this._initializeSocketio(pack);
+      case "socket.io-server":
+        this._initializeSocketioServer(pack);
+        break;
       default:
         console.log(`"${this._type}" is not a registered NodeJS project type.`);
         break;
@@ -95,7 +97,7 @@ class NodeCreator {
       "@babel/preset-env"
     ];
     this._installDependencies(dependencies);
-    this._installDevDepencencies(devDependencies);
+    this._installDevDependencies(devDependencies);
 
     // copy the template
     fse.copySync(path.join(this._appBase, SIMPLE_API_PATH), this._path);
@@ -119,10 +121,20 @@ class NodeCreator {
   }
 
   /**
-   * Initialize a simple socket.io project.
+   * Initialize a simple socket.io server project.
    * @param {object} the package.json file.
    */
-  _initializeSocketio(pack) {
+  _initializeSocketioServer(pack) {
+    // update the package.json file.
+    pack.scripts = {
+      "start": "gulp develop",
+      "debug": "gulp debug",
+      "test": "mocha --recursive"
+    }
+    pack.main = "dist/index.js"
+    // write the package.json file.
+    this._jsonWriter.write(this._packagePath, pack);
+
     const dependencies = [
       "express",
       "helmet",
@@ -130,14 +142,27 @@ class NodeCreator {
       "socket.io"
     ];
     const devDependencies = [
+      "rimraf",
       "mocha",
       "chai",
       "supertest",
-      "socket.io-client",
-      "gulp"
+      "gulp",
+      "gulp-babel",
+      "gulp-sourcemaps",
+      "gulp-inject-string",
+      "gulp-nodemon",
+      "nodemon",
+      "@babel/cli",
+      "@babel/core",
+      "@babel/node",
+      "@babel/preset-env",
+      "socket.io-client"
     ];
     this._installDependencies(dependencies);
     this._installDevDependencies(devDependencies);
+
+    // copy the template
+    fse.copySync(path.join(this._appBase, SIMPLE_SOCKETIO_PATH), this._path);
   }
 
   /**
@@ -162,7 +187,7 @@ class NodeCreator {
    * Install NPM dependencies for a NodeJS project as development dependencies
    * @param {{ name: string, version: string}[] | string[]} dependencies the dependencies.
    */
-  _installDevDepencencies(dependencies) {
+  _installDevDependencies(dependencies) {
     let installCommand = "npm install -E -D";
     for (const dependency of dependencies) {
       if (typeof dependency === "string") {

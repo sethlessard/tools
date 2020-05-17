@@ -9,7 +9,7 @@ tools create [language] [projectType]               Create a new project.
     - react                                         ReactJS project
   [projectType]:
     - api                                           Basic API (node & python)
-    - socket.io                                     Basic socket.io server (node)
+    - socket.io-server                              Basic socket.io server (node)
 `.trim();
 
 const TEMPLATE_HELP = `
