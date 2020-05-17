@@ -1,6 +1,6 @@
 {
-  "name": "tools",
-  "version": "0.0.3",
+  "name": "t00ls",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "author": "Seth Lessard",
   "license": "MIT",
   "bin": {
-    "tools": "./bin/index.js"
+    "t00ls": "./bin/index.js"
   },
   "dependencies": {
     "chalk": "4.0.0",
