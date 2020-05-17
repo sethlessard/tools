@@ -13,35 +13,7 @@ const DockerTemplateCreator = require("./creator/DockerTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
 const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
-
-// TODO: update with template stuff
-const HELP_MSG = `
-Usage:
-
-tools create [language] [projectType]               Create a new project.
-  [language]:
-    - node                                          NodeJS project
-    - python                                        Python project
-    - c                                             C project
-    - cpp or c++                                    C++ project
-    - react                                         ReactJS project
-  [projectType]:
-    - api                                           Basic API (node & python)
-    - socket.io                                     Basic socket.io server (node)
-
-tools template [language] [templateType]            Create a file based off of a template.
-  [language]:
-    - javascript                                    JavaScript template
-    - python                                        Python template
-    - html                                          HTML template
-    - css                                           CSS template
-    - docker                                        Docker template
-    - c                                             C template
-    - cpp or c++                                    C++ template
-  [templateType]:
-    - class                                         Class template (javascript, python)
-    - singleton                                     Singleton template (javascript, python)
-`.trim();
+const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
 /**
  * Create a new something.
@@ -49,8 +21,7 @@ tools template [language] [templateType]            Create a file based off of a
 const create = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
-    showHelp();
-    // TODO: showCreateHelp();
+    showCreateHelp();
   }
 
   // determine the language
@@ -105,21 +76,12 @@ const main = () => {
 };
 
 /**
- * Show help.
- */
-const showHelp = () => {
-  console.log(HELP_MSG);
-  process.exit(0);
-};
-
-/**
  * Create a new file based off of a template.
  */
 const template = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
-    showHelp();
-    // TODO: showTemplateHelp();
+    showTemplateHelp();
   }
 
   // determine the language
