@@ -7,6 +7,7 @@ global.appRoot = path.dirname(__dirname);
 const argv = require("minimist")(process.argv.slice(2));
 
 // import local modules
+const CTemplateCreator = require("./creator/CTemplateCreator");
 const CppTemplateCreator = require("./creator/CppTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
@@ -126,6 +127,10 @@ const template = () => {
   const type = positionalArgs[2];
 
   switch (language) {
+    case "c":
+      const c = new CTemplateCreator(argv);
+      c.create();
+      break;
     case "cpp":
     case "c++":
       const cpp = new CppTemplateCreator(argv);
@@ -135,7 +140,6 @@ const template = () => {
       const js = new JavascriptTemplateCreator(argv);
       js.create();
       break;
-    case "c":
     case "css":
     case "docker":
     case "html":

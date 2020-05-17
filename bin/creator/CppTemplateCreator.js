@@ -30,6 +30,9 @@ class CppTemplateCreator {
       case "main":
         this._createMain();
         break;
+      case "singleton":
+        this._createSingleton();
+        break;
       default:
         console.error(`"${this._type}" is not a registered C++ template type.`);
         break;
@@ -37,7 +40,7 @@ class CppTemplateCreator {
   }
 
   /**
-   * Create a JavaScript class.
+   * Create a C++ class.
    */
   _createClass() {
     const className = this._positionalArgs[3];
@@ -64,6 +67,23 @@ class CppTemplateCreator {
 
     // populate & write the templates
     this._templateWriter.write(filePath, template, {});
+  }
+
+  /**
+   * Create a C++ singleton.
+   */
+  _createSingleton() {
+    const className = this._positionalArgs[3];
+    const classPath = path.join(process.cwd(), `${className}.cpp`);
+    const headerPath = path.join(process.cwd(), `${className}.hpp`);
+
+    // read the templates
+    const classtemplate = this._templateReader.read("singleton");
+    const headerTemplate = this._templateReader.read("singleton.header");
+
+    // populate & write the templates
+    this._templateWriter.write(classPath, classtemplate, { $1: className });
+    this._templateWriter.write(headerPath, headerTemplate, { $1: className });
   }
 }
 
