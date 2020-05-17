@@ -1,0 +1,9 @@
+FROM $1
+
+WORKDIR /usr/src/app
+# TODO: install dependencies
+
+# copy the application source to the docker image
+ADD . .
+
+CMD ["./executable", "here"]

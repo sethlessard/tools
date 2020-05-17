@@ -9,6 +9,7 @@ const argv = require("minimist")(process.argv.slice(2));
 // import local modules
 const CTemplateCreator = require("./creator/CTemplateCreator");
 const CppTemplateCreator = require("./creator/CppTemplateCreator");
+const DockerTemplateCreator = require("./creator/DockerTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
 const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
@@ -137,6 +138,10 @@ const template = () => {
       const cpp = new CppTemplateCreator(argv);
       cpp.create();
       break;
+    case "docker":
+      const docker = new DockerTemplateCreator(argv);
+      docker.create();
+      break;
     case "javascript":
       const js = new JavascriptTemplateCreator(argv);
       js.create();
@@ -146,7 +151,6 @@ const template = () => {
       python.create();
       break;
     case "css":
-    case "docker":
     case "html":
       // TODO: implement
       console.error(`Templates for "${language}" are not completed yet.`);
