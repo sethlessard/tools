@@ -28,6 +28,9 @@ class PythonTemplateCreator {
    */
   create() {
     switch (this._type) {
+      case "class":
+        this._createClass();
+        break;
       case "main":
         this._createMain();
         break;
@@ -35,6 +38,21 @@ class PythonTemplateCreator {
         console.error(`"${this._type}" is not a registered Python template type.`);
         break;
     }
+  }
+
+  /**
+   * Create a new python class file.
+   */
+  _createClass() {
+    const className = this._positionalArgs[3];
+    const ext = (this._argv["extends"]) ? this._argv["extends"] : "object";
+    const filePath = path.join(process.cwd(), `${className}.py`);
+
+    // read the templates
+    const template = this._templateReader.read("class");
+
+    // populate & write the templates
+    this._templateWriter.write(filePath, template, { $1: className, $2: ext });
   }
 
   /**
