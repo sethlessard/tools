@@ -1,0 +1,70 @@
+const path = require("path");
+
+const TemplateReader = require("../reader/TemplateReader");
+const TemplateWriter = require("../writer/TemplateWriter");
+
+class CppTemplateCreator {
+
+  /**
+   * CppTemplateCreator constructor.
+   * @param {object} argv the arguements passed to the tools command
+   */
+  constructor(argv) {
+    this._positionalArgs = argv["_"];
+    this._argv = argv;
+    this._type = this._positionalArgs[2];
+
+    this._templateReader = new TemplateReader("c++");
+    this._templateWriter = new TemplateWriter();
+  }
+
+  // TODO: unit test
+  /**
+   * Create the template.
+   */
+  create() {
+    switch (this._type) {
+      case "class":
+        this._createClass();
+        break;
+      case "main":
+        this._createMain();
+        break;
+      default:
+        console.error(`"${this._type}" is not a registered C++ template type.`);
+        break;
+    }
+  }
+
+  /**
+   * Create a JavaScript class.
+   */
+  _createClass() {
+    const className = this._positionalArgs[3];
+    const classPath = path.join(process.cwd(), `${className}.cpp`);
+    const headerPath = path.join(process.cwd(), `${className}.hpp`);
+
+    // read the templates
+    const classtemplate = this._templateReader.read("class");
+    const headerTemplate = this._templateReader.read("class.header");
+
+    // populate & write the templates
+    this._templateWriter.write(classPath, classtemplate, { $1: className });
+    this._templateWriter.write(headerPath, headerTemplate, { $1: className });
+  }
+
+  /**
+   * Create a main.cpp file.
+   */
+  _createMain() {
+    const filePath = path.join(process.cwd(), `main.cpp`);
+
+    // read the templates
+    const template = this._templateReader.read("main");
+
+    // populate & write the templates
+    this._templateWriter.write(filePath, template, {});
+  }
+}
+
+module.exports = CppTemplateCreator;

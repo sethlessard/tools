@@ -5,6 +5,10 @@ const TemplateWriter = require("../writer/TemplateWriter");
 
 class JavascriptTemplateCreator {
 
+  /**
+   * JavascriptTemplateCreator constructor.
+   * @param {object} argv the arguements passed to the tools command
+   */
   constructor(argv) {
     this._positionalArgs = argv["_"];
     this._argv = argv;
