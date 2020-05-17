@@ -11,6 +11,7 @@ const CTemplateCreator = require("./creator/CTemplateCreator");
 const CppTemplateCreator = require("./creator/CppTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
+const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
 
 // TODO: update with template stuff
 const HELP_MSG = `
@@ -140,10 +141,13 @@ const template = () => {
       const js = new JavascriptTemplateCreator(argv);
       js.create();
       break;
+    case "python":
+      const python = new PythonTemplateCreator(argv);
+      python.create();
+      break;
     case "css":
     case "docker":
     case "html":
-    case "python":
       // TODO: implement
       console.error(`Templates for "${language}" are not completed yet.`);
       break;
