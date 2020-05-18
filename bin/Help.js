@@ -9,6 +9,8 @@ tools create [language] [projectType]               Create a new project.
     - react                                         ReactJS project
   [projectType]:
     - api                                           Basic API (node & python)
+    - app                                           Basic React App (react)
+    - library                                       Basic React Library (react)
     - socket.io-server                              Basic socket.io server (node)
 `.trim();
 
