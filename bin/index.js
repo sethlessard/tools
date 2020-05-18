@@ -13,6 +13,7 @@ const DockerTemplateCreator = require("./creator/DockerTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
 const NodeCreator = require("./creator/NodeCreator");
 const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
+const ReactProjectCreator = require("./creator/ReactProjectCreator");
 const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
 /**
@@ -25,15 +26,18 @@ const create = () => {
   }
 
   const node = new NodeCreator(global.appRoot, argv);
+  const react = new ReactProjectCreator(global.appRoot, argv);
   switch (positionalArgs[1]) {
     case "node":
       node.create();
+      break;
+    case "react":
+      react.create();
       break;
     case "c":
     case "cpp":
     case "c++":
     case "python":
-    case "react":
       console.error(`"${positionalArgs[1]}" not yet implemented.`);
       process.exit(1);
       break;

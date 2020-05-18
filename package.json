@@ -7,7 +7,7 @@
     "test": "mocha --recursive --timeout=600000",
     "doinstall": "npm test && npm install -g .",
     "lint": "eslint bin/",
-    "postinstall": ""
+    "postinstall": "npm install -g create-react-app create-react-library"
   },
   "keywords": [],
   "author": "Seth Lessard",

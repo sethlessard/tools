@@ -6,8 +6,9 @@
 !/bin/
 !/templates/
 !/test/
+!.eslintrc.json
+!.gitignore
 !.npmignore
+!Jenkinsfile
 !package-lock.json
 !package.json
-!.gitignore
-!Jenkinsfile
