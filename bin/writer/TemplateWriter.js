@@ -28,7 +28,7 @@ class TemplateWriter {
    * @param {string} stringToGoIntoTheRegex the string
    */
   _escapeRegExp(stringToGoIntoTheRegex) {
-    return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    return stringToGoIntoTheRegex.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 
   /**

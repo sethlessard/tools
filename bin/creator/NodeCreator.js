@@ -51,6 +51,18 @@ class NodeCreator {
   }
 
   /**
+   * Get the gulp scripts.
+   * @returns {object} the gulp scripts
+   */
+  _getGulpScripts() {
+    return {
+      "debug": "gulp debug",
+      "start": "gulp develop",
+      "test": "mocha --recursive"
+    };
+  }
+
+  /**
    * Execte a command in the project's directory.
    * @param {string} command the command to execute.
    */
@@ -64,12 +76,8 @@ class NodeCreator {
    */
   _initializeApi(pack) {
     // update the package.json file.
-    pack.scripts = {
-      "start": "gulp develop",
-      "debug": "gulp debug",
-      "test": "mocha --recursive"
-    }
-    pack.main = "dist/index.js"
+    pack.scripts = this._getGulpScripts();
+    pack.main = "dist/index.js";
     // write the package.json file.
     this._jsonWriter.write(this._packagePath, pack);
 
@@ -126,12 +134,8 @@ class NodeCreator {
    */
   _initializeSocketioServer(pack) {
     // update the package.json file.
-    pack.scripts = {
-      "start": "gulp develop",
-      "debug": "gulp debug",
-      "test": "mocha --recursive"
-    }
-    pack.main = "dist/index.js"
+    pack.scripts = this._getGulpScripts();
+    pack.main = "dist/index.js";
     // write the package.json file.
     this._jsonWriter.write(this._packagePath, pack);
 

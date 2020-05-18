@@ -24,27 +24,21 @@ const create = () => {
     showCreateHelp();
   }
 
-  // determine the language
-  const language = positionalArgs[1];
-
-  // determine the type of project
-  const type = positionalArgs[2];
-
-  switch (language) {
+  const node = new NodeCreator(global.appRoot, argv);
+  switch (positionalArgs[1]) {
     case "node":
-      const nc = new NodeCreator(global.appRoot, argv);
-      nc.create();
+      node.create();
       break;
     case "c":
     case "cpp":
     case "c++":
     case "python":
     case "react":
-      console.error(`"${language}" not yet implemented.`);
+      console.error(`"${positionalArgs[1]}" not yet implemented.`);
       process.exit(1);
       break;
     default:
-      console.error(`Unkown language "${language}"`);
+      console.error(`Unkown language "${positionalArgs[1]}"`);
       process.exit(1);
       break;
   }
@@ -84,38 +78,33 @@ const template = () => {
     showTemplateHelp();
   }
 
-  // determine the language
-  const language = positionalArgs[1];
+  const c = new CTemplateCreator(argv);
+  const cpp = new CppTemplateCreator(argv);
+  const docker = new DockerTemplateCreator(argv);
+  const js = new JavascriptTemplateCreator(argv);
+  const python = new PythonTemplateCreator(argv);
 
-  // determine the type of project
-  const type = positionalArgs[2];
-
-  switch (language) {
+  switch (positionalArgs[1]) {
     case "c":
-      const c = new CTemplateCreator(argv);
       c.create();
       break;
     case "cpp":
     case "c++":
-      const cpp = new CppTemplateCreator(argv);
       cpp.create();
       break;
     case "docker":
-      const docker = new DockerTemplateCreator(argv);
       docker.create();
       break;
     case "javascript":
-      const js = new JavascriptTemplateCreator(argv);
       js.create();
       break;
     case "python":
-      const python = new PythonTemplateCreator(argv);
       python.create();
       break;
     case "css":
     case "html":
       // TODO: implement
-      console.error(`Templates for "${language}" are not completed yet.`);
+      console.error(`Templates for "${positionalArgs[1]}" are not completed yet.`);
       break;
     default:
       showHelp();
