@@ -25,7 +25,7 @@ tools template [language] [templateType]            Create a file based off of a
   [templateType]:
     - class                                         Class template (cpp/c++, javascript, python)
     - singleton                                     Singleton template (cpp/c++, javascript, python)
-    - main                                          Main entrypoint file (c, cpp/c++, pythons)
+    - main                                          Main entrypoint file (c, cpp/c++, python)
 `.trim();
 
 /**

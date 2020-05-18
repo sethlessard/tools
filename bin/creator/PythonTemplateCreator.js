@@ -59,7 +59,7 @@ class PythonTemplateCreator {
    * Create a main.py file.
    */
   _createMain() {
-    const fileName = this._positionalArgs[3];
+    const fileName = (this._positionalArgs[3]) ? this._positionalArgs[3] : "main";
     const filePath = path.join(process.cwd(), `${fileName}.py`);
 
     // read the templates
