@@ -1,33 +1,33 @@
 
 const CREATE_HELP = `
-tools create [language] [projectType]               Create a new project.
+tools create [language] [projectType]         Create a new project.
   [language]:
-    - node                                          NodeJS project
-    - python                                        Python project
-    - c                                             C project
-    - cpp or c++                                    C++ project
-    - react                                         ReactJS project
+    - node                                    NodeJS project
+    - python                                  Python project
+    - c                                       C project
+    - cpp or c++                              C++ project
+    - react                                   ReactJS project
   [projectType]:
-    - api                                           Basic API (node & python)
-    - app                                           Basic React App (react)
-    - library                                       Basic React Library (react)
-    - socket.io-server                              Basic socket.io server (node)
+    - api                                     Basic API (node & python)
+    - app                                     Basic React App (react)
+    - library                                 Basic React Library (react)
+    - socket.io-server                        Basic socket.io server (node)
 `.trim();
 
 const TEMPLATE_HELP = `
-tools template [language] [templateType]            Create a file based off of a template.
+tools template [language] [templateType]      Create a file based off of a template.
   [language]:
-    - javascript                                    JavaScript template
-    - python                                        Python template
-    - html                                          HTML template
-    - css                                           CSS template
-    - docker                                        Docker template
-    - c                                             C template
-    - cpp or c++                                    C++ template
+    - javascript                              JavaScript template
+    - python                                  Python template
+    - html                                    HTML template
+    - css                                     CSS template
+    - docker                                  Docker template
+    - c                                       C template
+    - cpp or c++                              C++ template
   [templateType]:
-    - class                                         Class template (cpp/c++, javascript, python)
-    - singleton                                     Singleton template (cpp/c++, javascript, python)
-    - main                                          Main entrypoint file (c, cpp/c++, python)
+    - class                                   Class template (cpp/c++, javascript, python)
+    - singleton                               Singleton template (cpp/c++, javascript, python)
+    - main                                    Main entrypoint file (c, cpp/c++, python)
 `.trim();
 
 /**
