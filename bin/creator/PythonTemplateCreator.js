@@ -1,21 +1,15 @@
 const path = require("path");
 
-const TemplateReader = require("../reader/TemplateReader");
-const TemplateWriter = require("../writer/TemplateWriter");
+const TemplateCreator = require("./TemplateCreator");
 
-class PythonTemplateCreator {
+class PythonTemplateCreator extends TemplateCreator {
 
   /**
    * PythonTemplateCreator constructor.
    * @param {object} argv the arguements passed to the tools command
    */
   constructor(argv) {
-    this._positionalArgs = argv["_"];
-    this._argv = argv;
-    this._type = this._positionalArgs[2];
-
-    this._templateReader = new TemplateReader("python");
-    this._templateWriter = new TemplateWriter();
+    super("python", argv);
 
     // binding
     this.create = this.create.bind(this);

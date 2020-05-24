@@ -14,6 +14,7 @@ const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator")
 const NodeCreator = require("./creator/NodeCreator");
 const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
 const ReactProjectCreator = require("./creator/ReactProjectCreator");
+const SystemdTemplateCreator = require("./creator/SystemdTemplateCreator");
 const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
 /**
@@ -87,6 +88,7 @@ const template = () => {
   const docker = new DockerTemplateCreator(argv);
   const js = new JavascriptTemplateCreator(argv);
   const python = new PythonTemplateCreator(argv);
+  const systemd = new SystemdTemplateCreator(argv);
 
   switch (positionalArgs[1]) {
     case "c":
@@ -104,6 +106,9 @@ const template = () => {
       break;
     case "python":
       python.create();
+      break;
+    case "systemd":
+      systemd.create();
       break;
     case "css":
     case "html":

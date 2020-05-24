@@ -101,11 +101,11 @@ class ReactProjectCreator {
   _inDir(command) {
     execSync(command, { cwd: this._path });
   }
-  
-    /**
-   * Install NPM dependencies for a NodeJS project.
-   * @param {{ name: string, version: string}[] | string[]} dependencies the dependencies.
-   */
+
+  /**
+ * Install NPM dependencies for a NodeJS project.
+ * @param {{ name: string, version: string}[] | string[]} dependencies the dependencies.
+ */
   _installDependencies(dependencies) {
     let installCommand = "npm install -E";
     for (const dependency of dependencies) {

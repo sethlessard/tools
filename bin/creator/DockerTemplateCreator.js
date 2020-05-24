@@ -1,21 +1,15 @@
 const path = require("path");
 
-const TemplateReader = require("../reader/TemplateReader");
-const TemplateWriter = require("../writer/TemplateWriter");
+const TemplateCreator = require("./TemplateCreator");
 
-class DockerTemplateCreator {
+class DockerTemplateCreator extends TemplateCreator {
 
   /**
    * DockerTemplateCreator constructor.
    * @param {object} argv the arguements passed to the tools command
    */
   constructor(argv) {
-    this._positionalArgs = argv["_"];
-    this._argv = argv;
-    this._type = this._positionalArgs[2];
-
-    this._templateReader = new TemplateReader("docker");
-    this._templateWriter = new TemplateWriter();
+    super("docker", argv);
 
     // binding
     this.create = this.create.bind(this);
@@ -44,7 +38,8 @@ class DockerTemplateCreator {
    * Create a Dockerfile.
    */
   _createDockerFile() {
-    const fileName = (this._positionalArgs.length >= 4) ? this._positionalArgs[3] : "Dockerfile";    const imageName = this._argv["image"];
+    const fileName = (this._positionalArgs.length >= 4) ? this._positionalArgs[3] : "Dockerfile";
+    const imageName = this._argv["image"];
     const filePath = path.join(process.cwd(), `${fileName}`);
 
     // read the templates
