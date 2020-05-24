@@ -1,5 +1,5 @@
 const fs = require("fs");
-const DirectoryCreator = require("../creator/DirectoryCreator");
+const getDirectoryCreatorInstance = require("../creator/DirectoryCreator");
 
 class TemplateWriter {
 
@@ -11,7 +11,7 @@ class TemplateWriter {
    * @param {object} params the template parameters.
    */
   write(path, template, params) {
-    const dc = new DirectoryCreator();
+    const dc = getDirectoryCreatorInstance();
     // populate the template
     const populatedTemplate = this._populateTemplate(template, params);
 

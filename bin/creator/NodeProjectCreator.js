@@ -3,24 +3,22 @@ const fs = require("fs");
 const fse = require("fs-extra");
 const path = require("path");
 
+const ProjectCreator = require("./ProjectCreator");
 const JsonReader = require("../reader/JsonReader");
 const JsonWriter = require("../writer/JsonWriter");
 
 const SIMPLE_API_PATH = "templates/projects/node/simple-api";
 const SIMPLE_SOCKETIO_PATH = "templates/projects/node/simple-socketio-server";
 
-class NodeCreator {
+class NodeProjectCreator extends ProjectCreator {
 
   /**
-   * NodeCreator constructor.
+   * NodeProjectCreator constructor.
    * @param {string} appBase the path to the base of the tools app.
    * @param {object} argv the arguments passed to the tools command.
    */
   constructor(appBase, argv) {
-    this._appBase = appBase;
-    const positionalArgs = argv["_"];
-    this._type = positionalArgs[2];
-    this._path = positionalArgs[3];
+    super(appBase, argv);
     this._packagePath = path.join(this._path, "package.json");
 
     this._jsonReader = new JsonReader();
@@ -206,4 +204,4 @@ class NodeCreator {
   }
 }
 
-module.exports = NodeCreator;
+module.exports = NodeProjectCreator;

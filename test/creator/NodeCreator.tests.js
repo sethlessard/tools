@@ -3,10 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = require("rimraf");
 
-const NodeCreator = require("../../bin/creator/NodeCreator");
+const NodeProjectCreator = require("../../bin/creator/NodeProjectCreator");
 const appBase = path.dirname(path.dirname(__dirname));
 
-describe("NodeCreator", () => {
+describe("NodeProjectCreator", () => {
   beforeEach(done => {
     rimraf(".tmp", done);
   });
@@ -17,7 +17,7 @@ describe("NodeCreator", () => {
 
   it("Should be able to create a simple NodeJS api", () => {
     const appPath = path.join(".tmp", "nodejs-simple-api");
-    const creator = new NodeCreator(appBase, {
+    const creator = new NodeProjectCreator(appBase, {
       _: ["create", "node", "api", appPath],
     });
     creator.create();

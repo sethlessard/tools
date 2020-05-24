@@ -6,7 +6,7 @@ let _instance = null;
  * @returns {$1} the $1 instance.
  */
 const get$1Instance = () => {
-  if (_instance == null) {
+  if (_instance === null) {
     _instance = new $1();
   }
   return _instance;

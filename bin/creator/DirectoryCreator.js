@@ -1,8 +1,21 @@
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
+
+let _instance = null;
+
+/**
+ * Get the DirectoryCreator instance.
+ * @returns {DirectoryCreator} the DirectoryCreator instance.
+ */
+const getDirectoryCreatorInstance = () => {
+  if (_instance === null) {
+    _instance = new DirectoryCreator();
+  }
+  return _instance;
+};
 
 class DirectoryCreator {
-  
+
   // TODO: unit test
   /**
    * Create the directories necessary for a given file.
@@ -13,4 +26,4 @@ class DirectoryCreator {
   }
 }
 
-module.exports = DirectoryCreator;
+module.exports = getDirectoryCreatorInstance;

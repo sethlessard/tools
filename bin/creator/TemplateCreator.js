@@ -16,6 +16,11 @@ class TemplateCreator {
     this._templateReader = new TemplateReader(type);
     this._templateWriter = new TemplateWriter();
   }
+
+  /**
+   * Create the template
+   */
+  create() { }
 }
 
 module.exports = TemplateCreator;

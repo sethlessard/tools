@@ -11,7 +11,7 @@ const CTemplateCreator = require("./creator/CTemplateCreator");
 const CppTemplateCreator = require("./creator/CppTemplateCreator");
 const DockerTemplateCreator = require("./creator/DockerTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
-const NodeCreator = require("./creator/NodeCreator");
+const NodeProjectCreator = require("./creator/NodeProjectCreator");
 const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
 const ReactProjectCreator = require("./creator/ReactProjectCreator");
 const SystemdTemplateCreator = require("./creator/SystemdTemplateCreator");
@@ -26,7 +26,7 @@ const create = () => {
     showCreateHelp();
   }
 
-  const node = new NodeCreator(global.appRoot, argv);
+  const node = new NodeProjectCreator(global.appRoot, argv);
   const react = new ReactProjectCreator(global.appRoot, argv);
   switch (positionalArgs[1]) {
     case "node":
@@ -121,8 +121,8 @@ const template = () => {
   }
 };
 
-process.on("SIGINT", function() {
-  
+process.on("SIGINT", function () {
+
 });
 
 main();
