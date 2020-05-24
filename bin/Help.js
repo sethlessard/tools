@@ -2,10 +2,10 @@
 const CREATE_HELP = `
 tools create [language] [projectType]         Create a new project.
   [language]:
-    - node                                    NodeJS project
-    - python                                  Python project
     - c                                       C project
     - cpp or c++                              C++ project
+    - node                                    NodeJS project
+    - python                                  Python project
     - react                                   ReactJS project
   [projectType]:
     - api                                     Basic API (node & python)
@@ -17,17 +17,19 @@ tools create [language] [projectType]         Create a new project.
 const TEMPLATE_HELP = `
 tools template [language] [templateType]      Create a file based off of a template.
   [language]:
-    - javascript                              JavaScript template
-    - python                                  Python template
-    - html                                    HTML template
-    - css                                     CSS template
-    - docker                                  Docker template
     - c                                       C template
     - cpp or c++                              C++ template
+    - css                                     CSS template
+    - html                                    HTML template
+    - docker                                  Docker template
+    - javascript                              JavaScript template
+    - python                                  Python template
+    - systemd                                 systemd template
   [templateType]:
     - class                                   Class template (cpp/c++, javascript, python)
-    - singleton                               Singleton template (cpp/c++, javascript, python)
     - main                                    Main entrypoint file (c, cpp/c++, python)
+    - minecraft                               Minecraft Services template (systemd)
+    - singleton                               Singleton template (cpp/c++, javascript, python)
 `.trim();
 
 /**
