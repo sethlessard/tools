@@ -7,14 +7,13 @@ global.appRoot = path.dirname(__dirname);
 const argv = require("minimist")(process.argv.slice(2));
 
 // import local modules
-const CTemplateCreator = require("./creator/CTemplateCreator");
-const CppTemplateCreator = require("./creator/CppTemplateCreator");
-const DockerTemplateCreator = require("./creator/DockerTemplateCreator");
-const JavascriptTemplateCreator = require("./creator/JavascriptTemplateCreator");
-const NodeProjectCreator = require("./creator/NodeProjectCreator");
-const PythonTemplateCreator = require("./creator/PythonTemplateCreator");
-const ReactProjectCreator = require("./creator/ReactProjectCreator");
-const SystemdTemplateCreator = require("./creator/SystemdTemplateCreator");
+const CTemplateCreator = require("./creator/template/CTemplateCreator");
+const CppTemplateCreator = require("./creator/template/CppTemplateCreator");
+const DockerTemplateCreator = require("./creator/template/DockerTemplateCreator");
+const JavascriptTemplateCreator = require("./creator/template/JavascriptTemplateCreator");
+const NodeProjectCreator = require("./creator/project/NodeProjectCreator");
+const PythonTemplateCreator = require("./creator/template/PythonTemplateCreator");
+const SystemdTemplateCreator = require("./creator/template/SystemdTemplateCreator");
 const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
 /**
@@ -27,13 +26,9 @@ const create = () => {
   }
 
   const node = new NodeProjectCreator(global.appRoot, argv);
-  const react = new ReactProjectCreator(global.appRoot, argv);
   switch (positionalArgs[1]) {
     case "node":
       node.create();
-      break;
-    case "react":
-      react.create();
       break;
     case "c":
     case "cpp":

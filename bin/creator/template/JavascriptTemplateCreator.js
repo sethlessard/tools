@@ -45,11 +45,7 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const className = this._positionalArgs[3];
     const filePath = path.join(process.cwd(), `${className}.js`);
 
-    // read the template
-    const template = this._templateReader.read("class");
-
-    // populate & write the template
-    this._templateWriter.write(filePath, template, { $1: className });
+    this._populateTemplate(filePath, "class", { $1: className });
   }
 
   /**
@@ -59,11 +55,7 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const className = this._positionalArgs[3];
     const filePath = path.join(process.cwd(), `${className}.js`);
 
-    // read the template
-    const template = this._templateReader.read("class.es6");
-
-    // populate & write the template
-    this._templateWriter.write(filePath, template, { $1: className });
+    this._populateTemplate(filePath, "class.es6", { $1: className });
   }
 
   /**
@@ -73,11 +65,7 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const className = this._positionalArgs[3];
     const filePath = path.join(process.cwd(), `${className}.js`);
 
-    // read the template
-    const template = this._templateReader.read("singleton");
-
-    // populate & write the template
-    this._templateWriter.write(filePath, template, { $1: className });
+    this._populateTemplate(filePath, "singleton", { $1: className });
   }
 
   /**
@@ -87,11 +75,7 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const className = this._positionalArgs[3];
     const filePath = path.join(process.cwd(), `${className}.js`);
 
-    // read the template
-    const template = this._templateReader.read("singleton.es6");
-
-    // populate & write the template
-    this._templateWriter.write(filePath, template, { $1: className });
+    this._populateTemplate(filePath, "singleton.es6", { $1: className });
   }
 
   /**
@@ -101,11 +85,7 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const className = this._positionalArgs[3];
     const filePath = path.join(process.cwd(), `${className}.tests.js`);
 
-    // read the template
-    const template = this._templateReader.read("mochachai.unit");
-
-    // populate & write the template
-    this._templateWriter.write(filePath, template, { $1: className });
+    this._populateTemplate(filePath, "mochachai.unit", { $1: className });
   }
 }
 

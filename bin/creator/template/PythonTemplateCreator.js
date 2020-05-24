@@ -42,11 +42,7 @@ class PythonTemplateCreator extends TemplateCreator {
     const ext = (this._argv["extends"]) ? this._argv["extends"] : "object";
     const filePath = path.join(process.cwd(), `${className}.py`);
 
-    // read the templates
-    const template = this._templateReader.read("class");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, { $1: className, $2: ext });
+    this._populateTemplate(filePath, "class", { $1: className, $2: ext });
   }
 
   /**
@@ -56,11 +52,7 @@ class PythonTemplateCreator extends TemplateCreator {
     const fileName = (this._positionalArgs[3]) ? this._positionalArgs[3] : "main";
     const filePath = path.join(process.cwd(), `${fileName}.py`);
 
-    // read the templates
-    const template = this._templateReader.read("main");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, {});
+    this._populateTemplate(filePath, "main");
   }
 }
 

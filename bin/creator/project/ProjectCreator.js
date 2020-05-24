@@ -1,3 +1,4 @@
+const { execSync } = require("child_process");
 
 class ProjectCreator {
 
@@ -17,6 +18,14 @@ class ProjectCreator {
    * Create the project.
    */
   create() { }
+
+  /**
+   * Execte a command in the project's directory.
+   * @param {string} command the command to execute.
+   */
+  _inDir(command) {
+    execSync(command, { cwd: this._path });
+  }
 }
 
 module.exports = ProjectCreator;

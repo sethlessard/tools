@@ -42,13 +42,7 @@ class DockerTemplateCreator extends TemplateCreator {
     const imageName = this._argv["image"];
     const filePath = path.join(process.cwd(), `${fileName}`);
 
-    // read the templates
-    const template = this._templateReader.read("Dockerfile");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, {
-      $1: imageName || "ubuntu:18.04"
-    });
+    this._populateTemplate(filePath, "Dockerfile", { $1: imageName || "ubuntu:18.04" });
   }
 
   /**
@@ -59,13 +53,7 @@ class DockerTemplateCreator extends TemplateCreator {
     const version = this._argv["version"];
     const filePath = path.join(process.cwd(), `${fileName}`);
 
-    // read the templates
-    const template = this._templateReader.read("Dockerfile.node");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, {
-      $1: version || "12"
-    });
+    this._populateTemplate(filePath, "Dockerfile.node", { $1: version || "12" });
   }
 }
 

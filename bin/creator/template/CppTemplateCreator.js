@@ -41,13 +41,8 @@ class CppTemplateCreator extends TemplateCreator {
     const classPath = path.join(process.cwd(), `${className}.cpp`);
     const headerPath = path.join(process.cwd(), `${className}.hpp`);
 
-    // read the templates
-    const classtemplate = this._templateReader.read("class");
-    const headerTemplate = this._templateReader.read("class.header");
-
-    // populate & write the templates
-    this._templateWriter.write(classPath, classtemplate, { $1: className });
-    this._templateWriter.write(headerPath, headerTemplate, { $1: className });
+    this._populateTemplate(classPath, "class", { $1: className });
+    this._populateTemplate(headerPath, "class.header", { $1: className });
   }
 
   /**
@@ -55,12 +50,7 @@ class CppTemplateCreator extends TemplateCreator {
    */
   _createMain() {
     const filePath = path.join(process.cwd(), `main.cpp`);
-
-    // read the templates
-    const template = this._templateReader.read("main");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, {});
+    this._populateTemplate(filePath, "main");
   }
 
   /**
@@ -71,13 +61,8 @@ class CppTemplateCreator extends TemplateCreator {
     const classPath = path.join(process.cwd(), `${className}.cpp`);
     const headerPath = path.join(process.cwd(), `${className}.hpp`);
 
-    // read the templates
-    const classtemplate = this._templateReader.read("singleton");
-    const headerTemplate = this._templateReader.read("singleton.header");
-
-    // populate & write the templates
-    this._templateWriter.write(classPath, classtemplate, { $1: className });
-    this._templateWriter.write(headerPath, headerTemplate, { $1: className });
+    this._populateTemplate(classPath, "singleton", { $1: className });
+    this._populateTemplate(headerPath, "singleton.header", { $1: className });
   }
 }
 

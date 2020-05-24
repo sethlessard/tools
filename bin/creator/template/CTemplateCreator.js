@@ -32,12 +32,7 @@ class CTemplateCreator extends TemplateCreator {
    */
   _createMain() {
     const filePath = path.join(process.cwd(), `main.c`);
-
-    // read the templates
-    const template = this._templateReader.read("main");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, {});
+    this._populateTemplate(filePath, "main");
   }
 }
 

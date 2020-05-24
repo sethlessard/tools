@@ -36,11 +36,7 @@ class SystemdTemplateCreator extends TemplateCreator {
     const memory = this._argv["memory"] || "3G";
     const filePath = path.join(process.cwd(), `minecraft@.service`);
 
-    // read the templates
-    const template = this._templateReader.read("minecraft");
-
-    // populate & write the templates
-    this._templateWriter.write(filePath, template, { $1: user, $2: memory });
+    this._populateTemplate(filePath, "minecraft", { $1: user, $2: memory });
   }
 }
 

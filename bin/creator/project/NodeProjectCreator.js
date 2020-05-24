@@ -4,8 +4,8 @@ const fse = require("fs-extra");
 const path = require("path");
 
 const ProjectCreator = require("./ProjectCreator");
-const JsonReader = require("../reader/JsonReader");
-const JsonWriter = require("../writer/JsonWriter");
+const JsonReader = require("../../reader/JsonReader");
+const JsonWriter = require("../../writer/JsonWriter");
 
 const SIMPLE_API_PATH = "templates/projects/node/simple-api";
 const SIMPLE_SOCKETIO_PATH = "templates/projects/node/simple-socketio-server";
@@ -27,7 +27,7 @@ class NodeProjectCreator extends ProjectCreator {
 
   create() {
     // initialize the directory
-    this._initializeDirectory();
+    this._createDirectory();
 
     // configure the package.json
     const pack = this._jsonReader.read(this._packagePath);
@@ -37,10 +37,16 @@ class NodeProjectCreator extends ProjectCreator {
 
     switch (this._type) {
       case "api":
-        this._initializeApi(pack);
+        this._createApi(pack);
+        break;
+      case "react-app":
+        this._createReactApp();
+        break;
+      case "react-library":
+        this._createReactLibrary();
         break;
       case "socket.io-server":
-        this._initializeSocketioServer(pack);
+        this._createSocketioServer(pack);
         break;
       default:
         console.log(`"${this._type}" is not a registered NodeJS project type.`);
@@ -61,18 +67,10 @@ class NodeProjectCreator extends ProjectCreator {
   }
 
   /**
-   * Execte a command in the project's directory.
-   * @param {string} command the command to execute.
-   */
-  _inDir(command) {
-    execSync(command, { cwd: this._path });
-  }
-
-  /**
    * Initialize a simple API project.
    * @param {object} the package.json file.
    */
-  _initializeApi(pack) {
+  _createApi(pack) {
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
@@ -112,7 +110,7 @@ class NodeProjectCreator extends ProjectCreator {
   /**
    * Initialize the project directory.
    */
-  _initializeDirectory() {
+  _createDirectory() {
     // create the directory
     if (!fs.existsSync(this._path)) {
       fs.mkdirSync(this._path, { recursive: true });
@@ -127,10 +125,66 @@ class NodeProjectCreator extends ProjectCreator {
   }
 
   /**
+ * Configure the dependencies and devDependencies to use exact versions.
+ * @param {object} pack the package.json.
+ */
+  _configureExactDepencies(pack) {
+    // TODO: implement
+    return pack;
+  }
+
+  /**
+   * Create a new React app.
+   */
+  _createReactApp() {
+    execSync(`${path.join(this._appBase, "node_modules/.bin/create-react-app")} ${this._path}`);
+
+    // configure the package.json
+    const pack = this._jsonReader.read(this._packagePath);
+    pack.version = "0.0.1";
+    pack.description = "description here"; // TODO: description
+    pack.author = "Seth Lessard <sethlessard@outlook.com>";
+    // TODO: pack.repository
+    // write the package.json file.
+    this._jsonWriter.write(this._packagePath, pack);
+
+    // define the dependencies needed
+    const dependencies = [
+      "@react-uix/web",
+      "styled-components"
+    ];
+
+    // install the dependencies
+    this._installDependencies(dependencies);
+  }
+
+  /**
+   * Create a new React library.
+   */
+  _createReactLibrary() {
+    execSync(`${path.join(this._appBase, "node_modules/.bin/create-react-library")} --no-git --skip-prompts ${this._path}`);
+
+    // configure the package.json
+    const pack = this._jsonReader.read(this._packagePath);
+    pack.version = "0.0.1";
+    pack.description = "description here"; // TODO: description
+    pack.author = "Seth Lessard <sethlessard@outlook.com>";
+    // TODO: pack.repository
+    // write the package.json file.
+    this._jsonWriter.write(this._packagePath, pack);
+
+    // define the dependencies needed
+    const dependencies = ["styled-components"];
+
+    // install the dependencies
+    this._installDependencies(dependencies);
+  }
+
+  /**
    * Initialize a simple socket.io server project.
    * @param {object} the package.json file.
    */
-  _initializeSocketioServer(pack) {
+  _createSocketioServer(pack) {
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
