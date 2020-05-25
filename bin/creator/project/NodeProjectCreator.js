@@ -1,14 +1,10 @@
 const { execSync } = require("child_process");
-const fs = require("fs");
 const fse = require("fs-extra");
 const path = require("path");
 
 const ProjectCreator = require("./ProjectCreator");
 const JsonReader = require("../../reader/JsonReader");
 const JsonWriter = require("../../writer/JsonWriter");
-
-const SIMPLE_API_PATH = "templates/projects/node/simple-api";
-const SIMPLE_SOCKETIO_PATH = "templates/projects/node/simple-socketio-server";
 
 class NodeProjectCreator extends ProjectCreator {
 
@@ -18,7 +14,7 @@ class NodeProjectCreator extends ProjectCreator {
    * @param {object} argv the arguments passed to the tools command.
    */
   constructor(appBase, argv) {
-    super(appBase, argv);
+    super("node", appBase, argv);
     this._packagePath = path.join(this._path, "package.json");
 
     this._jsonReader = new JsonReader();
@@ -104,21 +100,14 @@ class NodeProjectCreator extends ProjectCreator {
     this._installDevDependencies(devDependencies);
 
     // copy the template
-    fse.copySync(path.join(this._appBase, SIMPLE_API_PATH), this._path);
+    fse.copySync(path.join(this._templateBase, "simple-api"), this._path);
   }
 
   /**
    * Initialize the project directory.
    */
   _createDirectory() {
-    // create the directory
-    if (!fs.existsSync(this._path)) {
-      fs.mkdirSync(this._path, { recursive: true });
-    } else {
-      // TODO: ask if we should delete/create the directory. For now, just exit.
-      console.error(`${this._path} already exists.`);
-      process.exit(1);
-    }
+    super._createDirectory();
 
     // npm init
     this._inDir("npm init --yes");
@@ -218,7 +207,7 @@ class NodeProjectCreator extends ProjectCreator {
     this._installDevDependencies(devDependencies);
 
     // copy the template
-    fse.copySync(path.join(this._appBase, SIMPLE_SOCKETIO_PATH), this._path);
+    fse.copySync(path.join(this._templateBase, "simple-socketio-server"), this._path);
   }
 
   /**

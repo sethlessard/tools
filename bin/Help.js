@@ -10,6 +10,7 @@ tools create [language] [projectType]         Create a new project.
     - api                                     Basic API (node & python)
     - react-app                               Basic React App (node)
     - react-library                           Basic React Library (node)
+    - simple                                  Simple project (c, cpp/c++)
     - socket.io-server                        Basic socket.io server (node)
 `.trim();
 

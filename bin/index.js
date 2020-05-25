@@ -7,6 +7,8 @@ global.appRoot = path.dirname(__dirname);
 const argv = require("minimist")(process.argv.slice(2));
 
 // import local modules
+const CProjectCreator = require("./creator/project/CProjectCreator");
+const CppProjectCreator = require("./creator/project/CppProjectCreator");
 const CTemplateCreator = require("./creator/template/CTemplateCreator");
 const CppTemplateCreator = require("./creator/template/CppTemplateCreator");
 const DockerTemplateCreator = require("./creator/template/DockerTemplateCreator");
@@ -26,13 +28,19 @@ const create = () => {
   }
 
   const node = new NodeProjectCreator(global.appRoot, argv);
+  const c = new CProjectCreator(global.appRoot, argv);
+  const cpp = new CppProjectCreator(global.appRoot, argv);
   switch (positionalArgs[1]) {
     case "node":
       node.create();
       break;
     case "c":
+      c.create();
+      break;
     case "cpp":
     case "c++":
+      cpp.create();
+      break;
     case "python":
       console.error(`"${positionalArgs[1]}" not yet implemented.`);
       process.exit(1);
