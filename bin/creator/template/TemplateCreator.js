@@ -1,3 +1,4 @@
+const { enforceFileExtension } = require("../../Util");
 const TemplateReader = require("../../reader/TemplateReader");
 const TemplateWriter = require("../../writer/TemplateWriter");
 
@@ -21,6 +22,16 @@ class TemplateCreator {
    * Create the template
    */
   create() { }
+
+  /**
+   * Make sure a file has the correct extension. 
+   * @param {string} fileName the name of the file.
+   * @param {string} fileExtension the file extension.
+   * @returns {string} the proper file name.
+   */
+  _enforceFileExtension(fileName, fileExtension) {
+    return enforceFileExtension(fileName, fileExtension);
+  }
 
   /**
    * Read and populate a template file.

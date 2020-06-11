@@ -12,6 +12,7 @@ const CppProjectCreator = require("./creator/project/CppProjectCreator");
 const CTemplateCreator = require("./creator/template/CTemplateCreator");
 const CppTemplateCreator = require("./creator/template/CppTemplateCreator");
 const DockerTemplateCreator = require("./creator/template/DockerTemplateCreator");
+const HtmlTemplateCreator = require("./creator/template/HtmlTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/template/JavascriptTemplateCreator");
 const NodeProjectCreator = require("./creator/project/NodeProjectCreator");
 const PythonTemplateCreator = require("./creator/template/PythonTemplateCreator");
@@ -19,9 +20,45 @@ const SystemdTemplateCreator = require("./creator/template/SystemdTemplateCreato
 const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
 /**
- * Create a new something.
+ * Create a C template.
  */
-const create = () => {
+const createCTemplate = () => new CTemplateCreator(argv).create();
+
+/**
+ * Create a C++ template.
+ */
+const createCppTemplate = () => new CppTemplateCreator(argv).create();
+
+/**
+ * Create a Docker template.
+ */
+const createDockerTemplate = () => new DockerTemplateCreator(argv).create();
+
+/**
+ * Create a HTML template.
+ */
+const createHtmlTemplate = () => new HtmlTemplateCreator(argv).create();
+
+/**
+ * Create a JavaScript template.
+ */
+const createJavascriptTemplate = () => new JavascriptTemplateCreator(argv).create();
+
+/**
+ * Create a Python template.
+ */
+const createPythonTemplate = () => new PythonTemplateCreator(argv).create();
+
+/**
+ * Create a SystemD service template.
+ */
+const createSystemdTemplate = () => new SystemdTemplateCreator(argv).create();
+
+
+/**
+ * Create a new project.
+ */
+const createProject = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
     showCreateHelp();
@@ -52,6 +89,45 @@ const create = () => {
   }
 };
 
+const createTemplate = () => {
+  const positionalArgs = argv["_"];
+  if (positionalArgs.length <= 1) {
+    showTemplateHelp();
+  }
+
+  switch (positionalArgs[1]) {
+    case "c":
+      createCTemplate();
+      break;
+    case "cpp":
+    case "c++":
+      createCppTemplate();
+      break;
+    case "docker":
+      createDockerTemplate();
+      break;
+    case "html":
+      createHtmlTemplate();
+      break;
+    case "javascript":
+      createJavascriptTemplate();
+      break;
+    case "python":
+      createPythonTemplate();
+      break;
+    case "systemd":
+      createSystemdTemplate();
+      break;
+    case "css":
+      // TODO: implement
+      console.error(`Templates for "${positionalArgs[1]}" are not completed yet.`);
+      break;
+    default:
+      showTemplateHelp();
+      break;
+  }
+}
+
 /**
  * Main.
  */
@@ -67,60 +143,13 @@ const main = () => {
 
   switch (positionalArgs[0]) {
     case "create":
-      create();
+      createProject();
       break;
     case "template":
-      template();
+      createTemplate();
       break;
     default:
       showHelp();
-  }
-};
-
-/**
- * Create a new file based off of a template.
- */
-const template = () => {
-  const positionalArgs = argv["_"];
-  if (positionalArgs.length <= 1) {
-    showTemplateHelp();
-  }
-
-  const c = new CTemplateCreator(argv);
-  const cpp = new CppTemplateCreator(argv);
-  const docker = new DockerTemplateCreator(argv);
-  const js = new JavascriptTemplateCreator(argv);
-  const python = new PythonTemplateCreator(argv);
-  const systemd = new SystemdTemplateCreator(argv);
-
-  switch (positionalArgs[1]) {
-    case "c":
-      c.create();
-      break;
-    case "cpp":
-    case "c++":
-      cpp.create();
-      break;
-    case "docker":
-      docker.create();
-      break;
-    case "javascript":
-      js.create();
-      break;
-    case "python":
-      python.create();
-      break;
-    case "systemd":
-      systemd.create();
-      break;
-    case "css":
-    case "html":
-      // TODO: implement
-      console.error(`Templates for "${positionalArgs[1]}" are not completed yet.`);
-      break;
-    default:
-      showHelp();
-      break;
   }
 };
 
