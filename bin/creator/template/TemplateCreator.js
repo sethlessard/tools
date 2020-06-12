@@ -1,4 +1,4 @@
-const { enforceFileExtension } = require("../../Util");
+const { enforceFileExtension, stripFileExtension } = require("../../Util");
 const TemplateReader = require("../../reader/TemplateReader");
 const TemplateWriter = require("../../writer/TemplateWriter");
 
@@ -45,6 +45,13 @@ class TemplateCreator {
 
     // populate & write the templates
     this._templateWriter.write(filePath, template, templateContents);
+  }
+
+  /**
+   * Strip the file extension from a file name.
+   */
+  _stripFileExtension(fileName) {
+    return stripFileExtension(fileName);
   }
 }
 

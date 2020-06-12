@@ -12,6 +12,19 @@ const enforceFileExtension = (fileName, fileExt) => {
   return fileName;
 }
 
+/**
+ * Remove a file extension from a file.
+ * @param {string} fileName the name of the file.
+ * @returns {string} the name of the file without the file extension.
+ */
+const stipFileExtension = (fileName) => {
+  if (fileName.lastIndexOf(".") > 0) {
+    return fileName.substring(0, fileName.lastIndexOf("."));
+  }
+  return fileName;
+}
+
 module.exports = {
-  enforceFileExtension
+  enforceFileExtension,
+  stipFileExtension
 };

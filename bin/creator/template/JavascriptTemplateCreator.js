@@ -42,9 +42,8 @@ class JavascriptTemplateCreator extends TemplateCreator {
    * Create a JavaScript class.
    */
   _createClass() {
-    const className = this._positionalArgs[3];
-    const filePath = path.join(process.cwd(), `${className}.js`);
-
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const className = this._stripFileExtension(this._positionalArgs[3]);
     this._populateTemplate(filePath, "class", { $1: className });
   }
 
@@ -52,9 +51,8 @@ class JavascriptTemplateCreator extends TemplateCreator {
    * Create an ES6+ JavaScript class.
    */
   _createClassES6() {
-    const className = this._positionalArgs[3];
-    const filePath = path.join(process.cwd(), `${className}.js`);
-
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const className = this._stripFileExtension(this._positionalArgs[3]);
     this._populateTemplate(filePath, "class.es6", { $1: className });
   }
 
@@ -62,9 +60,8 @@ class JavascriptTemplateCreator extends TemplateCreator {
    * Create a singleton class.
    */
   _createSingleton() {
-    const className = this._positionalArgs[3];
-    const filePath = path.join(process.cwd(), `${className}.js`);
-
+    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     this._populateTemplate(filePath, "singleton", { $1: className });
   }
 
@@ -72,9 +69,8 @@ class JavascriptTemplateCreator extends TemplateCreator {
    * Create an ES6+ singleton class.
    */
   _createSingletonES6() {
-    const className = this._positionalArgs[3];
-    const filePath = path.join(process.cwd(), `${className}.js`);
-
+    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     this._populateTemplate(filePath, "singleton.es6", { $1: className });
   }
 
@@ -82,9 +78,8 @@ class JavascriptTemplateCreator extends TemplateCreator {
    * Create a mocha + chai unit test file.
    */
   _createTest() {
-    const className = this._positionalArgs[3];
-    const filePath = path.join(process.cwd(), `${className}.tests.js`);
-
+    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".tests.js"));
     this._populateTemplate(filePath, "mochachai.unit", { $1: className });
   }
 }

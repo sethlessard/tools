@@ -38,10 +38,9 @@ class PythonTemplateCreator extends TemplateCreator {
    * Create a new python class file.
    */
   _createClass() {
-    const className = this._positionalArgs[3];
-    const ext = (this._argv["extends"]) ? this._argv["extends"] : "object";
-    const filePath = path.join(process.cwd(), `${className}.py`);
-
+    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const ext = this._argv["extends"] || "object";
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".py"));
     this._populateTemplate(filePath, "class", { $1: className, $2: ext });
   }
 
@@ -49,9 +48,7 @@ class PythonTemplateCreator extends TemplateCreator {
    * Create a main.py file.
    */
   _createMain() {
-    const fileName = (this._positionalArgs[3]) ? this._positionalArgs[3] : "main";
-    const filePath = path.join(process.cwd(), `${fileName}.py`);
-
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3] || "main.py", ".py"));
     this._populateTemplate(filePath, "main");
   }
 }

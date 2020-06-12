@@ -31,7 +31,7 @@ class CTemplateCreator extends TemplateCreator {
    * Create a main.c file.
    */
   _createMain() {
-    const filePath = path.join(process.cwd(), `main.c`);
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3] || "main.c", ".c"));
     this._populateTemplate(filePath, "main");
   }
 }
