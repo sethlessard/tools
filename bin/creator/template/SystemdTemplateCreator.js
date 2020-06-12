@@ -22,6 +22,9 @@ class SystemdTemplateCreator extends TemplateCreator {
       case "minecraft":
         this._createMinecraft();
         break;
+      case "simple":
+        this._createSimple();
+        break;
       default:
         console.error(`"${this._type}" is not a registered systemd template type.`);
         break;
@@ -37,6 +40,25 @@ class SystemdTemplateCreator extends TemplateCreator {
     const filePath = path.join(process.cwd(), `minecraft@.service`);
 
     this._populateTemplate(filePath, "minecraft", { $1: user, $2: memory });
+  }
+
+  /**
+   * Create a simple Systemd service
+   */
+  _createSimple() {
+    const description = this._argv["description"];
+    const user = this._argv["user"] || "seth";
+    const executable = this._argv["executable"];
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".service"));
+    if (!description) {
+      console.error("--description must be set");
+      process.exit(1);
+    }
+    if (!executable) {
+      console.error("--executable must be set.");
+      process.exit();
+    }
+    this._populateTemplate(filePath, "simple", { $1: description, $2: user, $3: executable });
   }
 }
 

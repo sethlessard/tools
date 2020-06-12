@@ -1,5 +1,5 @@
 const fs = require("fs");
-const getDirectoryCreatorInstance = require("../creator/DirectoryCreator");
+const { createDirectoryTo } = require("../util/DirectoryUtils");
 
 class TemplateWriter {
 
@@ -11,12 +11,11 @@ class TemplateWriter {
    * @param {object} params the template parameters.
    */
   write(path, template, params) {
-    const dc = getDirectoryCreatorInstance();
     // populate the template
     const populatedTemplate = this._populateTemplate(template, params);
 
     // write the file
-    dc.createDirectoryTo(path);
+    createDirectoryTo(path);
     fs.writeFileSync(path, populatedTemplate);
   }
 

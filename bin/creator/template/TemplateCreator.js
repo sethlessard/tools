@@ -1,4 +1,4 @@
-const { enforceFileExtension, stripFileExtension } = require("../../Util");
+const { enforceFileExtension, stripFileExtension } = require("../../util/FileUtils");
 const TemplateReader = require("../../reader/TemplateReader");
 const TemplateWriter = require("../../writer/TemplateWriter");
 
