@@ -16,6 +16,7 @@ const HtmlTemplateCreator = require("./creator/template/HtmlTemplateCreator");
 const JavascriptTemplateCreator = require("./creator/template/JavascriptTemplateCreator");
 const NodeProjectCreator = require("./creator/project/NodeProjectCreator");
 const PythonTemplateCreator = require("./creator/template/PythonTemplateCreator");
+const ReactTemplateCreator = require("./creator/template/ReactTemplateCreator");
 const SystemdTemplateCreator = require("./creator/template/SystemdTemplateCreator");
 const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
 
@@ -50,10 +51,14 @@ const createJavascriptTemplate = () => new JavascriptTemplateCreator(argv).creat
 const createPythonTemplate = () => new PythonTemplateCreator(argv).create();
 
 /**
+ * Create a React template.
+ */
+const createReactTemplate = () => new ReactTemplateCreator(argv).create();
+
+/**
  * Create a SystemD service template.
  */
 const createSystemdTemplate = () => new SystemdTemplateCreator(argv).create();
-
 
 /**
  * Create a new project.
@@ -114,6 +119,9 @@ const createTemplate = () => {
       break;
     case "python":
       createPythonTemplate();
+      break;
+    case "react":
+      createReactTemplate();
       break;
     case "systemd":
       createSystemdTemplate();

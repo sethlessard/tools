@@ -1,0 +1,26 @@
+import React from "react";
+import PropTypes from "prop-types";
+import styled from "styled-components";
+
+const Wrapper = styled.div``;
+
+/**
+* Render the $1 component.
+*/
+const $1 = ({ children, style: compStyle }) => {
+  const style = {
+    $2: {
+
+    }
+  };
+  Object.assign(style.$2, compStyle);
+  return (
+    <Wrapper style={style.$2}>{ children }</Wrapper>
+  );
+};
+
+$1.propTypes = {
+  children: PropTypes.node
+};
+
+export default $1;

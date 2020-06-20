@@ -16,6 +16,9 @@ class TemplateCreator {
 
     this._templateReader = new TemplateReader(type);
     this._templateWriter = new TemplateWriter();
+    this._enforceFileExtension = this._enforceFileExtension.bind(this);
+    this._populateTemplate = this._populateTemplate.bind(this);
+    this._stripFileExtension = this._stripFileExtension.bind(this);
   }
 
   /**

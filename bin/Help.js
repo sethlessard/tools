@@ -24,12 +24,18 @@ tools template [language] [templateType]      Create a file based off of a templ
     - docker                                  Docker template
     - javascript                              JavaScript template
     - python                                  Python template
+    - react                                   ReactJS template
     - systemd                                 systemd template
   [templateType]:
+    - cc                                      Class Component template (react)
+    - ccc                                     Connected Class Component template (react)
+    - csfc                                    Connected Stateless Functional Component template (react)
     - class                                   Class template (cpp/c++, javascript, python)
     - main                                    Main entrypoint file (c, cpp/c++, python)
     - minecraft                               Minecraft Services template (systemd)
+    - simple                                  Simple template (html, systemd)
     - singleton                               Singleton template (cpp/c++, javascript, python)
+    - sfc                                     Stateless Functional Component template (react)
 `.trim();
 
 /**

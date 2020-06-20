@@ -1,0 +1,40 @@
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import styled from "styled-components";
+
+const Wrapper = styled.div``;
+
+class $1 extends Component {
+
+  /**
+   * $1 constructor.
+   * @param {object} props the props.
+   */
+  constructor(props) {
+      super(props);
+      this.state = {
+
+      };
+  }
+  
+  /**
+   * Render the $1 component.
+   */
+  render() {
+    const style = {
+      $2: {
+
+      }
+    };
+    Object.assign(style.$2, compStyle);
+    return (
+      <Wrapper style={style.$2}>{ children }</Wrapper>
+    );
+  }
+};
+
+$1.propTypes = {
+  children: PropTypes.node
+};
+
+export default $1;
