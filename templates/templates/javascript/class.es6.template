@@ -1,6 +1,9 @@
 
 class $1 {
 
+  constructor() {
+
+  }
 }
 
 export default $1;

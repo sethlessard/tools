@@ -49,7 +49,7 @@ class $1 extends Component {
       <Wrapper style={style.$2}>{ children }</Wrapper>
     );
   }
-};
+}
 
 $1.propTypes = {
   children: PropTypes.node
