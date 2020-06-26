@@ -23,6 +23,12 @@ class JavascriptTemplateCreator extends TemplateCreator {
       case "class.es6":
         this._createClassES6();
         break;
+      case "express-router":
+        this._createExpressRouter();
+        break;
+      case "express-router.es6":
+        this._createExpressRouterES6();
+        break;
       case "singleton":
         this._createSingleton();
         break;
@@ -54,6 +60,22 @@ class JavascriptTemplateCreator extends TemplateCreator {
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     const className = this._stripFileExtension(this._positionalArgs[3]);
     this._populateTemplate(filePath, "class.es6", { $1: className });
+  }
+
+  /**
+   * Create an Express router template.
+   */
+  _createExpressRouter() {
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    this._populateTemplate(filePath, "express-router");
+  }
+  
+  /**
+   * Create an Express router ES6 template.
+   */
+  _createExpressRouterES6() {
+    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    this._populateTemplate(filePath, "express-router.es6");
   }
 
   /**

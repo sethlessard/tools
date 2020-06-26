@@ -1,0 +1,32 @@
+const { Router } = require("express");
+const router = Router();
+
+/**
+ * Handle GET /
+ */
+router.get('/', (req, res) => {
+  res.send("Not implemented");
+});
+
+/**
+ * Handle POST /
+ **/
+router.post('/', (req, res) => {
+  res.send("Not implemented");
+});
+
+/**
+ * Handle PUT /
+ */
+router.put('/', (req, res) => {
+  res.send("Not implemented");
+});
+
+/**
+ * Handle DELETE /
+ */
+router.delete('/', (req, res) => {
+  res.send("Not implemented");
+});
+
+module.exports = router;

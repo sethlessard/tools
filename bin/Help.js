@@ -31,10 +31,14 @@ tools template [language] [templateType]      Create a file based off of a templ
     - ccc                                     Connected Class Component template (react)
     - csfc                                    Connected Stateless Functional Component template (react)
     - class                                   Class template (cpp/c++, javascript, python)
+    - class.es6                               ES6 Class template (javascrip)
+    - express-router                          Express Router template (javascript)
+    - express-router.es6                      Express Router (ES6) template (javascript)
     - main                                    Main entrypoint file (c, cpp/c++, python)
     - minecraft                               Minecraft Services template (systemd)
     - simple                                  Simple template (html, systemd)
     - singleton                               Singleton template (cpp/c++, javascript, python)
+    - singleton.es6                           ES6 Singleton template (javascript)
     - sfc                                     Stateless Functional Component template (react)
 `.trim();
 
