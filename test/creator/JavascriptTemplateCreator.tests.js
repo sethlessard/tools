@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = require("rimraf");
 
-const JavascriptTemplateCreator = require("../../bin/creator/JavascriptTemplateCreator");
+const JavascriptTemplateCreator = require("../../bin/creator/template/JavascriptTemplateCreator");
 
 describe("JavascriptTemplateCreator", () => {
   beforeEach(done => {

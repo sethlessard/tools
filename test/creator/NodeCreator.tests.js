@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const rimraf = require("rimraf");
 
-const NodeProjectCreator = require("../../bin/creator/NodeProjectCreator");
+const NodeProjectCreator = require("../../bin/creator/project/NodeProjectCreator");
 const appBase = path.dirname(path.dirname(__dirname));
 
 describe("NodeProjectCreator", () => {
