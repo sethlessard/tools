@@ -1,8 +1,9 @@
 const { enforceFileExtension, stripFileExtension } = require("../../util/FileUtils");
 const TemplateReader = require("../../reader/TemplateReader");
 const TemplateWriter = require("../../writer/TemplateWriter");
+const HasHelp = require("../../help/HasHelp");
 
-class TemplateCreator {
+class TemplateCreator extends HasHelp {
 
   /**
    * TemplateCreator constructor.
@@ -10,6 +11,7 @@ class TemplateCreator {
    * @param {object} argv the arguements passed to the t00ls command.
    */
   constructor(type, argv) {
+    super();
     this._positionalArgs = argv["_"];
     this._argv = argv;
     this._type = this._positionalArgs[2];

@@ -35,25 +35,65 @@ class DockerTemplateCreator extends TemplateCreator {
   }
 
   /**
-   * Create a Dockerfile.
+   * Get the Docker template help.
+   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
    */
-  _createDockerFile() {
-    const fileName = (this._positionalArgs.length >= 4) ? this._positionalArgs[3] : "Dockerfile";
-    const imageName = this._argv["image"];
-    const filePath = path.join(process.cwd(), `${fileName}`);
-
-    this._populateTemplate(filePath, "Dockerfile", { $1: imageName || "ubuntu:18.04" });
+  getHelp() {
+    return {
+      description: "Docker templates",
+      help: {
+        dockerfile: {
+          description: "Simple Dockerfile template",
+          args: {
+            3: {
+              description: "The name of the Dockerfile",
+              default: "Dockerfile"
+            },
+            image: {
+              description: "The Docker image to base the Dockerfile off of",
+              default: "ubuntu:18.04"
+            }
+          }
+        },
+        "node.dockerfile": {
+          description: "Simple Node.js Dockerfile template",
+          args: {
+            3: {
+              description: "The name of the Dockerfile",
+              default: "Dockerfile"
+            },
+            version: {
+              description: "The version of Node.js to use",
+              default: 12
+            }
+          }
+        }
+      }
+    };
   }
 
   /**
-   * Create a Dockerfile for a NodeJS.
+   * Create a Dockerfile.
    */
-  _createNodeDockerFile() {
-    const fileName = (this._positionalArgs.length >= 4) ? this._positionalArgs[3] : "Dockerfile";
-    const version = this._argv["version"];
+  _createDockerFile() {
+    const fileName = this._positionalArgs[3] || "Dockerfile";
+    const imageName = this._argv["image"] || "ubuntu:18.04";
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), `${fileName}`);
 
-    this._populateTemplate(filePath, "Dockerfile.node", { $1: version || "12" });
+    this._populateTemplate(filePath, "Dockerfile", { $1: imageName });
+  }
+
+  /**
+   * Create a Dockerfile for a Node.JS.
+   */
+  _createNodeDockerFile() {
+    const fileName = this._positionalArgs[3] || "Dockerfile";
+    const version = this._argv["version"] || 12;
+    // TODO: accept relative paths and absolute paths
+    const filePath = path.join(process.cwd(), `${fileName}`);
+
+    this._populateTemplate(filePath, "Dockerfile.node", { $1: version });
   }
 }
 

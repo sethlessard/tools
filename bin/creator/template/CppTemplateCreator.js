@@ -33,10 +33,48 @@ class CppTemplateCreator extends TemplateCreator {
     }
   }
 
+   /**
+   * Get the C++ template help.
+   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
+   */
+  getHelp() {
+    return {
+      description: "C++ templates",
+      help: {
+        class: {
+          description: "Class template",
+          args: {
+            3: {
+              description: "The name of the class"
+            }
+          }
+        },
+        main: {
+          description: "Program entrypoint template",
+          args: {
+            3: {
+              description: "The name of the entrypoint file",
+              default: "main.cpp"
+            }
+          }
+        },
+        singleton: {
+          description: "Singleton template",
+          args: {
+            3: {
+              description: "The name of the singleton (class)"
+            }
+          }
+        }
+      }
+    };
+  }
+
   /**
    * Create a C++ class.
    */
   _createClass() {
+    // TODO: accept relative paths and absolute paths
     const classPath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".cpp"));
     const headerPath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".hpp"));
 
@@ -50,6 +88,7 @@ class CppTemplateCreator extends TemplateCreator {
    */
   _createMain() {
     const fileName = this._enforceFileExtension(this._positionalArgs[3] || "main.cpp", ".cpp");
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), fileName);
     this._populateTemplate(filePath, "main");
   }
@@ -58,6 +97,7 @@ class CppTemplateCreator extends TemplateCreator {
    * Create a C++ singleton.
    */
   _createSingleton() {
+    // TODO: accept relative paths and absolute paths
     const classPath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".cpp"));
     const headerPath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".hpp"));
 

@@ -18,47 +18,60 @@ const NodeProjectCreator = require("./creator/project/NodeProjectCreator");
 const PythonTemplateCreator = require("./creator/template/PythonTemplateCreator");
 const ReactTemplateCreator = require("./creator/template/ReactTemplateCreator");
 const SystemdTemplateCreator = require("./creator/template/SystemdTemplateCreator");
-const { showCreateHelp, showHelp, showTemplateHelp } = require("./Help");
+const { registerHelp, showHelp } = require("./help/Help");
+
+const nodeProjectCreator = new NodeProjectCreator(global.appRoot, argv);
+const cProjectCreator = new CProjectCreator(global.appRoot, argv);
+const cppProjectCreator = new CppProjectCreator(global.appRoot, argv);
+
+const cTemplateCreator = new CTemplateCreator(argv);
+const cppTemplateCreator = new CppTemplateCreator(argv);
+const dockerTemplateCreator = new DockerTemplateCreator(argv);
+const htmlTemplateCreator = new HtmlTemplateCreator(argv);
+const javascriptTemplateCreator = new JavascriptTemplateCreator(argv);
+const pythonTemplateCreator = new PythonTemplateCreator(argv);
+const reactTemplateCreator = new ReactTemplateCreator(argv);
+const systemdTemplateCreator = new SystemdTemplateCreator(argv);
 
 /**
  * Create a C template.
  */
-const createCTemplate = () => new CTemplateCreator(argv).create();
+const createCTemplate = () => cTemplateCreator.create();
 
 /**
  * Create a C++ template.
  */
-const createCppTemplate = () => new CppTemplateCreator(argv).create();
+const createCppTemplate = () => cppTemplateCreator.create();
 
 /**
  * Create a Docker template.
  */
-const createDockerTemplate = () => new DockerTemplateCreator(argv).create();
+const createDockerTemplate = () => dockerTemplateCreator.create();
 
 /**
  * Create a HTML template.
  */
-const createHtmlTemplate = () => new HtmlTemplateCreator(argv).create();
+const createHtmlTemplate = () => htmlTemplateCreator.create();
 
 /**
  * Create a JavaScript template.
  */
-const createJavascriptTemplate = () => new JavascriptTemplateCreator(argv).create();
+const createJavascriptTemplate = () => javascriptTemplateCreator.create();
 
 /**
  * Create a Python template.
  */
-const createPythonTemplate = () => new PythonTemplateCreator(argv).create();
+const createPythonTemplate = () => pythonTemplateCreator.create();
 
 /**
  * Create a React template.
  */
-const createReactTemplate = () => new ReactTemplateCreator(argv).create();
+const createReactTemplate = () => reactTemplateCreator.create();
 
 /**
  * Create a SystemD service template.
  */
-const createSystemdTemplate = () => new SystemdTemplateCreator(argv).create();
+const createSystemdTemplate = () => systemdTemplateCreator.create();
 
 /**
  * Create a new project.
@@ -66,29 +79,26 @@ const createSystemdTemplate = () => new SystemdTemplateCreator(argv).create();
 const createProject = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
-    showCreateHelp();
+    showHelp("create");
   }
 
-  const node = new NodeProjectCreator(global.appRoot, argv);
-  const c = new CProjectCreator(global.appRoot, argv);
-  const cpp = new CppProjectCreator(global.appRoot, argv);
   switch (positionalArgs[1]) {
-    case "node":
-      node.create();
-      break;
     case "c":
-      c.create();
+      cProjectCreator.create();
       break;
     case "cpp":
     case "c++":
-      cpp.create();
+      cppProjectCreator.create();
+      break;
+    case "node":
+      nodeProjectCreator.create();
       break;
     case "python":
       console.error(`"${positionalArgs[1]}" not yet implemented.`);
       process.exit(1);
       break;
     default:
-      console.error(`Unkown language "${positionalArgs[1]}"`);
+      showHelp("create");
       process.exit(1);
       break;
   }
@@ -97,7 +107,7 @@ const createProject = () => {
 const createTemplate = () => {
   const positionalArgs = argv["_"];
   if (positionalArgs.length <= 1) {
-    showTemplateHelp();
+    showHelp("template");
   }
 
   switch (positionalArgs[1]) {
@@ -131,7 +141,7 @@ const createTemplate = () => {
       console.error(`Templates for "${positionalArgs[1]}" are not completed yet.`);
       break;
     default:
-      showTemplateHelp();
+      showHelp("template");
       break;
   }
 }
@@ -144,6 +154,34 @@ const main = () => {
   if (argv["debug"]) {
     console.log(JSON.stringify(argv));
   }
+
+  // register help
+  const help = {
+    create: {
+      description: "Create a new project",
+      usage: "create [language] [type]",
+      languages: {
+        c: cProjectCreator.getHelp(),
+        cpp: cppProjectCreator.getHelp(),
+        node: nodeProjectCreator.getHelp()
+      }
+    },
+    template: {
+      description: "Create a new template",
+      usage: "template [language] [type]",
+      languages: {
+        c: cTemplateCreator.getHelp(),
+        cpp: cppTemplateCreator.getHelp(),
+        docker: dockerTemplateCreator.getHelp(),
+        html: htmlTemplateCreator.getHelp(),
+        javascript: javascriptTemplateCreator.getHelp(),
+        python: pythonTemplateCreator.getHelp(),
+        react: reactTemplateCreator.getHelp(),
+        system: systemdTemplateCreator.getHelp()
+      }
+    }
+  };
+  registerHelp(help);
 
   if (argv["h"] || argv["help"]) {
     showHelp();

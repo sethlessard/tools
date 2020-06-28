@@ -28,9 +28,31 @@ class CTemplateCreator extends TemplateCreator {
   }
 
   /**
+   * Get the C template help.
+   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
+   */
+  getHelp() {
+    return {
+      description: "C templates",
+      help: {
+        main: {
+          description: "Program entrypoint template",
+          args: {
+            3: {
+              description: "The name of the entrypoint file",
+              default: "main.c"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  /**
    * Create a main.c file.
    */
   _createMain() {
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3] || "main.c", ".c"));
     this._populateTemplate(filePath, "main");
   }

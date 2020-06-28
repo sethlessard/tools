@@ -15,7 +15,8 @@ class NodeProjectCreator extends ProjectCreator {
    */
   constructor(appBase, argv) {
     super("node", appBase, argv);
-    this._packagePath = path.join(this._path, "package.json");
+    if (this._path)
+      this._packagePath = path.join(this._path, "package.json");
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
@@ -48,6 +49,30 @@ class NodeProjectCreator extends ProjectCreator {
         console.log(`"${this._type}" is not a registered NodeJS project type.`);
         break;
     }
+  }
+
+  /**
+   * Get the Node.js project help.
+   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
+   */
+  getHelp() {
+    return {
+      description: "Node.js projects",
+      help: {
+        api: {
+          description: "Simple Express api"
+        },
+        "react-app": {
+          description: "Simple React app"
+        },
+        "react-library": {
+          description: "Simple React library"
+        },
+        "socket.io-server": {
+          description: "Simple Express api"
+        }
+      }
+    }; 
   }
 
   /**

@@ -36,9 +36,54 @@ class ReactTemplateCreator extends TemplateCreator {
   }
 
   /**
+   * Get the React template help.
+   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
+   */
+  getHelp() {
+    return {
+      description: "React templates",
+      help: {
+        cc: {
+          description: "Class Component",
+          args: {
+            3: {
+              description: "The name of the component"
+            }
+          }
+        },
+        ccc: {
+          description: "Connected Class Component (connected react router)",
+          args: {
+            3: {
+              description: "The name of the component"
+            }
+          }
+        },
+        sfc: {
+          description: "Stateless Functional component",
+          args: {
+            3: {
+              description: "The name of the component"
+            }
+          }
+        },
+        csfc: {
+          description: "Connected Stateless Functional component",
+          args: {
+            3: {
+              description: "The name of the component"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  /**
    * Create a class component.
    */
   _createClassComponent() {
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     const className = this._stripFileExtension(this._positionalArgs[3]);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
@@ -49,6 +94,7 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a connected class component.
    */
   _createConnectedClassComponent() {
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     const className = this._stripFileExtension(this._positionalArgs[3]);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
@@ -59,6 +105,7 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a connected stateless functional component.
    */
   _createConnectedStatelessFunctionalComponent() {
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     const className = this._stripFileExtension(this._positionalArgs[3]);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
@@ -69,19 +116,11 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a stateless functional component.
    */
   _createStatelessFunctionalComponent() {
+    // TODO: accept relative paths and absolute paths
     const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
     const className = this._stripFileExtension(this._positionalArgs[3]);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
     this._populateTemplate(filePath, "sfc", { $1: className, $2: classNameToLower });
-  }
-
-  /**
-   * Create a mocha + chai unit test file.
-   */
-  _createTest() {
-    const className = this._stripFileExtension(this._positionalArgs[3]);
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".tests.js"));
-    this._populateTemplate(filePath, "mochachai.unit", { $1: className });
   }
 }
 

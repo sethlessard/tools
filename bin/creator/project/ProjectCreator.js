@@ -1,7 +1,8 @@
+const HasHelp = require("../../help/HasHelp");
 const { execSync } = require("child_process");
 const fs = require("fs");
 
-class ProjectCreator {
+class ProjectCreator extends HasHelp {
 
   /**
    * ProjectCreator constructor.
@@ -10,6 +11,7 @@ class ProjectCreator {
    * @param {object} argv the arguments passed to the t00ls app.
    */
   constructor(language, appBase, argv) {
+    super();
     this._appBase = appBase;
     this._positionalArgs = argv["_"];
     this._type = this._positionalArgs[2];
