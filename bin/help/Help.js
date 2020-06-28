@@ -21,14 +21,14 @@ const showHelp = (subcommand) => {
     hmsg += `t00ls ${scHelp.usage}                        ${scHelp.description}\n`;
 
     // print languanges
-    hmsg += "    [language]:\n";
+    hmsg += "  [language]:\n";
     for (const language of Object.keys(scHelp.languages)) {
       const langInfo = scHelp.languages[language];
-      hmsg += _formatSubjectDescription(`        - ${language}`, langInfo.description) + "\n";
-      hmsg += `            [type]\n`
+      hmsg += _formatSubjectDescription(`      - ${language}`, langInfo.description) + "\n";
+      hmsg += `          [type]\n`
       for (const type of Object.keys(langInfo.help)) {
         const typeHelp = langInfo.help[type];
-        hmsg += _formatSubjectDescription(`                * ${type}`, typeHelp.description, 64) + "\n";
+        hmsg += _formatSubjectDescription(`            * ${type}`, typeHelp.description, 64) + "\n";
       }
     }
     hmsg += "\n";
