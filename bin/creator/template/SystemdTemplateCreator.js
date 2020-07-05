@@ -87,11 +87,11 @@ class SystemdTemplateCreator extends TemplateCreator {
    * Create a Minecraft systemd definition.
    */
   _createMinecraft() {
-    // TODO: accept relative paths and absolute paths
     const user = this._argv["user"] || DEFAULT_MINECRAFT_USER;
     const memory = this._argv["memory"] || DEFAULT_MINECRAFT_MEMORY;
-    const filePath = path.join(process.cwd(), `minecraft@.service`);
-
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "minecraft@.service", ".service"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
     this._populateTemplate(filePath, "minecraft", { $1: user, $2: memory });
   }
 
@@ -102,8 +102,6 @@ class SystemdTemplateCreator extends TemplateCreator {
     const description = this._argv["description"];
     const user = this._argv["user"] || DEFAULT_SIMPLE_USER;
     const executable = this._argv["executable"];
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".service"));
     if (!description) {
       console.error("--description must be set");
       process.exit(1);
@@ -112,6 +110,9 @@ class SystemdTemplateCreator extends TemplateCreator {
       console.error("--executable must be set.");
       process.exit(1);
     }
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".service"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
     this._populateTemplate(filePath, "simple", { $1: description, $2: user, $3: executable });
   }
 }

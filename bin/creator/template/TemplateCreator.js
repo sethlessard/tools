@@ -1,4 +1,4 @@
-const { enforceFileExtension, stripFileExtension } = require("../../util/FileUtils");
+const { enforceFileExtension, getFileName, getParentDirectory, stripFileExtension } = require("../../util/FileUtils");
 const TemplateReader = require("../../reader/TemplateReader");
 const TemplateWriter = require("../../writer/TemplateWriter");
 const HasHelp = require("../../help/HasHelp");
@@ -19,6 +19,8 @@ class TemplateCreator extends HasHelp {
     this._templateReader = new TemplateReader(type);
     this._templateWriter = new TemplateWriter();
     this._enforceFileExtension = this._enforceFileExtension.bind(this);
+    this._getFileName = this._getFileName.bind(this);
+    this._getParentDirectoy = this._getParentDirectory.bind(this);
     this._populateTemplate = this._populateTemplate.bind(this);
     this._stripFileExtension = this._stripFileExtension.bind(this);
   }
@@ -36,6 +38,33 @@ class TemplateCreator extends HasHelp {
    */
   _enforceFileExtension(fileName, fileExtension) {
     return enforceFileExtension(fileName, fileExtension);
+  }
+
+  /**
+   * Get the file name from a full path.
+   * @param {string} fullPath the full path.
+   * @returns {string} the file name. 
+   */
+  _getFileName(fullPath) {
+    return getFileName(fullPath);
+  }
+
+  /**
+   * Get an object name from a file name. Simply strips the file extension and returns.
+   * @param {string} fileName the file name.
+   * @returns {string} the object name.
+   */
+  _getObjectName(fileName) {
+    return this._stripFileExtension(fileName);
+  }
+
+  /**
+   * Get the parent directory of a path.
+   * @param {string} fullPath the full path.
+   * @returns {string} the parent path.
+   */
+  _getParentDirectory(fullPath) {
+    return getParentDirectory(fullPath);
   }
 
   /**

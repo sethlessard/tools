@@ -76,11 +76,10 @@ class DockerTemplateCreator extends TemplateCreator {
    * Create a Dockerfile.
    */
   _createDockerFile() {
-    const fileName = this._positionalArgs[3] || "Dockerfile";
+    const fileName = this._getFileName(this._positionalArgs[3] || "Dockerfile");
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
     const imageName = this._argv["image"] || "ubuntu:18.04";
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), `${fileName}`);
-
+    const filePath = path.join(parentDirectory, fileName);
     this._populateTemplate(filePath, "Dockerfile", { $1: imageName });
   }
 
@@ -88,11 +87,10 @@ class DockerTemplateCreator extends TemplateCreator {
    * Create a Dockerfile for a Node.JS.
    */
   _createNodeDockerFile() {
-    const fileName = this._positionalArgs[3] || "Dockerfile";
+    const fileName = this._getFileName(this._positionalArgs[3] || "Dockerfile");
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
     const version = this._argv["version"] || 12;
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), `${fileName}`);
-
     this._populateTemplate(filePath, "Dockerfile.node", { $1: version });
   }
 }

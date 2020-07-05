@@ -1,3 +1,4 @@
+const path = require("path");
 
 /**
  * Make sure a file name ends in the proper file extension.
@@ -13,6 +14,20 @@ const enforceFileExtension = (fileName, fileExt) => {
 }
 
 /**
+ * Get a file name from a full file path.
+ * @param {string} fullPath the full path.
+ * @returns {string} the file name.
+ */
+const getFileName = (fullPath) => path.basename(fullPath);
+
+/**
+ * Get the parent directory of a path.
+ * @param {string} fullPath the full path.
+ * @returns {string} the parent path.
+ */
+const getParentDirectory = (fullPath) => path.dirname(fullPath);
+
+/**
  * Remove a file extension from a file.
  * @param {string} fileName the name of the file.
  * @returns {string} the name of the file without the file extension.
@@ -26,5 +41,7 @@ const stripFileExtension = (fileName) => {
 
 module.exports = {
   enforceFileExtension,
+  getFileName,
+  getParentDirectory,
   stripFileExtension
 };

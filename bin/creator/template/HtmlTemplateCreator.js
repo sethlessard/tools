@@ -56,11 +56,10 @@ class HtmlTemplateCreator extends TemplateCreator {
    * Create a simple html file.
    */
   _createSimple() {
-    const fileName = this._enforceFileExtension(this._positionalArgs[3] || "index.html", ".html");
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "index.html"), ".html");
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
     const title = this._argv["title"] || "Title";
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), fileName);
-
     this._populateTemplate(filePath, "simple", { $1: title });
   }
 }

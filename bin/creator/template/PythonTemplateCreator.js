@@ -71,10 +71,11 @@ class PythonTemplateCreator extends TemplateCreator {
    * Create a new python class file.
    */
   _createClass() {
-    // TODO: accept relative paths and absolute paths
-    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".py"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
+    const className = this._getObjectName(fileName);
     const ext = this._argv["extends"] || "object";
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".py"));
     this._populateTemplate(filePath, "class", { $1: className, $2: ext });
   }
 
@@ -82,8 +83,9 @@ class PythonTemplateCreator extends TemplateCreator {
    * Create a main.py file.
    */
   _createMain() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3] || "main.py", ".py"));
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "main.py", ".py"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
     this._populateTemplate(filePath, "main");
   }
 }

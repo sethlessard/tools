@@ -52,9 +52,9 @@ class CTemplateCreator extends TemplateCreator {
    * Create a main.c file.
    */
   _createMain() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3] || "main.c", ".c"));
-    this._populateTemplate(filePath, "main");
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "main.c", ".c"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    this._populateTemplate(path.join(parentDirectory, fileName), "main");
   }
 }
 

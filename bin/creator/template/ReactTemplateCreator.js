@@ -83,9 +83,10 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a class component.
    */
   _createClassComponent() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
-    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
+    const className = this._getObjectName(fileName);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
     this._populateTemplate(filePath, "cc", { $1: className, $2: classNameToLower });
   }
@@ -94,9 +95,10 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a connected class component.
    */
   _createConnectedClassComponent() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
-    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
+    const className = this._getObjectName(fileName);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
     this._populateTemplate(filePath, "ccc", { $1: className, $2: classNameToLower });
   }
@@ -105,9 +107,10 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a connected stateless functional component.
    */
   _createConnectedStatelessFunctionalComponent() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
-    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
+    const className = this._getObjectName(fileName);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
     this._populateTemplate(filePath, "csfc", { $1: className, $2: classNameToLower });
   }
@@ -116,9 +119,10 @@ class ReactTemplateCreator extends TemplateCreator {
    * Create a stateless functional component.
    */
   _createStatelessFunctionalComponent() {
-    // TODO: accept relative paths and absolute paths
-    const filePath = path.join(process.cwd(), this._enforceFileExtension(this._positionalArgs[3], ".js"));
-    const className = this._stripFileExtension(this._positionalArgs[3]);
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3], ".js"));
+    const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
+    const filePath = path.join(parentDirectory, fileName);
+    const className = this._getObjectName(fileName);
     const classNameToLower = className.substr(0, 1).toLowerCase() + className.substr(1);
     this._populateTemplate(filePath, "sfc", { $1: className, $2: classNameToLower });
   }
