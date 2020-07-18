@@ -159,16 +159,15 @@ const main = () => {
   const help = {
     create: {
       description: "Create a new project",
-      usage: "create [language] [type]",
       languages: {
         c: cProjectCreator.getHelp(),
         cpp: cppProjectCreator.getHelp(),
         node: nodeProjectCreator.getHelp()
-      }
+      },
+      usage: "create [language] [type]"
     },
     template: {
       description: "Create a new template",
-      usage: "template [language] [type]",
       languages: {
         c: cTemplateCreator.getHelp(),
         cpp: cppTemplateCreator.getHelp(),
@@ -178,7 +177,8 @@ const main = () => {
         python: pythonTemplateCreator.getHelp(),
         react: reactTemplateCreator.getHelp(),
         system: systemdTemplateCreator.getHelp()
-      }
+      },
+      usage: "template [language] [type]"
     }
   };
   registerHelp(help);

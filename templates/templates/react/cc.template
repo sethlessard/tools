@@ -21,6 +21,7 @@ class $1 extends Component {
    * Render the $1 component.
    */
   render() {
+    const { children, style: compStyle } = this.props;
     const style = {
       $2: {
 
@@ -28,7 +29,7 @@ class $1 extends Component {
     };
     Object.assign(style.$2, compStyle);
     return (
-      <Wrapper style={style.$2}>{ children }</Wrapper>
+      <Wrapper style={style.$2}>{children}</Wrapper>
     );
   }
 }

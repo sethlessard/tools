@@ -5,8 +5,8 @@ import styled from "styled-components";
 const Wrapper = styled.div``;
 
 /**
-* Render the $1 component.
-*/
+ * Render the $1 component.
+ */
 const $1 = ({ children, style: compStyle }) => {
   const style = {
     $2: {
@@ -15,7 +15,7 @@ const $1 = ({ children, style: compStyle }) => {
   };
   Object.assign(style.$2, compStyle);
   return (
-    <Wrapper style={style.$2}>{ children }</Wrapper>
+    <Wrapper style={style.$2}>{children}</Wrapper>
   );
 };
 
