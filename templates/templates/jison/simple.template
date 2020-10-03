@@ -1,0 +1,151 @@
+/* lexical grammar (js is not case-insensitive, but I don't care) */
+%lex
+%options flex
+%options case-insensitive
+
+%{
+if (!('opts' in yy)) {
+  yy.opts = {
+    lines: 1,
+    functions: []
+  };
+}
+%}
+
+%%
+
+\n                            { yy.opts.lines++; }
+[^\S\n]+                      /* ignore whitespace other than newlines */
+
+/* operators */
+"&&"                          return '&&'
+"||"                          return '||'
+
+
+/* arrow function */
+"=>"                          return '=>'
+
+/* comparison operators */
+"==="                         return '==='
+"=="                          return '=='
+"!=="                         return '!=='
+"!="                          return '!='
+"<=="                         return '<=='
+">=="                         return '>=='
+">="                          return '>='
+"<="                          return '<='
+"<"                           return '<'
+">"                           return '>'
+
+/* math */
+"-"                           return '-'
+"+"                           return '+'
+"/"                           return '/'
+"*"                           return '*'
+
+/* assignment operators */
+"="                           return '='
+"++"                          return '++'
+"--"                          return '--'
+"+="                          return '+='
+"-="                          return '-='
+"/="                          return '/='
+"*="                          return '*='
+
+/* general */
+"IMPORT"                      return 'IMPORT'
+"FROM"                        return 'FROM'
+"IF"                          return 'IF'
+"ELSE"                        return 'ELSE'
+"FOR"                         return 'FOR'
+"WHILE"                       return 'WHILE'
+"FUNCTION"                    return 'FUNCTION'
+"DEFAULT"                     return 'DEFAULT'
+"LET"                         return 'LET'
+"CONST"                       return 'CONST'
+"VAR"                         return 'VAR'
+"CLASS"                       return 'CLASS'
+"EXTENDS"                     return 'EXTENDS'
+"*"                           return 'ALL'
+"AS"                          return 'AS'
+"("                           return '('
+")"                           return ')'
+"{"                           return '{'
+"}"                           return '}'
+"["                           return '['
+"]"                           return ']'
+":"                           return ':'
+";"                           return ';'
+"true"|"false"                return 'BOOLEAN_VALUE'
+[0-9]+                        return 'INTEGER'
+"."                           return '.'
+","                           return ','
+\"[^"]+\"                     { yytext = yytext.slice(1,-1); return 'STRING'; }
+[_|A-Za-z][_|A-Za-z0-9]*      return 'TOKEN' }
+<<EOF>>                       return 'EOF'
+.                             return 'UH'
+
+/lex
+
+/* operator associations and precedence */
+
+%start expressions
+
+%% /* language grammar */
+
+expressions
+    : jsstatement EOF
+        { console.log(JSON.stringify(yy.opts)); return $1; }
+    ;
+
+jsstatement
+    : function_decl jsstatement 
+      {  }
+    | assign_statement jsstatement 
+      { }
+    |
+    ;
+
+assign_statement
+    : value '=' value semi
+      { $$ = { type = } }
+    ;
+  
+var_decl_type
+    : CONST
+    | VAR
+    | LET
+    ;
+
+
+function_decl
+    : FUNCTION TOKEN '(' var_list ')' '{' '}'
+      { $$ = { type: "function", name: $2, parameters: $4, line: @2.first_line }; }
+    | '(' var_list ')' '=>' '{' '}'
+      { $$ = { type: "arrowfunction", parameters: $2, line: @1.first_line }; }
+    ;
+
+semi
+    : ';'
+    |
+    ;
+
+var_list
+    : TOKEN ',' var_list
+      { $$ = [$1]; $$ = $$.concat($3); }
+    | TOKEN
+      { $$ = [$1]; }
+    | 
+      { $$ = []; }
+    ;
+
+value
+    : STRING
+      { }
+    | BOOLEAN_VALUE
+      { }
+    | INTEGER DOT INTEGER
+      { }
+    | INTEGER
+      { }
+    ;
