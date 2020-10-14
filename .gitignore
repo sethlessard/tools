@@ -4,6 +4,7 @@
 
 # except
 !/bin/
+!/src/
 !/templates/
 !/test/
 !.eslintrc.json
