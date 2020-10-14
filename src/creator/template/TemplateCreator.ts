@@ -1,17 +1,22 @@
-const { enforceFileExtension, getFileName, getParentDirectory, stripFileExtension } = require("../../util/FileUtils");
-const TemplateReader = require("../../reader/TemplateReader");
-const TemplateWriter = require("../../writer/TemplateWriter");
-const HasHelp = require("../../help/HasHelp");
+import { enforceFileExtension, getFileName, getParentDirectory, stripFileExtension } from "../../util/FileUtils";
+import TemplateReader from "../../reader/TemplateReader";
+import TemplateWriter from "../../writer/TemplateWriter";
 
-class TemplateCreator extends HasHelp {
+class TemplateCreator {
+
+  protected readonly _positionalArgs: any;
+  protected readonly _argv: any;
+  protected readonly _type: string;
+
+  protected readonly _templateReader: TemplateReader;
+  protected readonly _templateWriter: TemplateWriter;
 
   /**
    * TemplateCreator constructor.
    * @param {string} type the type of template creator.
-   * @param {object} argv the arguements passed to the t00ls command.
+   * @param {any} argv the arguements passed to the t00ls command.
    */
-  constructor(type, argv) {
-    super();
+  constructor(type: string, argv: any) {
     this._positionalArgs = argv["_"];
     this._argv = argv;
     this._type = this._positionalArgs[2];
@@ -20,7 +25,7 @@ class TemplateCreator extends HasHelp {
     this._templateWriter = new TemplateWriter();
     this._enforceFileExtension = this._enforceFileExtension.bind(this);
     this._getFileName = this._getFileName.bind(this);
-    this._getParentDirectoy = this._getParentDirectory.bind(this);
+    this._getParentDirectory = this._getParentDirectory.bind(this);
     this._populateTemplate = this._populateTemplate.bind(this);
     this._stripFileExtension = this._stripFileExtension.bind(this);
   }
@@ -36,7 +41,7 @@ class TemplateCreator extends HasHelp {
    * @param {string} fileExtension the file extension.
    * @returns {string} the proper file name.
    */
-  _enforceFileExtension(fileName, fileExtension) {
+  protected _enforceFileExtension(fileName: string, fileExtension: string) {
     return enforceFileExtension(fileName, fileExtension);
   }
 
@@ -45,7 +50,7 @@ class TemplateCreator extends HasHelp {
    * @param {string} fullPath the full path.
    * @returns {string} the file name. 
    */
-  _getFileName(fullPath) {
+  protected _getFileName(fullPath: string) {
     return getFileName(fullPath);
   }
 
@@ -54,7 +59,7 @@ class TemplateCreator extends HasHelp {
    * @param {string} fileName the file name.
    * @returns {string} the object name.
    */
-  _getObjectName(fileName) {
+  protected _getObjectName(fileName: string) {
     return this._stripFileExtension(fileName);
   }
 
@@ -63,7 +68,7 @@ class TemplateCreator extends HasHelp {
    * @param {string} fullPath the full path.
    * @returns {string} the parent path.
    */
-  _getParentDirectory(fullPath) {
+  protected _getParentDirectory(fullPath: string) {
     return getParentDirectory(fullPath);
   }
 
@@ -73,7 +78,7 @@ class TemplateCreator extends HasHelp {
    * @param {string} templateName the name of the template.
    * @param {object} templateContents the contents of the template.
    */
-  _populateTemplate(filePath, templateName, templateContents = {}) {
+  protected _populateTemplate(filePath: string, templateName: string, templateContents = {}) {
     // read the templates
     const template = this._templateReader.read(templateName);
 
@@ -84,9 +89,9 @@ class TemplateCreator extends HasHelp {
   /**
    * Strip the file extension from a file name.
    */
-  _stripFileExtension(fileName) {
+  protected _stripFileExtension(fileName: string) {
     return stripFileExtension(fileName);
   }
 }
 
-module.exports = TemplateCreator;
+export default TemplateCreator;

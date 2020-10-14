@@ -1,7 +1,6 @@
+import * as path from "path";
 
-const path = require("path");
-
-const TemplateCreator = require("./TemplateCreator");
+import TemplateCreator from "./TemplateCreator";
 
 // minecraft
 const DEFAULT_MINECRAFT_USER = "minecraft";
@@ -16,7 +15,7 @@ class SystemdTemplateCreator extends TemplateCreator {
    * SystemdTemplateCreator constructor.
    * @param {object} argv the arguements passed to the tools command
    */
-  constructor(argv) {
+  constructor(argv: string) {
     super("systemd", argv);
   }
 
@@ -117,4 +116,4 @@ class SystemdTemplateCreator extends TemplateCreator {
   }
 }
 
-module.exports = SystemdTemplateCreator;
+export default SystemdTemplateCreator;

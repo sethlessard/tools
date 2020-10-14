@@ -1,11 +1,11 @@
-const fse = require("fs-extra");
-const path = require("path");
+import * as fse from "fs-extra";
+import * as path from "path";
 
-const ProjectCreator = require("./ProjectCreator");
+import ProjectCreator from "./ProjectCreator";
 
-class CProjectCreator extends ProjectCreator {
+class CppProjectCreator extends ProjectCreator {
 
-  constructor(appBase, argv) {
+  constructor(appBase: string, argv: any) {
     super("c", appBase, argv);
   }
 
@@ -24,22 +24,22 @@ class CProjectCreator extends ProjectCreator {
   }
 
   /**
-   * Get the C project help.
+   * Get the C++ project help.
    * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
    */
   getHelp() {
     return {
-      description: "C projects",
+      description: "C++ projects",
       help: {
         simple: {
-          description: "Simple C project"
+          description: "Simple C++ project"
         }
       }
     }; 
   }
 
   /**
-   * Create a simple C project.
+   * Create a simple C++ project.
    */
   _createSimple() {
     // copy the template
@@ -50,4 +50,4 @@ class CProjectCreator extends ProjectCreator {
   }
 }
 
-module.exports = CProjectCreator;
+export default CppProjectCreator;

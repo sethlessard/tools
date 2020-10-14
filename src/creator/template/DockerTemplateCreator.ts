@@ -1,14 +1,14 @@
-const path = require("path");
+import * as path from "path";
 
-const TemplateCreator = require("./TemplateCreator");
+import TemplateCreator from "./TemplateCreator";
 
 class DockerTemplateCreator extends TemplateCreator {
 
   /**
    * DockerTemplateCreator constructor.
-   * @param {object} argv the arguements passed to the tools command
+   * @param {any} argv the arguements passed to the tools command
    */
-  constructor(argv) {
+  constructor(argv: any) {
     super("docker", argv);
 
     // binding

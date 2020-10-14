@@ -1,17 +1,22 @@
-const HasHelp = require("../../help/HasHelp");
-const { execSync } = require("child_process");
-const fs = require("fs");
+import { execSync } from "child_process";
+import * as fs from "fs";
 
-class ProjectCreator extends HasHelp {
+class ProjectCreator  {
+
+  protected readonly _appBase: string;
+  protected readonly _path: string;
+  protected readonly _positionalArgs: any;
+  protected readonly _templateBase: string;
+  protected readonly _type: string;
+
 
   /**
    * ProjectCreator constructor.
    * @param {string} langauge the programming language.
    * @param {string} appBase the path to the base of the t00ls app.
-   * @param {object} argv the arguments passed to the t00ls app.
+   * @param {any} argv the arguments passed to the t00ls app.
    */
-  constructor(language, appBase, argv) {
-    super();
+  constructor(language: string, appBase: string, argv: any) {
     this._appBase = appBase;
     this._positionalArgs = argv["_"];
     this._type = this._positionalArgs[2];
@@ -27,7 +32,7 @@ class ProjectCreator extends HasHelp {
   /**
    * Create & the project directory.
    */
-  _createDirectory() {
+  protected _createDirectory() {
     // create the directory
     if (!fs.existsSync(this._path)) {
       fs.mkdirSync(this._path, { recursive: true });
@@ -42,9 +47,9 @@ class ProjectCreator extends HasHelp {
    * Execte a command in the project's directory.
    * @param {string} command the command to execute.
    */
-  _inDir(command) {
+  protected _inDir(command: string) {
     execSync(command, { cwd: this._path });
   }
 }
 
-module.exports = ProjectCreator;
+export default ProjectCreator;

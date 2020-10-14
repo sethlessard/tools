@@ -1,15 +1,15 @@
-const fs = require("fs");
+import * as fs from "fs";
 
 class JsonWriter {
 
   /**
    * Write to a JSON file.
    * @param {string} path the path to the JSON file.
-   * @param {object} json the json.
+   * @param {any} json the json.
    */
-  write(path, json) {
+  write(path: string, json: any) {
     fs.writeFileSync(path, JSON.stringify(json));
   }
 }
 
-module.exports = JsonWriter;
+export default JsonWriter;

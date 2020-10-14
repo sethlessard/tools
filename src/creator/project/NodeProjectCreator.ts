@@ -1,22 +1,31 @@
-const { execSync } = require("child_process");
-const fse = require("fs-extra");
-const path = require("path");
+import { execSync } from "child_process";
+import * as fse from "fs-extra";
+import * as path from "path";
 
-const ProjectCreator = require("./ProjectCreator");
-const JsonReader = require("../../reader/JsonReader");
-const JsonWriter = require("../../writer/JsonWriter");
+import ProjectCreator from "./ProjectCreator";
+import JsonReader from "../../reader/JsonReader";
+import JsonWriter from "../../writer/JsonWriter";
+
+type Dependency = { name: string, version: string } | string;
 
 class NodeProjectCreator extends ProjectCreator {
+
+  private readonly _packagePath: string;
+  private readonly _jsonReader: JsonReader;
+  private readonly _jsonWriter: JsonWriter;
 
   /**
    * NodeProjectCreator constructor.
    * @param {string} appBase the path to the base of the tools app.
-   * @param {object} argv the arguments passed to the tools command.
+   * @param {any} argv the arguments passed to the tools command.
    */
-  constructor(appBase, argv) {
+  constructor(appBase: string, argv: any) {
     super("node", appBase, argv);
-    if (this._path)
+    if (this._path) {
       this._packagePath = path.join(this._path, "package.json");
+    } else {
+      throw new Error("Path must be specified.");
+    }
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
@@ -72,12 +81,12 @@ class NodeProjectCreator extends ProjectCreator {
           description: "Simple Express api"
         }
       }
-    }; 
+    };
   }
 
   /**
    * Get the gulp scripts.
-   * @returns {object} the gulp scripts
+   * @returns {{ debug: string, start: string, test: string }} the gulp scripts
    */
   _getGulpScripts() {
     return {
@@ -89,9 +98,9 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
    * Initialize a simple API project.
-   * @param {object} the package.json file.
+   * @param {any} the package.json file.
    */
-  _createApi(pack) {
+  _createApi(pack: any) {
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
@@ -142,7 +151,7 @@ class NodeProjectCreator extends ProjectCreator {
  * Configure the dependencies and devDependencies to use exact versions.
  * @param {object} pack the package.json.
  */
-  _configureExactDepencies(pack) {
+  _configureExactDepencies(pack: any) {
     // TODO: implement
     return pack;
   }
@@ -196,9 +205,9 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
    * Initialize a simple socket.io server project.
-   * @param {object} the package.json file.
+   * @param {any} pack the package.json file.
    */
-  _createSocketioServer(pack) {
+  _createSocketioServer(pack: any) {
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
@@ -237,9 +246,9 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
    * Install NPM dependencies for a NodeJS project.
-   * @param {{ name: string, version: string}[] | string[]} dependencies the dependencies.
+   * @param {Dependency[]} dependencies the dependencies.
    */
-  _installDependencies(dependencies) {
+  _installDependencies(dependencies: Dependency[]) {
     let installCommand = "npm install -E";
     for (const dependency of dependencies) {
       if (typeof dependency === "string") {
@@ -255,9 +264,9 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
    * Install NPM dependencies for a NodeJS project as development dependencies
-   * @param {{ name: string, version: string}[] | string[]} dependencies the dependencies.
+   * @param {Dependency[]} dependencies the dependencies.
    */
-  _installDevDependencies(dependencies) {
+  _installDevDependencies(dependencies: Dependency[]) {
     let installCommand = "npm install -E -D";
     for (const dependency of dependencies) {
       if (typeof dependency === "string") {

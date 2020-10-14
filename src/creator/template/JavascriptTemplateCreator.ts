@@ -1,14 +1,14 @@
-const path = require("path");
+import * as path from "path";
 
-const TemplateCreator = require("./TemplateCreator");
+import TemplateCreator from "./TemplateCreator";
 
 class JavascriptTemplateCreator extends TemplateCreator {
 
   /**
    * JavascriptTemplateCreator constructor.
-   * @param {object} argv the arguements passed to the tools command
+   * @param {any} argv the arguements passed to the tools command
    */
-  constructor(argv) {
+  constructor(argv: any) {
     super("javascript", argv);
   }
 
@@ -188,4 +188,4 @@ class JavascriptTemplateCreator extends TemplateCreator {
   }
 }
 
-module.exports = JavascriptTemplateCreator;
+export default JavascriptTemplateCreator;

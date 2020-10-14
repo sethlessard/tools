@@ -1,14 +1,14 @@
-const path = require("path");
+import * as path from "path";
 
-const TemplateCreator = require("./TemplateCreator");
+import TemplateCreator from "./TemplateCreator";
 
 class ReactTemplateCreator extends TemplateCreator {
 
   /**
    * ReactTemplateCreator constructor.
-   * @param {object} argv the arguements passed to the tools command
+   * @param {any} argv the arguements passed to the tools command
    */
-  constructor(argv) {
+  constructor(argv: any) {
     super("react", argv);
   }
 
@@ -128,4 +128,4 @@ class ReactTemplateCreator extends TemplateCreator {
   }
 }
 
-module.exports = ReactTemplateCreator;
+export default ReactTemplateCreator;

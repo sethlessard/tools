@@ -1,14 +1,14 @@
-const path = require("path");
+import * as path from "path";
 
-const TemplateCreator = require("./TemplateCreator");
+import TemplateCreator from "./TemplateCreator";
 
 class HtmlTemplateCreator extends TemplateCreator {
 
   /**
    * HtmlTemplateCreator
-   * @param {object} argv the arguments passed to the t00ls application. 
+   * @param {any} argv the arguments passed to the t00ls application. 
    */
-  constructor(argv) {
+  constructor(argv: any) {
     super("html", argv);
   }
 
@@ -56,7 +56,7 @@ class HtmlTemplateCreator extends TemplateCreator {
    * Create a simple html file.
    */
   _createSimple() {
-    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "index.html"), ".html");
+    const fileName = this._getFileName(this._enforceFileExtension(this._positionalArgs[3] || "index.html", ".html"));
     const parentDirectory = this._getParentDirectory(this._positionalArgs[3]);
     const filePath = path.join(parentDirectory, fileName);
     const title = this._argv["title"] || "Title";

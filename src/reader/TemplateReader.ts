@@ -1,13 +1,15 @@
-const fs = require("fs");
-const path = require("path");
+import * as fs from "fs";
+import * as path from "path";
 
 class TemplateReader {
+
+  private readonly _language: string;
 
   /**
    * TemplateReader constructor.
    * @param {string} language the programming language.
    */
-  constructor(language) {
+  constructor(language: string) {
     this._language = language;
   }
 
@@ -16,7 +18,8 @@ class TemplateReader {
    * @param {string} template the name of the template.
    * @returns {string} the template.
    */
-  read(template) {
+  read(template: string) {
+    //@ts-ignore
     const templatePath = path.join(global.appRoot, "templates", "templates", this._language, `${template}.template`);
     if (!fs.existsSync(templatePath)) {
       return "";
@@ -25,4 +28,4 @@ class TemplateReader {
   }
 }
 
-module.exports = TemplateReader;
+export default TemplateReader;

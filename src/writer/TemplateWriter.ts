@@ -1,5 +1,5 @@
-const fs = require("fs");
-const { createDirectoryTo } = require("../util/DirectoryUtils");
+import * as fs from "fs":
+import { createDirectoryTo } from "../util/DirectoryUtils";
 
 class TemplateWriter {
 
@@ -10,7 +10,7 @@ class TemplateWriter {
    * @param {string} template the contents of the template.
    * @param {object} params the template parameters.
    */
-  write(path, template, params) {
+  write(path: string, template: string, params: any) {
     // populate the template
     const populatedTemplate = this._populateTemplate(template, params);
 
@@ -26,23 +26,24 @@ class TemplateWriter {
    * Thanks to acdcjunior from https://stackoverflow.com/questions/17885855/use-dynamic-variable-string-as-regex-pattern-in-javascript/17886301
    * @param {string} stringToGoIntoTheRegex the string
    */
-  _escapeRegExp(stringToGoIntoTheRegex) {
+  _escapeRegExp(stringToGoIntoTheRegex: string) {
     return stringToGoIntoTheRegex.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 
   /**
    * Populate a template with its parameter values.
    * @param {string} template the contents of the template.
-   * @param {object} params the parameters.
+   * @param {any} params the parameters.
    * @returns {string} the populated template
    */
-  _populateTemplate(template, params) {
+  _populateTemplate(template: string, params: any) {
     for (const [key, value] of Object.entries(params)) {
       const regex = new RegExp(this._escapeRegExp(key), "g");
+      // @ts-ignore
       template = template.replace(regex, value);
     }
     return template;
   }
 }
 
-module.exports = TemplateWriter;
+export default TemplateWriter;
