@@ -4,6 +4,7 @@
 
 # except
 !/bin/
+!/snippets/
 !/src/
 !/templates/
 !/test/

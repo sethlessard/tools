@@ -41,6 +41,7 @@ const newProject = () => {
     if (!project) return;
 
     await vscode.window.showInformationMessage(`Language: ${language}, Project: ${project}`);
+    // TODO: implement
   };
 };
 

@@ -19,6 +19,12 @@
 				"command": "t00ls.newProject",
 				"title": "t00ls: New Project"
 			}
+		],
+		"snippets": [
+			{
+				"language": "javascript",
+				"path": "./snippets/javascript.code-snippets"
+			}
 		]
 	},
 	"scripts": {
