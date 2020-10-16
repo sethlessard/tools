@@ -26,6 +26,10 @@
 				"path": "./snippets/c.code-snippts"
 			},
 			{
+				"language": "c++",
+				"path": "./snippets/cpp.code-snippts"
+			},
+			{
 				"language": "javascript",
 				"path": "./snippets/javascript.code-snippets"
 			}

@@ -1,0 +1,120 @@
+{
+  "Class": {
+    "prefix": "tclass",
+    "description": "C++ Class",
+    "body": [
+      "#include \"$1.hpp\"",
+      "",
+      "/**",
+      " * $1 constructor.",
+      " */",
+      "$1::$1() {",
+      "",
+      "}",
+      "",
+      "/**",
+      " * $1 deconstructor.",
+      " */",
+      "$1::~$1() {",
+      "",
+      "}",
+      ""
+    ]
+  },
+  "Class Header": {
+    "prefix": "tclassheader",
+    "description": "C++ Class Header",
+    "body": [
+      "#ifndef $1_H",
+      "#define $1_H",
+      "",
+      "class $1 {",
+      "",
+      "\tpublic:",
+      "\t\t/**",
+      "\t\t * $1 constructor.",
+      "\t\t */",
+      "\t\t$1();",
+      "",
+      "\t\t/**",
+      "\t\t * $1 deconstructor.",
+      "\t\t */",
+      "\t\t~$1();",
+      "",
+      "\tprivate:",
+      "};",
+      "",
+      "#endif",
+      ""
+    ]
+  },
+  "Main": {
+    "prefix": "tmain",
+    "description": "C++ Main",
+    "body": [
+      "/**",
+      " * Entrypoint.",
+      " * @param argc the number of command line arguments.",
+      " * @param argv the command line arguments.",
+      " */",
+      "int main(int argc, char** argv) {",
+      "\t// implement ya stuff",
+      "\treturn 0;",
+      "}",
+      ""
+    ]
+  },
+  "Singleton": {
+    "prefix": "tsingleton",
+    "description": "C++ Singleton",
+    "body": [
+      "#include \"$1.hpp\"",
+      "",
+      "$1* $1::_instance = nullptr;",
+      "",
+      "/**",
+      " * Get the $1 instance.",
+      " * @returns the $1 instance.",
+      " */",
+      "$1* $1::getInstance() {",
+      "  if (_instance == nullptr) {",
+      "    _instance = new $1();",
+      "  }",
+      "  return _instance;",
+      "}",
+      "",
+      "/**",
+      " * $1 constructor.",
+      " */",
+      "$1::$1() {",
+      "",
+      "}",
+      ""
+    ]
+  },
+  "Singleton Header": {
+    "prefix": "tsingletonheader",
+    "description": "C++ Singleton Header",
+    "body": [
+      "#ifndef $1_H",
+      "#define $1_H",
+      "",
+      "class $1 {",
+      "",
+      "\tpublic:",
+      "\t\tstatic $1* getInstance();",
+      "",
+      "\tprivate:",
+      "\t\t/**",
+      "\t\t * $1 constructor.",
+      "\t\t */",
+      "\t\t$1();",
+      "",
+      "\t\tstatic $1* _instance;",
+      "};",
+      "",
+      "#endif",
+      ""
+    ]
+  }
+}
