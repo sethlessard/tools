@@ -22,6 +22,10 @@
 		],
 		"snippets": [
 			{
+				"language": "c",
+				"path": "./snippets/c.code-snippts"
+			},
+			{
 				"language": "javascript",
 				"path": "./snippets/javascript.code-snippets"
 			}

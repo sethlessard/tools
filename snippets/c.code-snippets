@@ -1,0 +1,17 @@
+{
+  "Main": {
+    "prefix": "tmain",
+    "description": "C Main",
+    "body": [
+      "/**",
+      " * Entrypoint.",
+      " * @param argc the number of command line arguments.",
+      " * @param argv the command line arguments.",
+      " */",
+      "int main(int argc, char** argv) {",
+      "  // implement ya stuff",
+      "  return 0;",
+      "}"
+    ]
+  }
+}
