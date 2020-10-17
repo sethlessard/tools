@@ -21,7 +21,7 @@ class ProjectCreator  {
     this._positionalArgs = argv["_"];
     this._type = this._positionalArgs[2];
     this._path = this._positionalArgs[3];
-    this._templateBase = `templates/projects/${language}`;
+    this._templateBase = `templates/${language}`;
   }
 
   /**
