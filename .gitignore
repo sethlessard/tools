@@ -1,16 +1,8 @@
-# ignore everything
-/*
-/*/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 
-# except
-!/bin/
-!/snippets/
-!/src/
-!/templates/
-!/test/
-!.eslintrc.json
-!.gitignore
-!.npmignore
-!Jenkinsfile
-!package-lock.json
-!package.json
+bin
+out
+node_modules
+vsc-extension-quickstart.md

@@ -24,21 +24,6 @@ class CppProjectCreator extends ProjectCreator {
   }
 
   /**
-   * Get the C++ project help.
-   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
-   */
-  getHelp() {
-    return {
-      description: "C++ projects",
-      help: {
-        simple: {
-          description: "Simple C++ project"
-        }
-      }
-    }; 
-  }
-
-  /**
    * Create a simple C++ project.
    */
   _createSimple() {

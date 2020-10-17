@@ -3,8 +3,8 @@ import * as fse from "fs-extra";
 import * as path from "path";
 
 import ProjectCreator from "./ProjectCreator";
-import JsonReader from "../../reader/JsonReader";
-import JsonWriter from "../../writer/JsonWriter";
+import JsonReader from "../reader/JsonReader";
+import JsonWriter from "../writer/JsonWriter";
 
 type Dependency = { name: string, version: string } | string;
 
@@ -58,30 +58,6 @@ class NodeProjectCreator extends ProjectCreator {
         console.log(`"${this._type}" is not a registered NodeJS project type.`);
         break;
     }
-  }
-
-  /**
-   * Get the Node.js project help.
-   * @returns {{ description: string, help: {[string]: {description: string, args: {[string]: {description: string, args: {[string|number]: { description: string, default?: any, required?: boolean }}}}}}} the help.
-   */
-  getHelp() {
-    return {
-      description: "Node.js projects",
-      help: {
-        api: {
-          description: "Simple Express api"
-        },
-        "react-app": {
-          description: "Simple React app"
-        },
-        "react-library": {
-          description: "Simple React library"
-        },
-        "socket.io-server": {
-          description: "Simple Express api"
-        }
-      }
-    };
   }
 
   /**
@@ -281,4 +257,4 @@ class NodeProjectCreator extends ProjectCreator {
   }
 }
 
-module.exports = NodeProjectCreator;
+export default NodeProjectCreator;
