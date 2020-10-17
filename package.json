@@ -24,11 +24,11 @@
 		"snippets": [
 			{
 				"language": "c",
-				"path": "./snippets/c.code-snippts"
+				"path": "./snippets/c.code-snippets"
 			},
 			{
 				"language": "c++",
-				"path": "./snippets/cpp.code-snippts"
+				"path": "./snippets/cpp.code-snippets"
 			},
 			{
 				"language": "javascript",
