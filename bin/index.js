@@ -39,7 +39,6 @@ const createProject = () => {
     case "python":
       console.error(`"${positionalArgs[1]}" not yet implemented.`);
       process.exit(1);
-      break;
     default:
       showHelp("create");
       process.exit(1);

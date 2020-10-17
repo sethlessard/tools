@@ -1,44 +1,38 @@
 import { execSync } from "child_process";
 import * as fs from "fs";
+import ProjectOptions from "./ProjectOptions";
 
-class ProjectCreator  {
+abstract class ProjectCreator  {
 
-  protected readonly _appBase: string;
-  protected readonly _path: string;
-  protected readonly _positionalArgs: any;
+  protected readonly _options: ProjectOptions;
   protected readonly _templateBase: string;
-  protected readonly _type: string;
-
 
   /**
    * ProjectCreator constructor.
-   * @param {string} langauge the programming language.
-   * @param {string} appBase the path to the base of the t00ls app.
-   * @param {any} argv the arguments passed to the t00ls app.
+   * @param langauge the programming language.
+   * @param options the path to the base of the t00ls app.
    */
-  constructor(language: string, appBase: string, argv: any) {
-    this._appBase = appBase;
-    this._positionalArgs = argv["_"];
-    this._type = this._positionalArgs[2];
-    this._path = this._positionalArgs[3];
+  constructor(language: string, options: ProjectOptions) {
+    this._options = options;
     this._templateBase = `templates/${language}`;
   }
 
   /**
    * Create the project.
    */
-  create() { }
+  abstract create(): Promise<void>;
 
   /**
    * Create & the project directory.
    */
   protected _createDirectory() {
+    const { path } = this._options;
     // create the directory
-    if (!fs.existsSync(this._path)) {
-      fs.mkdirSync(this._path, { recursive: true });
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path, { recursive: true });
     } else {
       // TODO: ask if we should delete/create the directory. For now, just exit.
-      console.error(`${this._path} already exists.`);
+      console.error(`${path} already exists.`);
       process.exit(1);
     }
   }
@@ -48,7 +42,7 @@ class ProjectCreator  {
    * @param {string} command the command to execute.
    */
   protected _inDir(command: string) {
-    execSync(command, { cwd: this._path });
+    execSync(command, { cwd: this._options.path });
   }
 }
 

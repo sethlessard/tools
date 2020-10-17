@@ -2,9 +2,11 @@ import { execSync } from "child_process";
 import * as fse from "fs-extra";
 import * as path from "path";
 
-import ProjectCreator from "./ProjectCreator";
-import JsonReader from "../reader/JsonReader";
-import JsonWriter from "../writer/JsonWriter";
+import ProjectCreator from "../ProjectCreator";
+import JsonReader from "../../reader/JsonReader";
+import JsonWriter from "../../writer/JsonWriter";
+import NodeProjectOptions from "./NodeProjectOptions";
+import NodeProjectType, { getNodeProjectTemplateDirectory } from "./NodeProjectType";
 
 type Dependency = { name: string, version: string } | string;
 
@@ -13,58 +15,51 @@ class NodeProjectCreator extends ProjectCreator {
   private readonly _packagePath: string;
   private readonly _jsonReader: JsonReader;
   private readonly _jsonWriter: JsonWriter;
+  protected readonly _options: NodeProjectOptions;
 
   /**
    * NodeProjectCreator constructor.
    * @param {string} appBase the path to the base of the tools app.
    * @param {any} argv the arguments passed to the tools command.
    */
-  constructor(appBase: string, argv: any) {
-    super("node", appBase, argv);
-    if (this._path) {
-      this._packagePath = path.join(this._path, "package.json");
-    } else {
-      throw new Error("Path must be specified.");
-    }
+  constructor(projectOptions: NodeProjectOptions) {
+    super("node",  projectOptions);
+    this._options = projectOptions;
+    this._packagePath = path.join(projectOptions.path, "package.json");
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
   }
 
-  create() {
-    // initialize the directory
-    this._createDirectory();
+  create(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // initialize the directory
+      this._createDirectory();
 
-    // configure the package.json
-    const pack = this._jsonReader.read(this._packagePath);
-    pack.version = "0.0.1";
-    pack.description = "description here"; // TODO: description
-    pack.author = "Seth Lessard <sethlessard@outlook.com>";
+      // configure the package.json
+      const pack = this._jsonReader.read(this._packagePath);
+      pack.version = "0.0.1";
+      pack.description = this._options.description;
+      pack.author = "Seth Lessard <sethlessard@outlook.com>";
 
-    switch (this._type) {
-      case "api":
-        this._createApi(pack);
-        break;
-      case "react-app":
-        this._createReactApp();
-        break;
-      case "react-library":
-        this._createReactLibrary();
-        break;
-      case "socket.io-server":
-        this._createSocketioServer(pack);
-        break;
-      default:
-        console.log(`"${this._type}" is not a registered NodeJS project type.`);
-        break;
-    }
+      switch (this._options.type) {
+        case NodeProjectType.Api:
+          return this._createApi(pack);
+        case NodeProjectType.ReactApp:
+          return this._createReactApp();
+        case NodeProjectType.ReactLibrary:
+          return this._createReactLibrary();
+        case NodeProjectType.SocketIOServer:
+          return this._createSocketioServer(pack);
+      }
+    });
   }
 
   /**
    * Get the gulp scripts.
    * @returns {{ debug: string, start: string, test: string }} the gulp scripts
    */
-  _getGulpScripts() {
+  private _getGulpScripts() {
     return {
       "debug": "gulp debug",
       "start": "gulp develop",
@@ -76,7 +71,8 @@ class NodeProjectCreator extends ProjectCreator {
    * Initialize a simple API project.
    * @param {any} the package.json file.
    */
-  _createApi(pack: any) {
+  private _createApi(pack: any) {
+    // TODO: move dependencies to package.json in template directory.
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
@@ -110,13 +106,13 @@ class NodeProjectCreator extends ProjectCreator {
     this._installDevDependencies(devDependencies);
 
     // copy the template
-    fse.copySync(path.join(this._templateBase, "simple-api"), this._path);
+    fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.Api)!!), this._options.path);
   }
 
   /**
    * Initialize the project directory.
    */
-  _createDirectory() {
+  protected _createDirectory() {
     super._createDirectory();
 
     // npm init
@@ -127,7 +123,7 @@ class NodeProjectCreator extends ProjectCreator {
  * Configure the dependencies and devDependencies to use exact versions.
  * @param {object} pack the package.json.
  */
-  _configureExactDepencies(pack: any) {
+  private _configureExactDepencies(pack: any) {
     // TODO: implement
     return pack;
   }
@@ -135,8 +131,8 @@ class NodeProjectCreator extends ProjectCreator {
   /**
    * Create a new React app.
    */
-  _createReactApp() {
-    execSync(`${path.join(this._appBase, "node_modules/.bin/create-react-app")} ${this._path}`);
+  private _createReactApp() {
+    execSync(`${path.join(this._options.path, "node_modules/.bin/create-react-app")} ${this._options.type}`);
 
     // configure the package.json
     const pack = this._jsonReader.read(this._packagePath);
@@ -160,8 +156,8 @@ class NodeProjectCreator extends ProjectCreator {
   /**
    * Create a new React library.
    */
-  _createReactLibrary() {
-    execSync(`${path.join(this._appBase, "node_modules/.bin/create-react-library")} --no-git --skip-prompts ${this._path}`);
+  private _createReactLibrary() {
+    execSync(`${path.join(this._options.path, "node_modules/.bin/create-react-library")} --no-git --skip-prompts ${this._options.type}`);
 
     // configure the package.json
     const pack = this._jsonReader.read(this._packagePath);
@@ -183,7 +179,7 @@ class NodeProjectCreator extends ProjectCreator {
    * Initialize a simple socket.io server project.
    * @param {any} pack the package.json file.
    */
-  _createSocketioServer(pack: any) {
+  private _createSocketioServer(pack: any) {
     // update the package.json file.
     pack.scripts = this._getGulpScripts();
     pack.main = "dist/index.js";
@@ -217,20 +213,20 @@ class NodeProjectCreator extends ProjectCreator {
     this._installDevDependencies(devDependencies);
 
     // copy the template
-    fse.copySync(path.join(this._templateBase, "simple-socketio-server"), this._path);
+    fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.SocketIOServer)!!), this._options.path);
   }
 
   /**
    * Install NPM dependencies for a NodeJS project.
    * @param {Dependency[]} dependencies the dependencies.
    */
-  _installDependencies(dependencies: Dependency[]) {
+  private _installDependencies(dependencies: Dependency[]) {
     let installCommand = "npm install -E";
     for (const dependency of dependencies) {
       if (typeof dependency === "string") {
         installCommand += ` ${dependency}`;
       } else {
-        installCommand += ` ${dependency.name}@${dependency.version}`
+        installCommand += ` ${dependency.name}@${dependency.version}`;
       }
     }
 
@@ -242,19 +238,21 @@ class NodeProjectCreator extends ProjectCreator {
    * Install NPM dependencies for a NodeJS project as development dependencies
    * @param {Dependency[]} dependencies the dependencies.
    */
-  _installDevDependencies(dependencies: Dependency[]) {
+  private _installDevDependencies(dependencies: Dependency[]) {
     let installCommand = "npm install -E -D";
     for (const dependency of dependencies) {
       if (typeof dependency === "string") {
         installCommand += ` ${dependency}`;
       } else {
-        installCommand += ` ${dependency.name}@${dependency.version}`
+        installCommand += ` ${dependency.name}@${dependency.version}`;
       }
     }
 
     // install the dependencies
     this._inDir(installCommand);
   }
+
+  
 }
 
 export default NodeProjectCreator;
