@@ -27,7 +27,7 @@
 				"path": "./snippets/c.code-snippets"
 			},
 			{
-				"language": "c++",
+				"language": "cpp",
 				"path": "./snippets/cpp.code-snippets"
 			},
 			{

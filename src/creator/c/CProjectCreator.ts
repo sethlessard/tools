@@ -1,5 +1,6 @@
 import * as fse from "fs-extra";
 import * as path from "path";
+import { ExtensionContext } from "vscode";
 
 import ProjectCreator from "../ProjectCreator";
 import CProjectOptions from "./CProjectOptions";
@@ -9,8 +10,8 @@ class CProjectCreator extends ProjectCreator {
 
   protected readonly _options: CProjectOptions;
 
-  constructor(options: CProjectOptions) {
-    super("c", options);
+  constructor(options: CProjectOptions, context: ExtensionContext) {
+    super("c", options, context);
     this._options = options;
   }
 

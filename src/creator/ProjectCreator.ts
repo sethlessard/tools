@@ -1,8 +1,10 @@
+import { ExtensionContext } from "vscode";
 import { execSync } from "child_process";
 import * as fs from "fs";
+import * as path from "path";
 import ProjectOptions from "./ProjectOptions";
 
-abstract class ProjectCreator  {
+abstract class ProjectCreator {
 
   protected readonly _options: ProjectOptions;
   protected readonly _templateBase: string;
@@ -12,9 +14,9 @@ abstract class ProjectCreator  {
    * @param langauge the programming language.
    * @param options the path to the base of the t00ls app.
    */
-  constructor(language: string, options: ProjectOptions) {
+  constructor(language: string, options: ProjectOptions, context: ExtensionContext) {
     this._options = options;
-    this._templateBase = `templates/${language}`;
+    this._templateBase = path.join(context.extensionPath, `templates/${language}`);
   }
 
   /**

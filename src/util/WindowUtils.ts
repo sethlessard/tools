@@ -1,9 +1,19 @@
-import { window } from "vscode";
+import { commands, Uri, window } from "vscode";
 
 export type YesNoOptions = {
   question: string,
   noIsDefault?: boolean,
   ignoreFocusOut?: boolean
+};
+
+/**
+ * Open a folder.
+ * @param path the path to the folder.
+ * @param newWindow if true, the folder will be opened in a new window. If false,
+ * it will open in the current window.
+ */
+const openFolder = (path: string, newWindow?: boolean) => {
+  return commands.executeCommand("vscode.openFolder", Uri.file(path), newWindow);
 };
 
 /**
@@ -27,6 +37,7 @@ const promptYesNo = (options: YesNoOptions) => {
 };
 
 export {
+  openFolder,
   promptInputRequireValue,
   promptYesNo
 };

@@ -7,6 +7,7 @@ import JsonReader from "../../reader/JsonReader";
 import JsonWriter from "../../writer/JsonWriter";
 import NodeProjectOptions from "./NodeProjectOptions";
 import NodeProjectType, { getNodeProjectTemplateDirectory } from "./NodeProjectType";
+import { ExtensionContext } from "vscode";
 
 type Dependency = { name: string, version: string } | string;
 
@@ -22,8 +23,8 @@ class NodeProjectCreator extends ProjectCreator {
    * @param {string} appBase the path to the base of the tools app.
    * @param {any} argv the arguments passed to the tools command.
    */
-  constructor(projectOptions: NodeProjectOptions) {
-    super("node",  projectOptions);
+  constructor(projectOptions: NodeProjectOptions, context: ExtensionContext) {
+    super("node",  projectOptions, context);
     this._options = projectOptions;
     this._packagePath = path.join(projectOptions.path, "package.json");
 
