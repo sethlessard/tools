@@ -1,9 +1,0 @@
-import argparse
-import sys
-
-def main():
-  # TODO: implement your stuff
-  pass
-
-if __name__ == "__main__":
-  main()

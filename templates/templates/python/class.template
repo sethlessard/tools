@@ -1,8 +1,0 @@
-
-class $1($2):
-  
-  def __init__(self):
-    '''
-    $1 constructor.
-    '''
-    pass
