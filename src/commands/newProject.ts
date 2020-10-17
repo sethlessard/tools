@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path";
 
 import CProjectCreator from "../creator/c/CProjectCreator";
 import CProjectOptions from "../creator/c/CProjectOptions";
@@ -9,6 +10,7 @@ import { mapToCppProjectType } from "../creator/cpp/CppProjectType";
 import NodeProjectCreator from "../creator/node/NodeProjectCreator";
 import NodeProjectOptions from "../creator/node/NodeProjectOptions";
 import { EXPRESS_API, mapToNodeProjectType, REACT_APP, REACT_LIBRARY, SOCKET_IO_SERVER } from "../creator/node/NodeProjectType";
+import { promptInputRequireValue } from "../util/WindowUtils";
 
 type LanguageDefinitions = {
   [language: string]: {
@@ -42,6 +44,10 @@ const languageDefinitions: LanguageDefinitions = {
  */
 const newProject = () => {
   return async () => {
+    // get the project name
+    const name = await promptInputRequireValue("Project name?");
+    if (!name) { return; }
+
     const languages = Object.keys(languageDefinitions);
     const language = await vscode.window.showQuickPick(languages, { canPickMany: false, placeHolder: "What language would you like to write in?" });
     if (!language) { return; }
@@ -50,21 +56,23 @@ const newProject = () => {
     const project = await vscode.window.showQuickPick(projects, { canPickMany: false, placeHolder: "What kind of project?" });
     if (!project) { return; }
 
-    // TODO: get the projects base directory (the project will be stored at <base directory>/<project name>)
+    const projectParent = await vscode.window.showOpenDialog({ canSelectFiles: false, canSelectFolders: true, canSelectMany: false, openLabel: "Select Parent Directory", title: "Project Parent Directory" })
+      .then(uris => (uris) ? uris[0] : null);
+    if (!projectParent) { return; }
+
+    const projectPath = path.join(projectParent.fsPath, name);
 
     switch (language) {
       case "C":
-
+        await _createCProject(projectPath);
         break;
       case "C++":
+        await _createCppProject(projectPath);
         break;
       case "Node JS":
-        // _createNodeProject(projectPath);
+        await _createNodeProject(projectPath);
         break;
     }
-
-    await vscode.window.showInformationMessage(`Language: ${language}, Project: ${project}`);
-    // TODO: implement
   };
 };
 
