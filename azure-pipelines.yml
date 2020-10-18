@@ -49,3 +49,11 @@ steps:
       tagPattern: 'v'
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
+  - task: Bash@3
+    displayName: Publish to VS Code Marketplace
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+    inputs:
+      targetType: 'inline'
+      script: 'vsce publish'
+    env:
+      VSCE_PAT: $(VSCE_PAT)
