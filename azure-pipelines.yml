@@ -22,6 +22,13 @@ steps:
         npm install -g vsce
         npm install
   - task: Bash@3
+    displayName: "Start xvfb"
+    inputs:
+      targetType: 'inline'
+      script: |
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        echo ">>> Started xvfb"
+  - task: Bash@3
     displayName: "Lint & Test t00ls"
     inputs:
       targetType: 'inline'
