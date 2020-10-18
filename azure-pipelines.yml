@@ -27,3 +27,13 @@ steps:
     inputs:
       targetType: 'inline'
       script: 'vsce package'
+  - task: GitHubRelease@1
+    inputs:
+      gitHubConnection: sethlessard
+      repositoryName: 'sethlessard/tools'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      tagPattern: 'v'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
