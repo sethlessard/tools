@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '12.x'
+  - task: Bash@3
+    displayName: "Install dependencies"
+    inputs:
+      targetType: 'inline'
+      script: |
+        npm install -g vsce
+        npm install 
+  - task: Bash@3
+    displayName: "Build VS Code Extension"
+    inputs:
+      targetType: 'inline'
+      script: 'vsce package'
