@@ -28,8 +28,9 @@ steps:
       targetType: 'inline'
       script: 'vsce package'
   - task: GitHubRelease@1
+    displayName: Release to GitHub
     inputs:
-      gitHubConnection: sethlessard
+      gitHubConnection: github_sethlessard
       repositoryName: 'sethlessard/tools'
       action: 'create'
       target: '$(Build.SourceVersion)'
