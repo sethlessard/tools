@@ -1,6 +1,7 @@
 
 interface ProjectOptions {
-  path: string;
+  name: string;
+  parentPath: string;
   type: any;
 };
 

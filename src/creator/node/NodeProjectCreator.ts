@@ -1,13 +1,15 @@
-import { execSync } from "child_process";
+import { exec } from "child_process";
+import { ExtensionContext } from "vscode";
+import { promisify } from "util";
 import * as fse from "fs-extra";
 import * as path from "path";
+const pExec = promisify(exec);
 
 import ProjectCreator from "../ProjectCreator";
 import JsonReader from "../../reader/JsonReader";
 import JsonWriter from "../../writer/JsonWriter";
 import NodeProjectOptions from "./NodeProjectOptions";
 import NodeProjectType, { getNodeProjectTemplateDirectory } from "./NodeProjectType";
-import { ExtensionContext } from "vscode";
 
 type Dependency = { name: string, version: string } | string;
 
@@ -24,36 +26,36 @@ class NodeProjectCreator extends ProjectCreator {
    * @param {any} argv the arguments passed to the tools command.
    */
   constructor(projectOptions: NodeProjectOptions, context: ExtensionContext) {
-    super("node",  projectOptions, context);
+    super("node", projectOptions, context);
     this._options = projectOptions;
-    this._packagePath = path.join(projectOptions.path, "package.json");
+    this._packagePath = path.join(this._projectPath, "package.json");
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
   }
 
   create(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // initialize the directory
-      this._createDirectory();
+    switch (this._options.type) {
+      case NodeProjectType.Api:
+        return this._createApi();
+      case NodeProjectType.ReactApp:
+        return this._createReactApp();
+      case NodeProjectType.ReactLibrary:
+        return this._createReactLibrary();
+      case NodeProjectType.SocketIOServer:
+        return this._createSocketioServer();
+    }
+  }
 
-      // configure the package.json
-      const pack = this._jsonReader.read(this._packagePath);
-      pack.version = "0.0.1";
-      pack.description = this._options.description;
-      pack.author = "Seth Lessard <sethlessard@outlook.com>";
-
-      switch (this._options.type) {
-        case NodeProjectType.Api:
-          return this._createApi(pack);
-        case NodeProjectType.ReactApp:
-          return this._createReactApp();
-        case NodeProjectType.ReactLibrary:
-          return this._createReactLibrary();
-        case NodeProjectType.SocketIOServer:
-          return this._createSocketioServer(pack);
-      }
-    });
+  /**
+   * Get the package.json and set some defaults.
+   */
+  private _getPackageJson() {
+    const pack = this._jsonReader.read(this._projectPath);
+    pack.version = "0.0.1";
+    pack.description = this._options.description;
+    pack.author = "Seth Lessard <sethlessard@outlook.com>";
+    return pack;
   }
 
   /**
@@ -70,44 +72,52 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
    * Initialize a simple API project.
-   * @param {any} the package.json file.
    */
-  private _createApi(pack: any) {
-    // TODO: move dependencies to package.json in template directory.
-    // update the package.json file.
-    pack.scripts = this._getGulpScripts();
-    pack.main = "dist/index.js";
-    // write the package.json file.
-    this._jsonWriter.write(this._packagePath, pack);
+  private _createApi(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // initialize the directory
+      this._createDirectory();
 
-    // install the dependencies
-    const dependencies = [
-      "express",
-      "helmet",
-      "body-parser",
-      "dotenv"
-    ];
-    const devDependencies = [
-      "rimraf",
-      "mocha",
-      "chai",
-      "supertest",
-      "gulp",
-      "gulp-babel",
-      "gulp-sourcemaps",
-      "gulp-inject-string",
-      "gulp-nodemon",
-      "nodemon",
-      "@babel/cli",
-      "@babel/core",
-      "@babel/node",
-      "@babel/preset-env"
-    ];
-    this._installDependencies(dependencies);
-    this._installDevDependencies(devDependencies);
+      // configure the package.json
+      const pack = this._getPackageJson();
+      // TODO: move dependencies to package.json in template directory.
+      // update the package.json file.
+      pack.scripts = this._getGulpScripts();
+      pack.main = "dist/index.js";
+      // write the package.json file.
+      this._jsonWriter.write(this._packagePath, pack);
 
-    // copy the template
-    fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.Api)!!), this._options.path);
+      // install the dependencies
+      const dependencies = [
+        "express",
+        "helmet",
+        "body-parser",
+        "dotenv"
+      ];
+      const devDependencies = [
+        "rimraf",
+        "mocha",
+        "chai",
+        "supertest",
+        "gulp",
+        "gulp-babel",
+        "gulp-sourcemaps",
+        "gulp-inject-string",
+        "gulp-nodemon",
+        "nodemon",
+        "@babel/cli",
+        "@babel/core",
+        "@babel/node",
+        "@babel/preset-env"
+      ];
+      this._installDependencies(dependencies);
+      this._installDevDependencies(devDependencies);
+
+      // copy the template
+      // TODO: async
+      fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.Api)!!), this._projectPath);
+      resolve();
+    });
   }
 
   /**
@@ -133,88 +143,101 @@ class NodeProjectCreator extends ProjectCreator {
    * Create a new React app.
    */
   private _createReactApp() {
-    execSync(`${path.join(this._options.path, "node_modules/.bin/create-react-app")} ${this._options.type}`);
+    const craExec = path.join(this._context.extensionPath, "node_modules/.bin/create-react-app");
+    return pExec(`${craExec} ${this._options.name}`, { cwd: this._options.parentPath })
+      .then(({ stdout, stderr }) => {
+        if (stderr) { throw new Error(stderr); }
+        // TODO: display stdout somehow
 
-    // configure the package.json
-    const pack = this._jsonReader.read(this._packagePath);
-    pack.version = "0.0.1";
-    pack.description = "description here"; // TODO: description
-    pack.author = "Seth Lessard <sethlessard@outlook.com>";
-    // TODO: pack.repository
-    // write the package.json file.
-    this._jsonWriter.write(this._packagePath, pack);
+        // configure the package.json
+        const pack = this._getPackageJson();
 
-    // define the dependencies needed
-    const dependencies = [
-      "@react-uix/web",
-      "styled-components"
-    ];
+        // TODO: pack.repository
+        // write the package.json file.
+        this._jsonWriter.write(this._packagePath, pack);
 
-    // install the dependencies
-    this._installDependencies(dependencies);
+        // define the dependencies needed
+        const dependencies = [
+          "@react-uix/web",
+          "styled-components"
+        ];
+
+        // install the dependencies
+        this._installDependencies(dependencies);
+      });
   }
 
   /**
    * Create a new React library.
    */
   private _createReactLibrary() {
-    execSync(`${path.join(this._options.path, "node_modules/.bin/create-react-library")} --no-git --skip-prompts ${this._options.type}`);
+    const crlExec = path.join(this._context.extensionPath, "node_modules/.bin/create-react-library");
 
-    // configure the package.json
-    const pack = this._jsonReader.read(this._packagePath);
-    pack.version = "0.0.1";
-    pack.description = "description here"; // TODO: description
-    pack.author = "Seth Lessard <sethlessard@outlook.com>";
-    // TODO: pack.repository
-    // write the package.json file.
-    this._jsonWriter.write(this._packagePath, pack);
+    return pExec(`${crlExec} --no-git --skip-prompts ${this._options.name}`, { cwd: this._options.parentPath })
+      .then(({ stdout, stderr }) => {
+        // if (stderr) { throw new Error(stderr); }
+        // configure the package.json
+        const pack = this._getPackageJson();
 
-    // define the dependencies needed
-    const dependencies = ["styled-components"];
+        // TODO: pack.repository
+        // write the package.json file.
+        this._jsonWriter.write(this._packagePath, pack);
 
-    // install the dependencies
-    this._installDependencies(dependencies);
+        // define the dependencies needed
+        const dependencies = ["styled-components"];
+
+        // install the dependencies
+        this._installDependencies(dependencies);
+      });
   }
 
   /**
    * Initialize a simple socket.io server project.
-   * @param {any} pack the package.json file.
    */
-  private _createSocketioServer(pack: any) {
-    // update the package.json file.
-    pack.scripts = this._getGulpScripts();
-    pack.main = "dist/index.js";
-    // write the package.json file.
-    this._jsonWriter.write(this._packagePath, pack);
+  private _createSocketioServer(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // initialize the directory
+      this._createDirectory();
 
-    const dependencies = [
-      "express",
-      "helmet",
-      "body-parser",
-      "socket.io"
-    ];
-    const devDependencies = [
-      "rimraf",
-      "mocha",
-      "chai",
-      "supertest",
-      "gulp",
-      "gulp-babel",
-      "gulp-sourcemaps",
-      "gulp-inject-string",
-      "gulp-nodemon",
-      "nodemon",
-      "@babel/cli",
-      "@babel/core",
-      "@babel/node",
-      "@babel/preset-env",
-      "socket.io-client"
-    ];
-    this._installDependencies(dependencies);
-    this._installDevDependencies(devDependencies);
+      // configure the package.json
+      const pack = this._getPackageJson();
+      // update the package.json file.
+      pack.scripts = this._getGulpScripts();
+      pack.main = "dist/index.js";
+      // write the package.json file.
+      this._jsonWriter.write(this._packagePath, pack);
 
-    // copy the template
-    fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.SocketIOServer)!!), this._options.path);
+      const dependencies = [
+        "express",
+        "helmet",
+        "body-parser",
+        "socket.io"
+      ];
+      const devDependencies = [
+        "rimraf",
+        "mocha",
+        "chai",
+        "supertest",
+        "gulp",
+        "gulp-babel",
+        "gulp-sourcemaps",
+        "gulp-inject-string",
+        "gulp-nodemon",
+        "nodemon",
+        "@babel/cli",
+        "@babel/core",
+        "@babel/node",
+        "@babel/preset-env",
+        "socket.io-client"
+      ];
+      this._installDependencies(dependencies);
+      this._installDevDependencies(devDependencies);
+
+      // copy the template
+      // TODO: async
+      fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.SocketIOServer)!!), this._projectPath);
+      resolve();
+    });
   }
 
   /**
@@ -253,7 +276,7 @@ class NodeProjectCreator extends ProjectCreator {
     this._inDir(installCommand);
   }
 
-  
+
 }
 
 export default NodeProjectCreator;

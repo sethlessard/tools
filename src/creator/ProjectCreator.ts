@@ -6,7 +6,9 @@ import ProjectOptions from "./ProjectOptions";
 
 abstract class ProjectCreator {
 
+  protected readonly _context: ExtensionContext;
   protected readonly _options: ProjectOptions;
+  protected readonly _projectPath: string;
   protected readonly _templateBase: string;
 
   /**
@@ -15,8 +17,10 @@ abstract class ProjectCreator {
    * @param options the path to the base of the t00ls app.
    */
   constructor(language: string, options: ProjectOptions, context: ExtensionContext) {
+    this._context = context;
     this._options = options;
-    this._templateBase = path.join(context.extensionPath, `templates/${language}`);
+    this._projectPath = path.join(this._options.parentPath, this._options.name);
+    this._templateBase = path.join(this._context.extensionPath, `templates/${language}`);
   }
 
   /**
@@ -28,7 +32,7 @@ abstract class ProjectCreator {
    * Create & the project directory.
    */
   protected _createDirectory() {
-    const { path } = this._options;
+    const { parentPath: path } = this._options;
     // create the directory
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true });
@@ -44,7 +48,7 @@ abstract class ProjectCreator {
    * @param {string} command the command to execute.
    */
   protected _inDir(command: string) {
-    execSync(command, { cwd: this._options.path });
+    execSync(command, { cwd: this._options.parentPath });
   }
 }
 

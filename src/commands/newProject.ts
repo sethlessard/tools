@@ -57,77 +57,89 @@ const newProject = (context: vscode.ExtensionContext) => {
       .then(uris => (uris) ? uris[0] : null);
     if (!projectParent) { return; }
 
-    const projectPath = path.join(projectParent.fsPath, name);
+    const projectType = await vscode.window.showQuickPick(languageDefinitions[language].projects, { canPickMany: false, placeHolder: `Which type of ${language} project would you like to create?` });
+    if (!projectType) { return; }
 
-    switch (language) {
-      case "C":
-        await _createCProject(projectPath, context);
-        break;
-      case "C++":
-        await _createCppProject(projectPath, context);
-        break;
-      case "Node JS":
-        await _createNodeProject(projectPath, context);
-        break;
-    }
+    await vscode.window.withProgress({
+      cancellable: false,
+      location: vscode.ProgressLocation.Notification,
+      title: `Creating ${language} project (${projectType}): ${name}`
+    }, async (progress) => {
+        progress.report({ increment: 0 });
+        try {
+          switch (language) {
+            case "C":
+              await _createCProject(projectParent.fsPath, name, projectType, context);
+              break;
+            case "C++":
+              await _createCppProject(projectParent.fsPath, name, projectType, context);
+              break;
+            case "Node JS":
+              await _createNodeProject(projectParent.fsPath, name, projectType, context);
+              break;
+          }
+        } catch (e) {
+          await vscode.window.showWarningMessage(`There may have been an error creating the project: ${e}`);
+        }
+      
+      progress.report({ increment: 100 });
+    });
 
     const newWindow = await promptYesNo({ question: "Open in a new window?", noIsDefault: true, ignoreFocusOut: true });
-    await openFolder(projectPath, newWindow);
+    await openFolder(path.join(projectParent.fsPath, name), newWindow);
   };
 };
 
 /**
  * Create a C project.
- * @param projectPath the path to the new C project.
+ * @param projectParent the parent directory of the new C project.
+ * @param projectName the name of the project.
+ * @param projectType the type of project.
+ * @param context the t00ls extension context.
  */
-const _createCProject = (projectPath: string, context: vscode.ExtensionContext) => {
-  return vscode.window.showQuickPick(languageDefinitions["C"].projects, { canPickMany: false, placeHolder: "Which type of C project would you like to create?" })
-    .then((type?: string) => {
-      if (!type) { return; }
+const _createCProject = (projectParent: string, projectName: string, projectType: string, context: vscode.ExtensionContext) => {
+  const projectOptions: CProjectOptions = {
+    name: projectName,
+    parentPath: projectParent,
+    type: mapToCProjectType(projectType)
+  };
 
-      const projectOptions: CProjectOptions = {
-        path: projectPath,
-        type: mapToCProjectType(type)
-      };
-      const creator = new CProjectCreator(projectOptions, context);
-      return creator.create();
-    });
+  const creator = new CProjectCreator(projectOptions, context);
+  return creator.create();
 };
 
 /**
  * Create a C++ project.
- * @param projectPath the path to the new C++ project.
+ * @param projectParent the parent directory of the new C++ project.
+ * @param projectName the name of the project.
+ * @param projectType the type of project.
+ * @param context the t00ls extension context.
  */
-const _createCppProject = (projectPath: string, context: vscode.ExtensionContext) => {
-  return vscode.window.showQuickPick(languageDefinitions["C++"].projects, { canPickMany: false, placeHolder: "Which type of C++ project would you like to create?" })
-    .then((type?: string) => {
-      if (!type) { return; }
-
-      const projectOptions: CppProjectOptions = {
-        path: projectPath,
-        type: mapToCppProjectType(type)
-      };
-      const creator = new CppProjectCreator(projectOptions, context);
-      return creator.create();
-    });
+const _createCppProject = (projectParent: string, projectName: string, projectType: string, context: vscode.ExtensionContext) => {
+  const projectOptions: CppProjectOptions = {
+    name: projectName,
+    parentPath: projectParent,
+    type: mapToCppProjectType(projectType)
+  };
+  const creator = new CppProjectCreator(projectOptions, context);
+  return creator.create();
 };
 
 /**
  * Create a new Node JS project.
- * @param projectPath the path to the Node JS project.
+ * @param projectParent the parent directory of the Node JS project.
+ * @param projectName the name of the project.
+ * @param projectType the type of project.
+ * @param context the t00ls extension context.
  */
-const _createNodeProject = (projectPath: string, context: vscode.ExtensionContext) => {
-  return vscode.window.showQuickPick(languageDefinitions["Node JS"].projects, { canPickMany: false, placeHolder: "Which type of Node JS project would you like to create?" })
-    .then((type?: string) => {
-      if (!type) { return; }
-
-      const projectOptions: NodeProjectOptions = {
-        path: projectPath,
-        type: mapToNodeProjectType(type)
-      };
-      const creator = new NodeProjectCreator(projectOptions, context);
-      return creator.create();
-    });
+const _createNodeProject = (projectParent: string, projectName: string, projectType: string, context: vscode.ExtensionContext) => {
+  const projectOptions: NodeProjectOptions = {
+    name: projectName,
+    parentPath: projectParent,
+    type: mapToNodeProjectType(projectType)
+  };
+  const creator = new NodeProjectCreator(projectOptions, context);
+  return creator.create();
 };
 
 export default newProject;

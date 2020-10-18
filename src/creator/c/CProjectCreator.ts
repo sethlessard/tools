@@ -19,13 +19,10 @@ class CProjectCreator extends ProjectCreator {
    * Create the C project.
    */
   create(): Promise<void> {
-    return new Promise((resolve, _) => {
-      switch (this._options.type) {
-        case CProjectType.Simple:
-          resolve(this._createSimple());
-          return;
-      }
-    });
+    switch (this._options.type) {
+      case CProjectType.Simple:
+        return this._createSimple();
+    }
   }
 
   /**
@@ -33,8 +30,8 @@ class CProjectCreator extends ProjectCreator {
    */
   private _createSimple(): Promise<void> {
     // copy the template and create the build directory
-    return fse.copy(path.join(this._templateBase, getCProjectTemplateDirectory(this._options.type)), this._options.path)
-      .then(() => fse.mkdir(path.join(this._options.path, "build")));
+    return fse.copy(path.join(this._templateBase, getCProjectTemplateDirectory(this._options.type)), this._options.parentPath)
+      .then(() => fse.mkdir(path.join(this._options.parentPath, "build")));
   }
 }
 
