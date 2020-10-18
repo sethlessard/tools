@@ -77,6 +77,7 @@ class NodeProjectCreator extends ProjectCreator {
     return new Promise((resolve, reject) => {
       // initialize the directory
       this._createDirectory();
+      // TODO: typescript.
 
       // configure the package.json
       const pack = this._getPackageJson();
@@ -144,7 +145,7 @@ class NodeProjectCreator extends ProjectCreator {
    */
   private _createReactApp() {
     const craExec = path.join(this._context.extensionPath, "node_modules/.bin/create-react-app");
-    return pExec(`${craExec} ${this._options.name}`, { cwd: this._options.parentPath })
+    return pExec(`${craExec} ${(this._options.typescript) ? "--typescript " : ""}${this._options.name}`, { cwd: this._options.parentPath })
       .then(({ stdout, stderr }) => {
         if (stderr) { throw new Error(stderr); }
         // TODO: display stdout somehow
@@ -173,7 +174,7 @@ class NodeProjectCreator extends ProjectCreator {
   private _createReactLibrary() {
     const crlExec = path.join(this._context.extensionPath, "node_modules/.bin/create-react-library");
 
-    return pExec(`${crlExec} --no-git --skip-prompts ${this._options.name}`, { cwd: this._options.parentPath })
+    return pExec(`${crlExec} --no-git --skip-prompts  ${(this._options.typescript) ? "--template=typescript " : ""}${this._options.name}`, { cwd: this._options.parentPath })
       .then(({ stdout, stderr }) => {
         // if (stderr) { throw new Error(stderr); }
         // configure the package.json

@@ -65,23 +65,23 @@ const newProject = (context: vscode.ExtensionContext) => {
       location: vscode.ProgressLocation.Notification,
       title: `Creating ${language} project (${projectType}): ${name}`
     }, async (progress) => {
-        progress.report({ increment: 0 });
-        try {
-          switch (language) {
-            case "C":
-              await _createCProject(projectParent.fsPath, name, projectType, context);
-              break;
-            case "C++":
-              await _createCppProject(projectParent.fsPath, name, projectType, context);
-              break;
-            case "Node JS":
-              await _createNodeProject(projectParent.fsPath, name, projectType, context);
-              break;
-          }
-        } catch (e) {
-          await vscode.window.showWarningMessage(`There may have been an error creating the project: ${e}`);
+      progress.report({ increment: 0 });
+      try {
+        switch (language) {
+          case "C":
+            await _createCProject(projectParent.fsPath, name, projectType, context);
+            break;
+          case "C++":
+            await _createCppProject(projectParent.fsPath, name, projectType, context);
+            break;
+          case "Node JS":
+            await _createNodeProject(projectParent.fsPath, name, projectType, context);
+            break;
         }
-      
+      } catch (e) {
+        await vscode.window.showWarningMessage(`There may have been an error creating the project: ${e}`);
+      }
+
       progress.report({ increment: 100 });
     });
 
@@ -133,13 +133,17 @@ const _createCppProject = (projectParent: string, projectName: string, projectTy
  * @param context the t00ls extension context.
  */
 const _createNodeProject = (projectParent: string, projectName: string, projectType: string, context: vscode.ExtensionContext) => {
-  const projectOptions: NodeProjectOptions = {
-    name: projectName,
-    parentPath: projectParent,
-    type: mapToNodeProjectType(projectType)
-  };
-  const creator = new NodeProjectCreator(projectOptions, context);
-  return creator.create();
+  return promptYesNo({ question: "Use TypeScript?", noIsDefault: true })
+    .then((useTypeScript: boolean) => {
+      const projectOptions: NodeProjectOptions = {
+        name: projectName,
+        parentPath: projectParent,
+        type: mapToNodeProjectType(projectType),
+        typescript: useTypeScript
+      };
+      const creator = new NodeProjectCreator(projectOptions, context);
+      return creator.create();
+    });
 };
 
 export default newProject;
