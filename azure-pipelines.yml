@@ -21,7 +21,12 @@ steps:
       targetType: 'inline'
       script: |
         npm install -g vsce
-        npm install 
+        npm install
+  - task: Bash@3
+    displayName: "Lint & Test t00ls"
+    inputs:
+      targetType: 'inline'
+      script: 'npm test'
   - task: Bash@3
     displayName: "Build VS Code Extension"
     inputs:
