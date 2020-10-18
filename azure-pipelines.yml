@@ -5,8 +5,13 @@
 
 # TODO: enable master when v1.0.0 is released.
 trigger:
-# - master
-- v*-prep
+  branches:
+    include:
+      - master
+      - v*-prep
+  tags:
+    include:
+      - v*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -34,6 +39,7 @@ steps:
       script: 'vsce package'
   - task: GitHubRelease@1
     displayName: Release to GitHub
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
     inputs:
       gitHubConnection: github_sethlessard
       repositoryName: 'sethlessard/tools'
