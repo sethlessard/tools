@@ -3,8 +3,10 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+# TODO: enable master when v1.0.0 is released.
 trigger:
-- master
+# - master
+- v*-prep
 
 pool:
   vmImage: 'ubuntu-latest'
