@@ -33,6 +33,8 @@ steps:
     inputs:
       targetType: 'inline'
       script: 'npm test'
+    env:
+      DISPLAY: ':99.0'
   - task: Bash@3
     displayName: "Build VS Code Extension"
     inputs:
