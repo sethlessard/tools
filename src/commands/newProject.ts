@@ -10,7 +10,7 @@ import { mapToCppProjectType } from "../creator/cpp/CppProjectType";
 import NodeProjectCreator from "../creator/node/NodeProjectCreator";
 import NodeProjectOptions from "../creator/node/NodeProjectOptions";
 import { EXPRESS_API, mapToNodeProjectType, REACT_APP, REACT_LIBRARY, SOCKET_IO_SERVER } from "../creator/node/NodeProjectType";
-import { openFolder, promptInputRequireValue, promptYesNo } from "../util/WindowUtils";
+import { openFolder, promptInput, promptYesNo } from "../util/WindowUtils";
 
 type LanguageDefinitions = {
   [language: string]: {
@@ -46,7 +46,7 @@ const languageDefinitions: LanguageDefinitions = {
 const newProject = (context: vscode.ExtensionContext) => {
   return async () => {
     // get the project name
-    const name = await promptInputRequireValue("Project name?");
+    const name = await promptInput({ prompt: "Project name?", requireValue: true });
     if (!name) { return; }
 
     const languages = Object.keys(languageDefinitions);

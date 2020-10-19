@@ -11,11 +11,16 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onCommand:t00ls.newProductionReleaseBranch",
 		"onCommand:t00ls.newProject"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
+			{
+				"command": "t00ls.newProductionReleaseBranch",
+				"title": "t00ls: New Production Release Branch"
+			},
 			{
 				"command": "t00ls.newProject",
 				"title": "t00ls: New Project"

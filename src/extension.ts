@@ -1,10 +1,15 @@
-import * as vscode from 'vscode';
-import newProject from './commands/newProject';
+import * as vscode from "vscode";
+import newProductionReleaseBranch from "./commands/newProductionReleaseBranch";
+import newProject from "./commands/newProject";
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Congratulations, your extension "t00ls" is now active!');
+	console.log("Congratulations, your extension \"t00ls\" is now active!");
 
-	const newProjectDisp = vscode.commands.registerCommand('t00ls.newProject', newProject(context));
+	// Git
+	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context));
+	context.subscriptions.push(newProductionReleaseBranchDisp);
+
+	const newProjectDisp = vscode.commands.registerCommand("t00ls.newProject", newProject(context));
 	context.subscriptions.push(newProjectDisp);
 }
 
