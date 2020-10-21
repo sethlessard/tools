@@ -74,51 +74,44 @@ class NodeProjectCreator extends ProjectCreator {
    * Initialize a simple API project.
    */
   private _createApi(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // initialize the directory
-      this._createDirectory();
-      // TODO: typescript.
+    // initialize the directory
+    this._createDirectory();
 
-      // configure the package.json
-      const pack = this._getPackageJson();
-      // TODO: move dependencies to package.json in template directory.
-      // update the package.json file.
-      pack.scripts = this._getGulpScripts();
-      pack.main = "dist/index.js";
-      // write the package.json file.
-      this._jsonWriter.write(this._packagePath, pack);
+    // configure the package.json
+    const pack = this._getPackageJson();
+    // TODO: [TLS-11] move dependencies to package.json in template directory.
+    // update the package.json file.
+    pack.scripts = this._getGulpScripts();
+    pack.main = "dist/index.js";
+    // write the package.json file.
+    this._jsonWriter.write(this._packagePath, pack);
 
-      // install the dependencies
-      const dependencies = [
-        "express",
-        "helmet",
-        "body-parser",
-        "dotenv"
-      ];
-      const devDependencies = [
-        "rimraf",
-        "mocha",
-        "chai",
-        "supertest",
-        "gulp",
-        "gulp-babel",
-        "gulp-sourcemaps",
-        "gulp-inject-string",
-        "gulp-nodemon",
-        "nodemon",
-        "@babel/cli",
-        "@babel/core",
-        "@babel/node",
-        "@babel/preset-env"
-      ];
-      this._installDependencies(dependencies);
-      this._installDevDependencies(devDependencies);
-
-      // copy the template
-      // TODO: async
-      fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.Api)!!), this._projectPath);
-      resolve();
-    });
+    // install the dependencies
+    const dependencies = [
+      "express",
+      "helmet",
+      "body-parser",
+      "dotenv"
+    ];
+    const devDependencies = [
+      "rimraf",
+      "mocha",
+      "chai",
+      "supertest",
+      "gulp",
+      "gulp-babel",
+      "gulp-sourcemaps",
+      "gulp-inject-string",
+      "gulp-nodemon",
+      "nodemon",
+      "@babel/cli",
+      "@babel/core",
+      "@babel/node",
+      "@babel/preset-env"
+    ];
+    this._installDependencies(dependencies);
+    this._installDevDependencies(devDependencies);
+    return fse.copy(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.Api)!!), this._projectPath);
   }
 
   /**
@@ -136,7 +129,7 @@ class NodeProjectCreator extends ProjectCreator {
  * @param {object} pack the package.json.
  */
   private _configureExactDepencies(pack: any) {
-    // TODO: implement
+    // TODO: [TLS-14] implement
     return pack;
   }
 
@@ -148,12 +141,12 @@ class NodeProjectCreator extends ProjectCreator {
     return pExec(`${craExec} ${(this._options.typescript) ? "--typescript " : ""}${this._options.name}`, { cwd: this._options.parentPath })
       .then(({ stdout, stderr }) => {
         if (stderr) { throw new Error(stderr); }
-        // TODO: display stdout somehow
+        // TODO: [TLS-12] display stdout somehow
 
         // configure the package.json
         const pack = this._getPackageJson();
 
-        // TODO: pack.repository
+        // TODO: [TLS-13] pack.repository
         // write the package.json file.
         this._jsonWriter.write(this._packagePath, pack);
 
@@ -180,7 +173,7 @@ class NodeProjectCreator extends ProjectCreator {
         // configure the package.json
         const pack = this._getPackageJson();
 
-        // TODO: pack.repository
+        // TODO: [TLS-13] pack.repository
         // write the package.json file.
         this._jsonWriter.write(this._packagePath, pack);
 
@@ -196,49 +189,44 @@ class NodeProjectCreator extends ProjectCreator {
    * Initialize a simple socket.io server project.
    */
   private _createSocketioServer(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // initialize the directory
-      this._createDirectory();
+    // initialize the directory
+    this._createDirectory();
 
-      // configure the package.json
-      const pack = this._getPackageJson();
-      // update the package.json file.
-      pack.scripts = this._getGulpScripts();
-      pack.main = "dist/index.js";
-      // write the package.json file.
-      this._jsonWriter.write(this._packagePath, pack);
+    // configure the package.json
+    const pack = this._getPackageJson();
+    // update the package.json file.
+    pack.scripts = this._getGulpScripts();
+    pack.main = "dist/index.js";
+    // write the package.json file.
+    this._jsonWriter.write(this._packagePath, pack);
 
-      const dependencies = [
-        "express",
-        "helmet",
-        "body-parser",
-        "socket.io"
-      ];
-      const devDependencies = [
-        "rimraf",
-        "mocha",
-        "chai",
-        "supertest",
-        "gulp",
-        "gulp-babel",
-        "gulp-sourcemaps",
-        "gulp-inject-string",
-        "gulp-nodemon",
-        "nodemon",
-        "@babel/cli",
-        "@babel/core",
-        "@babel/node",
-        "@babel/preset-env",
-        "socket.io-client"
-      ];
-      this._installDependencies(dependencies);
-      this._installDevDependencies(devDependencies);
+    const dependencies = [
+      "express",
+      "helmet",
+      "body-parser",
+      "socket.io"
+    ];
+    const devDependencies = [
+      "rimraf",
+      "mocha",
+      "chai",
+      "supertest",
+      "gulp",
+      "gulp-babel",
+      "gulp-sourcemaps",
+      "gulp-inject-string",
+      "gulp-nodemon",
+      "nodemon",
+      "@babel/cli",
+      "@babel/core",
+      "@babel/node",
+      "@babel/preset-env",
+      "socket.io-client"
+    ];
+    this._installDependencies(dependencies);
+    this._installDevDependencies(devDependencies);
 
-      // copy the template
-      // TODO: async
-      fse.copySync(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.SocketIOServer)!!), this._projectPath);
-      resolve();
-    });
+    return fse.copy(path.join(this._templateBase, getNodeProjectTemplateDirectory(NodeProjectType.SocketIOServer)!!), this._projectPath);
   }
 
   /**

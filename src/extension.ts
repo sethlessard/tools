@@ -9,6 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context));
 	context.subscriptions.push(newProductionReleaseBranchDisp);
 
+	// Projects
 	const newProjectDisp = vscode.commands.registerCommand("t00ls.newProject", newProject(context));
 	context.subscriptions.push(newProjectDisp);
 }

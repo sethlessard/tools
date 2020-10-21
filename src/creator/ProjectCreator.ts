@@ -37,7 +37,7 @@ abstract class ProjectCreator {
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true });
     } else {
-      // TODO: ask if we should delete/create the directory. For now, just exit.
+      // TODO: [TLS-10] ask if we should delete/create the directory. For now, just exit.
       console.error(`${path} already exists.`);
       process.exit(1);
     }
