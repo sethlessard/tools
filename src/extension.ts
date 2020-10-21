@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import newProductionReleaseBranch from "./commands/newProductionReleaseBranch";
+import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
 import newProject from "./commands/newProject";
 
 export function activate(context: vscode.ExtensionContext) {

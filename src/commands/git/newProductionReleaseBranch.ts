@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import Git from "../util/Git";
+import Git from "../../util/Git";
 
-import { promptInput, promptVersion } from "../util/WindowUtils";
+import { promptInput, promptVersion } from "../../util/WindowUtils";
 
 /**
  * Create a new production release branch
