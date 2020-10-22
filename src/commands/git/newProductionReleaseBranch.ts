@@ -28,9 +28,12 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext) => {
       const currentBranch = await git.getCurrentBranch();
 
       // switch to the master branch
-      if (currentBranch.stdout !== "master") {
+      if (currentBranch !== "master") {
         await git.checkoutBranch("master");
       }
+
+      // pull master
+      await git.pull();
 
       // create the production release branch
       await git.checkoutNewBranch(branch);

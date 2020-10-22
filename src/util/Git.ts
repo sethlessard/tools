@@ -1,8 +1,20 @@
-const { exec } = require("child_process");
-const { promisify } = require("util");
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as _ from "lodash";
+import { ThemeIcon } from "vscode";
 const pExec = promisify(exec);
 
-type ExecOutput = { stdout: string, stderr: string };
+const REGEX_SHOW_BRANCH = /\*?\s+\[(.*)\]\s+(.*)/;
+const REGEX_PRODUCTION_RELEASE = /v(\d+\.\d+\.\d+)-prep/;
+
+export type Branch = {
+  name: string,
+  lastCommitMessage: string,
+  remote: boolean,
+  origin?: string
+};
+export type ExecOutput = { stdout: string, stderr: string };
+
 
 class Git {
 
@@ -34,18 +46,192 @@ class Git {
   }
 
   /**
+   * Delete a local branch -d
+   * @param branch the branch to delete.
+   */
+  deleteBranch(branch: string): Promise<ExecOutput> {
+    return this._inDir(`git branch -d ${branch}`);
+  }
+
+  /**
+   * Delete a local branch -D
+   * @param branch the branch to delete.
+   */
+  deleteBranchForce(branch: string): Promise<ExecOutput> {
+    return this._inDir(`git branch -D ${branch}`);
+  }
+
+  /**
+   * Delete a remote branch.
+   * @param branch the branch to delete.
+   */
+  deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<ExecOutput> {
+    return this._inDir(`git push ${origin} --delete ${branch}`);
+  }
+
+  /**
+   * Delete a remote branch with force.
+   * @param branch the branch to delete.
+   */
+  deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<ExecOutput> {
+    return this._inDir(`git push ${origin} --force --delete ${branch}`);
+  }
+
+  /**
    * Fetch a remote.
    * @param remote the remote to fetch.
    */
-  fetch(remote: string = "origin"): Promise<ExecOutput> {
-    return this._inDir(`git fetch -p ${remote}`);
+  fetch(remote?: string): Promise<ExecOutput> {
+    return this.getAllRemotes()
+      .then(remotes => {
+        if (remotes.length === 0) {
+          return { stdout: "", stderr: "" };
+        }
+        return this._inDir(`git fetch -p${(remote) ? ` ${remote}` : ""}`);
+      });
+  }
+
+  /**
+   * Get all branches.
+   */
+  getAllBranches(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalBranches(), this.getAllRemoteBranches()])
+      .then((result) => {
+        const [local, remote] = result;
+        return local.concat(remote);
+      });
+  }
+
+  /**
+   * Get all branches branches in the repository.
+   * Returns a unique list of branches, where local 
+   * branches are favored over their remote counterparts.
+   */
+  getAllBranchesFavorLocal(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalBranches(), this.getAllRemoteBranches()])
+      .then(res => {
+        const [local, remote] = res;
+        return _.unionBy(local, remote, 'name');
+      });
+  }
+
+  /**
+   * Get all feature branches in the repository.
+   */
+  getAllFeatureBranches(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalFeatureBranches(), this.getAllRemoteFeatureBranches()])
+      .then(res => {
+        const [local, remote] = res;
+        return local.concat(remote);
+      });
+  }
+
+  /**
+   * Get all feature branches branches in the repository.
+   * Returns a unique list of feature branches, where local 
+   * branches are favored over their remote counterparts.
+   */
+  getAllFeatureBranchesFavorLocal(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalFeatureBranches(), this.getAllRemoteFeatureBranches()])
+      .then(res => {
+        const [local, remote] = res;
+        return _.unionBy(local, remote, 'name');
+      });
+  }
+
+  /**
+   * Get all local branches.
+   */
+  getAllLocalBranches(): Promise<Branch[]> {
+    return this._inDir("git show-branch --list")
+      .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
+        const matches = line.match(REGEX_SHOW_BRANCH)!!;
+        return { name: matches[1], lastCommitMessage: matches[2], remote: false };
+      }));
+  }
+
+  /**
+   * Get all local feature branches.
+   */
+  getAllLocalFeatureBranches(): Promise<Branch[]> {
+    return this.getAllLocalBranches()
+      .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
+  }
+
+  /**
+   * Get all local production release branches.
+   */
+  getAllLocalProductionReleaseBranches(): Promise<Branch[]> {
+    return this.getAllLocalBranches()
+      .then(branches => branches.filter(branch => REGEX_PRODUCTION_RELEASE.test(branch.name)));
+  }
+
+  /**
+   * Get all production release branches in the repository.
+   */
+  getAllProductionReleaseBranches(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalProductionReleaseBranches(), this.getAllRemoteProductionReleaseBranches()])
+      .then(res => {
+        const [local, remote] = res;
+        return local.concat(remote);
+      });
+  }
+
+  /**
+   * Get all production release branches in the repository.
+   * Returns a unique list of production release branches, where local 
+   * branches are favored over their remote counterparts.
+   */
+  getAllProductionReleaseBranchesFavorLocal(): Promise<Branch[]> {
+    return Promise.all([this.getAllLocalProductionReleaseBranches(), this.getAllRemoteProductionReleaseBranches()])
+      .then(res => {
+        const [local, remote] = res;
+        return _.unionBy(local, remote, 'name');
+      });
+  }
+
+  /**
+   * Get all remote branches
+   */
+  getAllRemoteBranches(): Promise<Branch[]> {
+    return this._inDir("git show-branch --list --remote")
+      .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
+        const matches = line.match(REGEX_SHOW_BRANCH)!!;
+        const name = matches[1].split("/");
+        return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
+      }));
+  }
+
+  /**
+   * Get all remote feature branches.
+   */
+  getAllRemoteFeatureBranches(): Promise<Branch[]> {
+    return this.getAllRemoteBranches()
+      .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
+  }
+
+  /**
+  * Get all remote production release branches.
+  */
+  getAllRemoteProductionReleaseBranches(): Promise<Branch[]> {
+    return this.getAllRemoteProductionReleaseBranches()
+      .then(branches => branches.filter(branch => REGEX_PRODUCTION_RELEASE.test(branch.name)));
+  }
+
+  /**
+   * Get all remotes in the Git repository.
+   */
+  getAllRemotes(): Promise<string[]> {
+    return this._inDir("git remote")
+      .then(({ stdout }) => stdout.split("\ne").map(r => r.trim()).filter(r => r));
   }
 
   /**
    * Get the current branch in the local Git repository.
    */
-  getCurrentBranch(): Promise<ExecOutput> {
-    return this._inDir(`git branch --show-current`);
+  getCurrentBranch(): Promise<string> {
+    return this._inDir(`git branch --show-current`)
+      .then((out: ExecOutput) => out.stdout);
   }
 
   /**
