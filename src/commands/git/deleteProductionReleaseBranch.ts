@@ -2,10 +2,6 @@ import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
 
-import { promptInput, promptVersion } from "../../util/WindowUtils";
-import { uniq } from "lodash";
-
-
 /**
  * Create a new production release branch
  * @param context the t00ls extension context.
@@ -18,7 +14,8 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
       const git = new Git(gitRepo);
 
       await git.fetch();
-      const [currentBranch, productionReleaseBranches] = await Promise.all([git.getCurrentBranch(), git.getAllProductionReleaseBranchesFavorLocal()]);
+      const currentBranch = await git.getCurrentBranch();
+      const productionReleaseBranches = await git.getAllProductionReleaseBranchesFavorLocal();
       
       // map to a VS Code-friendly form
       const mappedProdReleaseBranches = productionReleaseBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));

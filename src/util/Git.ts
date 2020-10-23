@@ -13,7 +13,9 @@ export type Branch = {
   remote: boolean,
   origin?: string
 };
+
 export type ExecOutput = { stdout: string, stderr: string };
+const EMPTY_EXEC_OUT = { stdout: "", stderr: "" };
 
 
 class Git {
@@ -66,7 +68,13 @@ class Git {
    * @param branch the branch to delete.
    */
   deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    return this._inDir(`git push ${origin} --delete ${branch}`);
+    return this.hasRemote()
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir(`git push ${origin} --delete ${branch}`);
+        }
+        return Promise.resolve(EMPTY_EXEC_OUT);
+      });
   }
 
   /**
@@ -74,7 +82,13 @@ class Git {
    * @param branch the branch to delete.
    */
   deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    return this._inDir(`git push ${origin} --force --delete ${branch}`);
+    return this.hasRemote()
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir(`git push ${origin} --force --delete ${branch}`);
+        }
+        return Promise.resolve(EMPTY_EXEC_OUT);
+      });
   }
 
   /**
@@ -82,10 +96,10 @@ class Git {
    * @param remote the remote to fetch.
    */
   fetch(remote?: string): Promise<ExecOutput> {
-    return this.getAllRemotes()
-      .then(remotes => {
-        if (remotes.length === 0) {
-          return { stdout: "", stderr: "" };
+    return this.hasRemote()
+      .then(hasRemote => {
+        if (!hasRemote) {
+          return Promise.resolve(EMPTY_EXEC_OUT);
         }
         return this._inDir(`git fetch -p${(remote) ? ` ${remote}` : ""}`);
       });
@@ -98,7 +112,7 @@ class Git {
     return Promise.all([this.getAllLocalBranches(), this.getAllRemoteBranches()])
       .then((result) => {
         const [local, remote] = result;
-        return local.concat(remote);
+        return Promise.resolve(local.concat(remote));
       });
   }
 
@@ -111,7 +125,7 @@ class Git {
     return Promise.all([this.getAllLocalBranches(), this.getAllRemoteBranches()])
       .then(res => {
         const [local, remote] = res;
-        return _.unionBy(local, remote, 'name');
+        return Promise.resolve(_.unionBy(local, remote, 'name'));
       });
   }
 
@@ -122,7 +136,7 @@ class Git {
     return Promise.all([this.getAllLocalFeatureBranches(), this.getAllRemoteFeatureBranches()])
       .then(res => {
         const [local, remote] = res;
-        return local.concat(remote);
+        return Promise.resolve(local.concat(remote));
       });
   }
 
@@ -135,7 +149,7 @@ class Git {
     return Promise.all([this.getAllLocalFeatureBranches(), this.getAllRemoteFeatureBranches()])
       .then(res => {
         const [local, remote] = res;
-        return _.unionBy(local, remote, 'name');
+        return Promise.resolve(_.unionBy(local, remote, 'name'));
       });
   }
 
@@ -173,7 +187,7 @@ class Git {
     return Promise.all([this.getAllLocalProductionReleaseBranches(), this.getAllRemoteProductionReleaseBranches()])
       .then(res => {
         const [local, remote] = res;
-        return local.concat(remote);
+        return Promise.resolve(local.concat(remote));
       });
   }
 
@@ -186,7 +200,7 @@ class Git {
     return Promise.all([this.getAllLocalProductionReleaseBranches(), this.getAllRemoteProductionReleaseBranches()])
       .then(res => {
         const [local, remote] = res;
-        return _.unionBy(local, remote, 'name');
+        return Promise.resolve(_.unionBy(local, remote, 'name'));
       });
   }
 
@@ -194,12 +208,18 @@ class Git {
    * Get all remote branches
    */
   getAllRemoteBranches(): Promise<Branch[]> {
-    return this._inDir("git show-branch --list --remote")
-      .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
-        const matches = line.match(REGEX_SHOW_BRANCH)!!;
-        const name = matches[1].split("/");
-        return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
-      }));
+    return this.hasRemote()
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir("git show-branch --list --remote")
+            .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
+              const matches = line.match(REGEX_SHOW_BRANCH)!!;
+              const name = matches[1].split("/");
+              return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
+            }));
+        }
+        return Promise.resolve([]);
+      });
   }
 
   /**
@@ -223,7 +243,7 @@ class Git {
    */
   getAllRemotes(): Promise<string[]> {
     return this._inDir("git remote")
-      .then(({ stdout }) => stdout.split("\ne").map(r => r.trim()).filter(r => r));
+      .then(({ stdout }) => stdout.split("\n").map(r => r.trim()).filter(r => r));
   }
 
   /**
@@ -232,6 +252,13 @@ class Git {
   getCurrentBranch(): Promise<string> {
     return this._inDir(`git branch --show-current`)
       .then((out: ExecOutput) => out.stdout);
+  }
+
+  /**
+   * Check to see if a remote has been configured the repository.
+   */
+  hasRemote(): Promise<boolean> {
+    return this.getAllRemotes().then((remotes) => remotes.length > 0);
   }
 
   /**
@@ -250,7 +277,7 @@ class Git {
       .then((out: { stdout: string, stderr: string }) => {
         out.stderr = out.stderr.trim();
         out.stdout = out.stdout.trim();
-        return out;
+        return Promise.resolve(out);
       });
   }
 }
