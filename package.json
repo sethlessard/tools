@@ -16,7 +16,8 @@
 		"onCommand:t00ls.mergeFeaturesIntoProductionRelease",
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
-		"onCommand:t00ls.newProject"
+		"onCommand:t00ls.newProject",
+		"onCommand:t00ls.syncRepo"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -44,6 +45,10 @@
 			{
 				"command": "t00ls.newProject",
 				"title": "t00ls: New Project"
+			},
+			{
+				"command": "t00ls.syncRepo",
+				"title": "t00ls: Sync Repo"
 			}
 		],
 		"snippets": [

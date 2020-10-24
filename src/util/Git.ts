@@ -262,10 +262,29 @@ class Git {
   }
 
   /**
+   * Check to see if a branch exists locally in the Git repository.
+   * @param branch the branch.
+   */
+  hasLocalBranch(branch: string) {
+    return this.getAllLocalBranches()
+      .then(branches => branches && _.find(branches, { name: branch, remote: false }) !== undefined);
+  }
+
+  /**
    * Check to see if a remote has been configured the repository.
    */
   hasRemote(): Promise<boolean> {
     return this.getAllRemotes().then((remotes) => remotes && remotes.length > 0);
+  }
+
+  /**
+   * Check to see if a remote branch exists in the repository.
+   * @param branch the branch.
+   * @param origin the remote to use. default is 'origin'.
+   */
+  hasRemoteBranch(branch: string, origin: string = "origin") {
+    return this.getAllRemoteBranches()
+      .then(branches => branches && _.find(branches, { name: branch, remote: true, origin }) !== undefined);
   }
 
   /**
@@ -282,6 +301,23 @@ class Git {
   pull(): Promise<ExecOutput> {
     return this.hasRemote()
       .then(hasRemote => (hasRemote) ? this._inDir("git pull") : Promise.resolve(EMPTY_EXEC_OUT));
+  }
+
+  /**
+   * Push the current branch.
+   */
+  push(): Promise<ExecOutput> {
+    return this.hasRemote()
+      .then(hasRemote => (hasRemote) ? this._inDir("git push") : Promise.resolve(EMPTY_EXEC_OUT));
+  }
+
+  /**
+   * Setup remote tracking and push the current branch.
+   */
+  setupTrackingAndPush(): Promise<ExecOutput> {
+    // TODO: [TLS-28] add ability to specify the remote
+    return this.hasRemote()
+      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u origin ${branch}`)) : Promise.resolve(EMPTY_EXEC_OUT));
   }
 
   /**
