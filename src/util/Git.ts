@@ -265,7 +265,8 @@ class Git {
    * Pull the current branch.
    */
   pull(): Promise<ExecOutput> {
-    return this._inDir("git pull");
+    return this.hasRemote()
+      .then(hasRemote => (hasRemote) ? this._inDir("git pull") : Promise.resolve(EMPTY_EXEC_OUT));
   }
 
   /**
