@@ -32,10 +32,10 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
       return;
     }
 
-    // get the production release branches in the repository
+    // get the local production release branches in the repository
     let productionReleaseBranches = [];
     try {
-      productionReleaseBranches = await git.getAllProductionReleaseBranchesFavorLocal();
+      productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
       await vscode.window.showErrorMessage(`There was an error gathering the production release branches: ${e}`);
       return;
