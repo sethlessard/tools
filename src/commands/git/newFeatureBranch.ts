@@ -4,7 +4,7 @@ import Git, { Branch } from "../../util/Git";
 import { promptInput, promptVersion } from "../../util/WindowUtils";
 
 /**
- * Create a new production release branch
+ * Create a new feature branch.
  * @param context the t00ls extension context.
  */
 const newFeatureBranch = (context: vscode.ExtensionContext) => {

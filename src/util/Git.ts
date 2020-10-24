@@ -1,10 +1,9 @@
 import { exec } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
-import { ThemeIcon } from "vscode";
 const pExec = promisify(exec);
 
-const REGEX_SHOW_BRANCH = /\*?\s+\[(.*)\]\s+(.*)/;
+const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
 const REGEX_PRODUCTION_RELEASE = /v(\d+\.\d+\.\d+)-prep/;
 
 export type Branch = {
@@ -158,10 +157,15 @@ class Git {
    */
   getAllLocalBranches(): Promise<Branch[]> {
     return this._inDir("git show-branch --list")
-      .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
-        const matches = line.match(REGEX_SHOW_BRANCH)!!;
-        return { name: matches[1], lastCommitMessage: matches[2], remote: false };
-      }));
+      .then(out => {
+        const rawLines = out.stdout.trim().split("\n");
+        const filteredLines = rawLines.filter(line => REGEX_SHOW_BRANCH.test(line));
+        const mappedLines = filteredLines.map(line => {
+          const matches = line.match(REGEX_SHOW_BRANCH)!!;
+          return { name: matches[1], lastCommitMessage: matches[2], remote: false };
+        });
+        return mappedLines;
+      });
   }
 
   /**
@@ -169,7 +173,10 @@ class Git {
    */
   getAllLocalFeatureBranches(): Promise<Branch[]> {
     return this.getAllLocalBranches()
-      .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
+      .then(branches => {
+        const filtered = branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name));
+        return filtered;
+      });
   }
 
   /**
@@ -258,7 +265,15 @@ class Git {
    * Check to see if a remote has been configured the repository.
    */
   hasRemote(): Promise<boolean> {
-    return this.getAllRemotes().then((remotes) => remotes.length > 0);
+    return this.getAllRemotes().then((remotes) => remotes && remotes.length > 0);
+  }
+
+  /**
+   * Merge a branch into the current Git branch.
+   * @param branch the branch to merge.
+   */
+  mergeBranch(branch: string): Promise<ExecOutput> {
+    return this._inDir(`git merge ${branch}`);
   }
 
   /**

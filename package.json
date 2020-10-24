@@ -13,6 +13,7 @@
 	"activationEvents": [
 		"onCommand:t00ls.deleteFeatureBranch",
 		"onCommand:t00ls.deleteProductionReleaseBranch",
+		"onCommand:t00ls.mergeFeaturesIntoProductionRelease",
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
 		"onCommand:t00ls.newProject"
@@ -25,12 +26,16 @@
 				"title": "t00ls: Delete Feature Branch"
 			},
 			{
-				"command": "t00ls.newFeatureBranch",
-				"title": "t00ls: New Feature Branch"
-			},
-			{
 				"command": "t00ls.deleteProductionReleaseBranch",
 				"title": "t00ls: Delete Production Release Branch"
+			},
+			{
+				"command": "t00ls.mergeFeaturesIntoProductionRelease",
+				"title": "t00ls: Merge Features into Production Release"
+			},
+			{
+				"command": "t00ls.newFeatureBranch",
+				"title": "t00ls: New Feature Branch"
 			},
 			{
 				"command": "t00ls.newProductionReleaseBranch",
