@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import deleteFeatureBranch from "./commands/git/deleteFeatureBranch";
 import deleteProductionReleaseBranch from "./commands/git/deleteProductionReleaseBranch";
 import newFeatureBranch from "./commands/git/newFeatureBranch";
 import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
@@ -8,6 +9,9 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
 
 	// Git
+	const deleteFeatureBranchDisp = vscode.commands.registerCommand("t00ls.deleteFeatureBranch", deleteFeatureBranch(context));
+	context.subscriptions.push(deleteFeatureBranchDisp);
+
 	const deleteProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.deleteProductionReleaseBranch", deleteProductionReleaseBranch(context));
 	context.subscriptions.push(deleteProductionReleaseBranchDisp);
 

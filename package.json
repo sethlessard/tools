@@ -11,14 +11,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:t00ls.newFeatureBranch",
+		"onCommand:t00ls.deleteFeatureBranch",
 		"onCommand:t00ls.deleteProductionReleaseBranch",
+		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
 		"onCommand:t00ls.newProject"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
+			{
+				"command": "t00ls.deleteFeatureBranch",
+				"title": "t00ls: Delete Feature Branch"
+			},
 			{
 				"command": "t00ls.newFeatureBranch",
 				"title": "t00ls: New Feature Branch"
