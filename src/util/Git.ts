@@ -89,18 +89,29 @@ class Git {
         return Promise.resolve(EMPTY_EXEC_OUT);
       });
   }
+  
+  /**
+   * 
+   * @param tag the tag.
+   * @param remote the remote to delete the tag from.
+   */
+  deleteTag(tag: string, remote: string = "origin"): Promise<ExecOutput> {
+    return this._inDir(`git tag -d ${tag}`)
+      .then(() => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${tag}`) : Promise.resolve(EMPTY_EXEC_OUT)));
+  }
 
   /**
-   * Fetch a remote.
+   * Fetch a remote, pruning branches and tags
    * @param remote the remote to fetch.
    */
-  fetch(remote?: string): Promise<ExecOutput> {
+  fetch(remote: string = "origin"): Promise<ExecOutput> {
     return this.hasRemote()
       .then(hasRemote => {
         if (!hasRemote) {
           return Promise.resolve(EMPTY_EXEC_OUT);
         }
-        return this._inDir(`git fetch -p${(remote) ? ` ${remote}` : ""}`);
+        return this._inDir(`git fetch -p ${remote}`)
+          .then(() => this._inDir(`git fetch --prune ${remote} "+refs/tags/*:refs/tags/*"`));
       });
   }
 
@@ -251,6 +262,14 @@ class Git {
   getAllRemotes(): Promise<string[]> {
     return this._inDir("git remote")
       .then(({ stdout }) => stdout.split("\n").map(r => r.trim()).filter(r => r));
+  }
+
+  /**
+   * Get all tags in the Git repository.
+   */
+  getAllTags(): Promise<string[]> {
+    return this._inDir("git tag -l")
+      .then(({ stdout }) => stdout.split("\n").map(t => t.trim()).filter(t => t));
   }
 
   /**
