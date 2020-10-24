@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import deleteProductionReleaseBranch from "./commands/git/deleteProductionReleaseBranch";
+import newFeatureBranch from "./commands/git/newFeatureBranch";
 import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
 import newProject from "./commands/newProject";
 
@@ -9,6 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// Git
 	const deleteProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.deleteProductionReleaseBranch", deleteProductionReleaseBranch(context));
 	context.subscriptions.push(deleteProductionReleaseBranchDisp);
+
+	const newFeatureBranchDisp = vscode.commands.registerCommand("t00ls.newFeatureBranch", newFeatureBranch(context));
+	context.subscriptions.push(newFeatureBranchDisp);
 
 	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context));
 	context.subscriptions.push(newProductionReleaseBranchDisp);
