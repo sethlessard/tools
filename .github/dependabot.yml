@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+        interval: daily
+    target_branch: "v1.0.0-prep"
+    reviewers:
+      - "sethlessard"
