@@ -1,6 +1,9 @@
-version: 1
-update_configs:
-  - package_manager: javascript
+version: 2
+updates:
+  - package-ecosystem: npm
     directory: /
-    update_schedule: live
-    target_branch: v1.0.0-prep
+    schedule:
+        interval: daily
+    target-branch: "v1.0.0-prep"
+    reviewers:
+      - "sethlessard"
