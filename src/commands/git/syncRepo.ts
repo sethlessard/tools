@@ -54,7 +54,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       await vscode.window.showErrorMessage(`There was an error gathering the local production release branches: ${e}`);
       return;
     }
-    // TODO: check to see if there are working changes in the directory. If so, stash or commit them
+    // TODO: [TLS-30] check to see if there are working changes in the directory. If so, stash or commit them
 
     // switch to master
     if (currentBranch !== "master") {
@@ -148,7 +148,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         }
       }
 
-      // TODO: remember production release branch & feature branch relationship
+      // TODO: [TLS-29] remember production release branch & feature branch relationship
       let baseBranches = [{ label: "master", description: "Local" }];
       
       if (productionReleaseBranches.length > 0) {
@@ -187,6 +187,24 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         } catch (e) {
           await vscode.window.showErrorMessage(`Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
         }
+      }
+    }
+
+    // switch back to the original branch
+    if (await git.hasLocalBranch(currentBranch)) {
+      try {
+        await git.checkoutBranch(currentBranch);
+      } catch (e) {
+        await vscode.window.showErrorMessage(`Error switching back to the original branch '${currentBranch}': ${e}`);
+        return;
+      }
+    } else {
+      // the branch must've been deleted. Switch to master.
+      try {
+        await git.checkoutBranch("master");
+      } catch (e) {
+        await vscode.window.showErrorMessage(`Error switching to 'master': ${e}`);
+        return;
       }
     }
 
