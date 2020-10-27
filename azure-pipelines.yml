@@ -14,6 +14,7 @@ steps:
   - task: NodeTool@0
     inputs:
       versionSpec: '12.x'
+
   - task: Bash@3
     displayName: "Install dependencies"
     inputs:
@@ -21,6 +22,7 @@ steps:
       script: |
         npm install -g vsce
         npm install
+
   - task: Bash@3
     displayName: "Start xvfb"
     inputs:
@@ -28,6 +30,7 @@ steps:
       script: |
         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
+
   - task: Bash@3
     displayName: "Lint & Test t00ls"
     inputs:
@@ -35,11 +38,13 @@ steps:
       script: 'npm test'
     env:
       DISPLAY: ':99.0'
+
   - task: Bash@3
     displayName: "Build VS Code Extension"
     inputs:
       targetType: 'inline'
       script: 'vsce package'
+
   - task: GitHubRelease@1
     displayName: Release to GitHub
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
@@ -52,6 +57,7 @@ steps:
       tagPattern: 'v'
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
+
   - task: Bash@3
     displayName: Publish to VS Code Marketplace
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
