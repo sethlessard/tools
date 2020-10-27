@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import * as fs from "fs";
+import * as fse from "fs-extra";
 
 import CProjectCreator from "../creator/c/CProjectCreator";
 import CProjectOptions from "../creator/c/CProjectOptions";
@@ -59,6 +61,15 @@ const newProject = (context: vscode.ExtensionContext) => {
 
     const projectType = await vscode.window.showQuickPick(languageDefinitions[language].projects, { canPickMany: false, placeHolder: `Which type of ${language} project would you like to create?` });
     if (!projectType) { return; }
+
+    if (fs.existsSync(path.join(projectParent.fsPath, name))) {
+      // a project by that name already exists in that location
+      const deleteIt = await promptYesNo({ noIsDefault: true, question: "A project by the name '${name}' already exists there. Delete it?" });
+      if (deleteIt) {
+        fse.rmdirSync(path.join(projectParent.fsPath, name), { recursive: true });
+        vscode.window.showInformationMessage(`Deleted '${path.join(projectParent.fsPath, name)}'`);
+      }
+    }
 
     await vscode.window.withProgress({
       cancellable: false,
