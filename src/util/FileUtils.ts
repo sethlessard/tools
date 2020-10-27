@@ -11,7 +11,7 @@ const enforceFileExtension = (fileName: string, fileExt: string) => {
     return fileName + fileExt;
   }
   return fileName;
-}
+};
 
 /**
  * Get a file name from a full file path.
@@ -37,7 +37,7 @@ const stripFileExtension = (fileName: string) => {
     return fileName.substring(0, fileName.lastIndexOf("."));
   }
   return fileName;
-}
+};
 
 export {
   enforceFileExtension,
