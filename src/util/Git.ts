@@ -4,7 +4,7 @@ import * as _ from "lodash";
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
-const REGEX_PRODUCTION_RELEASE = /v(\d+\.\d+\.\d+)-prep/;
+const REGEX_PRODUCTION_RELEASE = /(.*)-?v(\d+\.\d+\.\d+)-prep/;
 
 export type Branch = {
   name: string,
@@ -44,6 +44,60 @@ class Git {
    */
   checkoutNewBranch(branch: string): Promise<ExecOutput> {
     return this._inDir(`git checkout -b ${branch}`);
+  }
+
+  /**
+   * Create a production tag for the current version.
+   * @param message the message to use when creating the tag.
+   */
+  createProductionTag(message?: string): Promise<ExecOutput> {
+    return this.getCurrentBranch()
+      .then(branch => {
+        if (!REGEX_PRODUCTION_RELEASE.test(branch)) {
+          throw new Error(`'${branch}' is not a production release branch.`);
+        }
+        const matches = branch.match(REGEX_PRODUCTION_RELEASE);
+        const projectPrefix = matches!![1];
+        const version = matches!![2];
+        const prodTag = (projectPrefix) ? `${projectPrefix}-v${version}` : `v${version}`;
+        if (!message) {
+          message = (projectPrefix) ? `${projectPrefix} v${version}` : `v${version}`;
+        }
+        return this.getAllTags()
+          .then(tags => {
+            if (tags.indexOf(prodTag) !== -1) {
+              throw new Error(`'${prodTag}' has already been created.`);
+            }
+            return this._inDir(`git tag -a ${prodTag} -m "${message}"`);
+          });
+      });
+  }
+
+  /**
+   * Create a release candidate tag for the current version.
+   * @param message the message to use when creating the tag.
+   */
+  createReleaseCandidateTag(message?: string): Promise<ExecOutput> {
+    return this.getCurrentBranch()
+      .then(branch => {
+        if (!REGEX_PRODUCTION_RELEASE.test(branch)) {
+          throw new Error(`'${branch}' is not a production release branch.`);
+        }
+        const matches = branch.match(REGEX_PRODUCTION_RELEASE);
+        const projectPrefix = matches!![1];
+        const version = matches!![2];
+        const rcTag = (projectPrefix) ? `${projectPrefix}-v${version}-rc` : `v${version}-rc`;
+        if (!message) {
+          message = (projectPrefix) ? `${projectPrefix} v${version}` : `v${version}`;
+        }
+        return this.getAllTags()
+          .then(tags => {
+            if (tags.indexOf(rcTag) !== -1) {
+              throw new Error(`'${rcTag}' has already been created.`);
+            }
+            return this._inDir(`git tag -a ${rcTag} -m "${message}"`);
+          });
+      });
   }
 
   /**
@@ -89,7 +143,7 @@ class Git {
         return Promise.resolve(EMPTY_EXEC_OUT);
       });
   }
-  
+
   /**
    * 
    * @param tag the tag.
@@ -328,6 +382,14 @@ class Git {
   push(): Promise<ExecOutput> {
     return this.hasRemote()
       .then(hasRemote => (hasRemote) ? this._inDir("git push") : Promise.resolve(EMPTY_EXEC_OUT));
+  }
+
+  /**
+   * Push all the tags in the local repository to the remote repository.
+   */
+  pushTags(): Promise<ExecOutput> {
+    return this.hasRemote()
+      .then(hasRemote => (hasRemote) ? this._inDir("git push --tags") : Promise.resolve(EMPTY_EXEC_OUT));
   }
 
   /**

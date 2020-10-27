@@ -7,6 +7,7 @@ import newFeatureBranch from "./commands/git/newFeatureBranch";
 import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
 import newProject from "./commands/newProject";
 import syncRepo from "./commands/git/syncRepo";
+import release from "./commands/git/release";
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
@@ -29,6 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context));
 	context.subscriptions.push(newProductionReleaseBranchDisp);
+
+	const releaseDisposable = vscode.commands.registerCommand("t00ls.release", release(context));
+	context.subscriptions.push(releaseDisposable);
 
 	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context));
 	context.subscriptions.push(syncRepoDisposable);
