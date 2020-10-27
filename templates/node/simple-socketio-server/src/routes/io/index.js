@@ -18,7 +18,7 @@ export const registerRoutes = (io) => {
  */
 const _onSocketConnection = (io, socket) => {
   socketManager.addConnection(socket.id, socket);
-  // TODO: socket routes
+  // TODO: [TLS-15] socket routes
   
   socket.on("disconnect", () => {
     socketManager.removeConnection(socket.id);

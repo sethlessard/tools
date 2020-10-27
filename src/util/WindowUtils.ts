@@ -1,5 +1,14 @@
 import { commands, Uri, window } from "vscode";
 
+const SEMVER_REGEX = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+export type InputOptions = {
+  prompt: string,
+  placeHolder?: string,
+  value?: string,
+  requireValue?: boolean
+};
+
 export type YesNoOptions = {
   question: string,
   noIsDefault?: boolean,
@@ -22,8 +31,26 @@ const openFolder = (path: string, newWindow?: boolean) => {
  * @param placeHolder the placeholder to show.
  * @param value the default value.
  */
-const promptInputRequireValue = (prompt: string, placeHolder?: string, value?: string, ) => {
-  return window.showInputBox({ prompt, placeHolder, value, validateInput: (value?: string) => (value) ? null : "You must enter a value" });
+const promptInput = (options: InputOptions) => {
+  const validateInput = (options.requireValue) ? (value?: string) => (value) ? null : "You must enter a value" : undefined;
+  return window.showInputBox({ prompt: options.prompt, placeHolder: options.placeHolder, value: options.value, validateInput });
+};
+
+/**
+ * Prompt for a version to be entered.
+ * @param prompt the question to ask.
+ */
+const promptVersion = (prompt: string) => {
+  return promptInput({ prompt, requireValue: true, placeHolder: "1.0.0" })
+    .then((version?: string) => {
+      if (!version) {
+        throw new Error("You must enter a version.");
+      }
+      if (!SEMVER_REGEX.test(version)) {
+        throw new Error("Invalid version.");
+      }
+      return version;
+    });
 };
 
 /**
@@ -38,6 +65,7 @@ const promptYesNo = (options: YesNoOptions) => {
 
 export {
   openFolder,
-  promptInputRequireValue,
+  promptInput,
+  promptVersion,
   promptYesNo
 };
