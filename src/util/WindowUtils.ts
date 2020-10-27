@@ -1,4 +1,4 @@
-import { commands, Uri, window } from "vscode";
+import { commands, OutputChannel, Uri, window } from "vscode";
 
 const SEMVER_REGEX = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
@@ -63,9 +63,22 @@ const promptYesNo = (options: YesNoOptions) => {
     .then(value => value === "Yes");
 };
 
+/**
+ * 
+ * @param outputChannel the t00ls output channel.
+ * @param error the error to display.
+ */
+const showErrorMessage = (outputChannel: OutputChannel, error: string) => {
+  return Promise.all([
+    window.showErrorMessage(error),
+    Promise.resolve(outputChannel.appendLine(error))
+  ]);
+};
+
 export {
   openFolder,
   promptInput,
   promptVersion,
-  promptYesNo
+  promptYesNo,
+  showErrorMessage
 };

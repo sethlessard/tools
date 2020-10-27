@@ -1,13 +1,14 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import Git, { Branch } from "../../util/Git";
-import { openFolder, promptYesNo } from "../../util/WindowUtils";
+import Git from "../../util/Git";
+import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new feature branch
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const syncRepo = (context: vscode.ExtensionContext) => {
+const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -17,7 +18,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
     try {
       await git.fetch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the latest updates from remote: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
       return;
     }
 
@@ -26,11 +27,11 @@ const syncRepo = (context: vscode.ExtensionContext) => {
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
       return;
     }
     if (!currentBranch) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: No value returned.`);
+      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -39,11 +40,11 @@ const syncRepo = (context: vscode.ExtensionContext) => {
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the local feature branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
     if (featureBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no feature branches to delete.");
+      await showErrorMessage(outputChannel, "There are no feature branches to delete.");
       return;
     }
     // get the local production release branches
@@ -51,7 +52,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the local production release branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the local production release branches: ${e}`);
       return;
     }
     // TODO: [TLS-30] check to see if there are working changes in the directory. If so, stash or commit them
@@ -61,7 +62,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error switching to 'master': ${e}`);
+        await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
       }
     }
@@ -70,7 +71,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
     try {
       await git.pull();
     } catch (e) {
-      await vscode.window.showErrorMessage(`Error pulling to 'master': ${e}`);
+      await showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
       return;
     }
 
@@ -82,7 +83,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch(prodRelease.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error switching to production release branch '${prodRelease.name}': ${e}`);
+        await showErrorMessage(outputChannel, `Error switching to production release branch '${prodRelease.name}': ${e}`);
         return;
       }
 
@@ -91,7 +92,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         try {
           await git.pull();
         } catch (e) {
-          await vscode.window.showErrorMessage(`Error pulling production release branch '${prodRelease.name}': ${e}`);
+          await showErrorMessage(outputChannel, `Error pulling production release branch '${prodRelease.name}': ${e}`);
           return;
         }
       }
@@ -100,7 +101,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.mergeBranch("master");
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error merging 'master' into '${prodRelease.name}': ${e}`);
+        await showErrorMessage(outputChannel, `Error merging 'master' into '${prodRelease.name}': ${e}`);
         return;
       }
 
@@ -113,7 +114,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
           try {
             await git.setupTrackingAndPush();
           } catch (e) {
-            await vscode.window.showErrorMessage(`Error publishing production release branch '${prodRelease.name}': ${e}`);
+            await showErrorMessage(outputChannel, `Error publishing production release branch '${prodRelease.name}': ${e}`);
           }
         }
       } else {
@@ -121,7 +122,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         try {
           await git.push();
         } catch (e) {
-          await vscode.window.showErrorMessage(`Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
+          await showErrorMessage(outputChannel, `Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
         }
       }
     }
@@ -134,7 +135,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch(featureBranch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error switching to feature branch '${featureBranch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `Error switching to feature branch '${featureBranch.name}': ${e}`);
         return;
       }
 
@@ -143,7 +144,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         try {
           await git.pull();
         } catch (e) {
-          await vscode.window.showErrorMessage(`Error pulling feature branch '${featureBranch.name}': ${e}`);
+          await showErrorMessage(outputChannel, `Error pulling feature branch '${featureBranch.name}': ${e}`);
           return;
         }
       }
@@ -164,7 +165,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.mergeBranch(baseBranch.label);
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
         return;
       }
 
@@ -177,7 +178,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
           try {
             await git.setupTrackingAndPush();
           } catch (e) {
-            await vscode.window.showErrorMessage(`Error publishing feature branch '${featureBranch.name}': ${e}`);
+            await showErrorMessage(outputChannel, `Error publishing feature branch '${featureBranch.name}': ${e}`);
           }
         }
       } else {
@@ -185,7 +186,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
         try {
           await git.push();
         } catch (e) {
-          await vscode.window.showErrorMessage(`Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
+          await showErrorMessage(outputChannel, `Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
         }
       }
     }
@@ -195,7 +196,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch(currentBranch);
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error switching back to the original branch '${currentBranch}': ${e}`);
+        await showErrorMessage(outputChannel, `Error switching back to the original branch '${currentBranch}': ${e}`);
         return;
       }
     } else {
@@ -203,7 +204,7 @@ const syncRepo = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error switching to 'master': ${e}`);
+        await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
       }
     }

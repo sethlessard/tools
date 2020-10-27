@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
+import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new feature branch
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
+const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -16,7 +18,9 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
     try {
       await git.fetch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the latest updates from remote: ${e}`);
+      const error = `There was an error fetching the latest updates from remote: ${e}`;
+      await showErrorMessage(outputChannel, error);
+      outputChannel.appendLine(error);
     }
 
     // get the current branch
@@ -24,11 +28,12 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: ${e}`);
+      const error = `There was an error fetching the current branch: ${e}`;
+      await showErrorMessage(outputChannel, error);
       return;
     }
     if (!currentBranch) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: No value returned.`);
+      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -37,11 +42,11 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the local feature branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
     if (featureBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no feature branches to delete.");
+      await showErrorMessage(outputChannel, "There are no feature branches to delete.");
       return;
     }
 
@@ -60,7 +65,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error switching to 'master': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
         return;
       }
     }
@@ -73,21 +78,21 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext) => {
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
         return;
       }
     } else {
       try {
         await git.deleteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the feature branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the feature branch '${branch.name}': ${e}`);
         return;
       }
       // there may also be a remote repository
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
         return;
       }
     }
