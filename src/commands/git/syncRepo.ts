@@ -10,8 +10,11 @@ import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
  */
 const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
-    // TODO: [TLS-9] verify that a Git repo is open.
-    const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
+    if (!vscode.workspace.workspaceFolders) {
+      showErrorMessage(outputChannel, "A Git repository is not open.");
+      return;
+    }
+    const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo);
 
     // fetch the latest updates from remote

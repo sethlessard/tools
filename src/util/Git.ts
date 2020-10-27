@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
 const pExec = promisify(exec);
@@ -28,6 +28,7 @@ class Git {
   constructor(repoPath: string) {
     if (!repoPath) { throw new Error("repoPath must be specified."); }
     this._path = repoPath;
+    this._testRepo();
   }
 
   /**
@@ -412,6 +413,20 @@ class Git {
         out.stdout = out.stdout.trim();
         return Promise.resolve(out);
       });
+  }
+
+  /**
+   * Test the current path to make sure there is a Git repository.
+   */
+  private _testRepo() {
+    try {
+      const stdout = execSync("git rev-parse --is-inside-work-tree", { encoding: "utf8", cwd: this._path });
+      if (stdout.trim() !== "true") {
+        throw new Error(`'${this._path}' is not a Git repository.`);
+      }
+    } catch (error) {
+      throw new Error(`'${this._path}' is not a Git repository.`);
+    }
   }
 }
 
