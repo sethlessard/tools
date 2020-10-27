@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
+import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Release the next production version of the current project.
@@ -11,8 +12,9 @@ import Git, { Branch } from "../../util/Git";
  * 
  * Or CI handles the merge with a Release Candidate tag.
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const release = (context: vscode.ExtensionContext) => {
+const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -22,7 +24,7 @@ const release = (context: vscode.ExtensionContext) => {
     try {
       await git.fetch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the latest updates from remote: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the local production release branches in the repository
@@ -30,11 +32,11 @@ const release = (context: vscode.ExtensionContext) => {
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the production release branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
       return;
     }
     if (productionReleaseBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no production release branches.");
+      await showErrorMessage(outputChannel, "There are no production release branches.");
       return;
     }
 
@@ -72,7 +74,7 @@ const release = (context: vscode.ExtensionContext) => {
           .then(() => git.createReleaseCandidateTag())
           .then(() => git.pushTags());
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error creating the Release Candidate tag: ${e}`);
+        await showErrorMessage(outputChannel, `Error creating the Release Candidate tag: ${e}`);
         return;
       }
     } else if (_.indexOf(completeActions, action) === 1) {
@@ -84,11 +86,11 @@ const release = (context: vscode.ExtensionContext) => {
           .then(() => git.checkoutBranch("master"))
           .then(() => git.mergeBranch(branch.name));
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error creating releasing the next version: ${e}`);
+        await showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;
       }
     } else {
-      await vscode.window.showErrorMessage("No action selected.");
+      await showErrorMessage(outputChannel, "No action selected.");
       return;
     }
 

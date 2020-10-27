@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
+import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new production release branch
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
+const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -16,7 +18,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
     try {
       await git.fetch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the latest updates from remote: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the current branch
@@ -24,11 +26,11 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
       return;
     }
     if (!currentBranch) {
-      await vscode.window.showErrorMessage(`There was an error fetching the current branch: No value returned.`);
+      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -37,11 +39,11 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the production release branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
       return;
     }
     if (productionReleaseBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no production release branches to delete.");
+      await showErrorMessage(outputChannel, "There are no production release branches to delete.");
       return;
     }
 
@@ -60,7 +62,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error switching to 'master': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
         return;
       }
     }
@@ -73,21 +75,21 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext) => {
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the remote production release branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
         return;
       }
     } else {
       try {
         await git.deleteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the production release branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the production release branch '${branch.name}': ${e}`);
         return;
       }
       // there may also be a remote repository
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting the remote production release branch '${branch.name}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
         return;
       }
     }

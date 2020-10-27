@@ -12,7 +12,7 @@ import { mapToCppProjectType } from "../creator/cpp/CppProjectType";
 import NodeProjectCreator from "../creator/node/NodeProjectCreator";
 import NodeProjectOptions from "../creator/node/NodeProjectOptions";
 import { EXPRESS_API, mapToNodeProjectType, REACT_APP, REACT_LIBRARY, SOCKET_IO_SERVER } from "../creator/node/NodeProjectType";
-import { openFolder, promptInput, promptYesNo } from "../util/WindowUtils";
+import { openFolder, promptInput, promptYesNo, showErrorMessage } from "../util/WindowUtils";
 
 type LanguageDefinitions = {
   [language: string]: {
@@ -44,8 +44,9 @@ const languageDefinitions: LanguageDefinitions = {
 /**
  * Create a new Project.
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const newProject = (context: vscode.ExtensionContext) => {
+const newProject = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // get the project name
     const name = await promptInput({ prompt: "Project name?", requireValue: true });
@@ -90,7 +91,7 @@ const newProject = (context: vscode.ExtensionContext) => {
             break;
         }
       } catch (e) {
-        await vscode.window.showWarningMessage(`There may have been an error creating the project: ${e}`);
+        await showErrorMessage(outputChannel, `There may have been an error creating the project: ${e}`);
       }
 
       progress.report({ increment: 100 });

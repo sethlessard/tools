@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
+import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Merge one or more feature branches into a production release branch.
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionContext) => {
+const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -17,11 +19,11 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the production release branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
       return;
     }
     if (productionReleaseBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no production release branches to update.");
+      await showErrorMessage(outputChannel, "There are no production release branches to update.");
       return;
     }
 
@@ -40,11 +42,11 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error gathering the local feature branches: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
     if (featureBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no feature branches.");
+      await showErrorMessage(outputChannel, "There are no feature branches.");
       return;
     }
 
@@ -54,7 +56,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     // select the feature branches to merge into the production release branch.
     const selectedFeatureBranches = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branches would you like to merge into the production release branch?" });
     if (!selectedFeatureBranches || selectedFeatureBranches.length === 0) { 
-      await vscode.window.showErrorMessage("No feature branches selected.");
+      await showErrorMessage(outputChannel, "No feature branches selected.");
       return;
     };
     
@@ -62,7 +64,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     try {
       await git.checkoutBranch(selectedProductionRelease.label);
     } catch (e) {
-      await vscode.window.showErrorMessage(`Error switching to production release branch '${selectedProductionRelease.label}': ${e}`);
+      await showErrorMessage(outputChannel, `Error switching to production release branch '${selectedProductionRelease.label}': ${e}`);
       return;
     }
 
@@ -70,7 +72,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
       try {
         await git.mergeBranch(branch.label);
       } catch (e) {
-        await vscode.window.showErrorMessage(`Error merging '${branch.label}' into '${selectedProductionRelease.label}': ${e}`);
+        await showErrorMessage(outputChannel, `Error merging '${branch.label}' into '${selectedProductionRelease.label}': ${e}`);
       }
     }
 

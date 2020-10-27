@@ -11,34 +11,35 @@ import release from "./commands/git/release";
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
+	const outputChannel = vscode.window.createOutputChannel("t00ls");
 
 	// Git
-	const deleteFeatureBranchDisp = vscode.commands.registerCommand("t00ls.deleteFeatureBranch", deleteFeatureBranch(context));
+	const deleteFeatureBranchDisp = vscode.commands.registerCommand("t00ls.deleteFeatureBranch", deleteFeatureBranch(context, outputChannel));
 	context.subscriptions.push(deleteFeatureBranchDisp);
 
-	const deleteProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.deleteProductionReleaseBranch", deleteProductionReleaseBranch(context));
+	const deleteProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.deleteProductionReleaseBranch", deleteProductionReleaseBranch(context, outputChannel));
 	context.subscriptions.push(deleteProductionReleaseBranchDisp);
 
-	const deleteTagDisp = vscode.commands.registerCommand("t00ls.deleteTag", deleteTag(context));
+	const deleteTagDisp = vscode.commands.registerCommand("t00ls.deleteTag", deleteTag(context, outputChannel));
 	context.subscriptions.push(deleteTagDisp);
 
-	const mergeFeaturesIntoProductionReleaseDisp = vscode.commands.registerCommand("t00ls.mergeFeaturesIntoProductionRelease", mergeFeaturesIntoProductionReleaseBranch(context));
+	const mergeFeaturesIntoProductionReleaseDisp = vscode.commands.registerCommand("t00ls.mergeFeaturesIntoProductionRelease", mergeFeaturesIntoProductionReleaseBranch(context, outputChannel));
 	context.subscriptions.push(mergeFeaturesIntoProductionReleaseDisp);
 
-	const newFeatureBranchDisp = vscode.commands.registerCommand("t00ls.newFeatureBranch", newFeatureBranch(context));
+	const newFeatureBranchDisp = vscode.commands.registerCommand("t00ls.newFeatureBranch", newFeatureBranch(context, outputChannel));
 	context.subscriptions.push(newFeatureBranchDisp);
 
-	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context));
+	const newProductionReleaseBranchDisp = vscode.commands.registerCommand("t00ls.newProductionReleaseBranch", newProductionReleaseBranch(context, outputChannel));
 	context.subscriptions.push(newProductionReleaseBranchDisp);
 
-	const releaseDisposable = vscode.commands.registerCommand("t00ls.release", release(context));
+	const releaseDisposable = vscode.commands.registerCommand("t00ls.release", release(context, outputChannel));
 	context.subscriptions.push(releaseDisposable);
 
-	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context));
+	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context, outputChannel));
 	context.subscriptions.push(syncRepoDisposable);
 
 	// Projects
-	const newProjectDisp = vscode.commands.registerCommand("t00ls.newProject", newProject(context));
+	const newProjectDisp = vscode.commands.registerCommand("t00ls.newProject", newProject(context, outputChannel));
 	context.subscriptions.push(newProjectDisp);
 }
 

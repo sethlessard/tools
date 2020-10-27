@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git from "../../util/Git";
+import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Delete a tag.
  * @param context the t00ls extension context.
+ * @param outputChannel the t00ls output channel.
  */
-const deleteTag = (context: vscode.ExtensionContext) => {
+const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     // TODO: [TLS-9] verify that a Git repo is open.
     const gitRepo = vscode.workspace.workspaceFolders!![0].uri.fsPath;
@@ -16,7 +18,7 @@ const deleteTag = (context: vscode.ExtensionContext) => {
     try {
       await git.fetch();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the latest updates from remote: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the tags
@@ -24,11 +26,11 @@ const deleteTag = (context: vscode.ExtensionContext) => {
     try {
       tags = await git.getAllTags();
     } catch (e) {
-      await vscode.window.showErrorMessage(`There was an error fetching the tags: ${e}`);
+      await showErrorMessage(outputChannel, `There was an error fetching the tags: ${e}`);
       return;
     }
     if (!tags || tags.length === 0) {
-      await vscode.window.showErrorMessage(`There was an error fetching the tags: No return value.`);
+      await showErrorMessage(outputChannel, `There was an error fetching the tags: No return value.`);
       return;
     }
     
@@ -40,7 +42,7 @@ const deleteTag = (context: vscode.ExtensionContext) => {
       try {
         await git.deleteTag(tag);
       } catch (e) {
-        await vscode.window.showErrorMessage(`There was an error deleting tag '${tag}': ${e}`);
+        await showErrorMessage(outputChannel, `There was an error deleting tag '${tag}': ${e}`);
       }
     }
 
