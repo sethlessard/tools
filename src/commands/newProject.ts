@@ -74,7 +74,7 @@ const newProject = (context: vscode.ExtensionContext, outputChannel: vscode.Outp
 
     await vscode.window.withProgress({
       cancellable: false,
-      location: vscode.ProgressLocation.Notification,
+      location: vscode.ProgressLocation.Window,
       title: `Creating ${language} project (${projectType}): ${name}`
     }, async (progress) => {
       progress.report({ increment: 0 });

@@ -10,14 +10,40 @@ import JsonReader from "../../reader/JsonReader";
 import JsonWriter from "../../writer/JsonWriter";
 import NodeProjectOptions from "./NodeProjectOptions";
 import NodeProjectType, { getNodeProjectTemplateDirectory } from "./NodeProjectType";
+import Logger from "../../util/Logger";
 
 type Dependency = { name: string, version: string } | string;
+
+type PackageJson = {
+  name: string,
+  displayName?: string,
+  description: string,
+  version: string,
+  repository?: string,
+  publisher?: string,
+  engines?: {
+    [engine: string]: string
+  },
+  categories?: string[],
+  activationEvents?: string[],
+  main: string,
+  scripts: {
+    [script: string]: string
+  },
+  dependencies?: {
+    [dependency: string]: string
+  },
+  devDependencies?: {
+    [dependency: string]: string
+  }
+};
 
 class NodeProjectCreator extends ProjectCreator {
 
   private readonly _packagePath: string;
   private readonly _jsonReader: JsonReader;
   private readonly _jsonWriter: JsonWriter;
+  private readonly _logger: Logger;
   protected readonly _options: NodeProjectOptions;
 
   /**
@@ -32,6 +58,7 @@ class NodeProjectCreator extends ProjectCreator {
 
     this._jsonReader = new JsonReader();
     this._jsonWriter = new JsonWriter();
+    this._logger = Logger.getInstance();
   }
 
   create(): Promise<void> {
@@ -50,8 +77,8 @@ class NodeProjectCreator extends ProjectCreator {
   /**
    * Get the package.json and set some defaults.
    */
-  private _getPackageJson() {
-    const pack = this._jsonReader.read(this._projectPath);
+  private _getPackageJson(): PackageJson {
+    const pack = this._jsonReader.read(this._packagePath);
     pack.version = "0.0.1";
     pack.description = this._options.description;
     pack.author = "Seth Lessard <sethlessard@outlook.com>";
@@ -126,10 +153,25 @@ class NodeProjectCreator extends ProjectCreator {
 
   /**
  * Configure the dependencies and devDependencies to use exact versions.
- * @param {object} pack the package.json.
+ * @param pack the package.json.
  */
-  private _configureExactDepencies(pack: any) {
-    // TODO: [TLS-14] implement
+  private _configureExactDepencies(pack: PackageJson) {
+    if (pack.dependencies) {
+      for (const dependency of Object.keys(pack.dependencies)) {
+        pack.dependencies[dependency] = pack.dependencies[dependency]
+          .replace("~", "")
+          .replace("^", "");
+      }
+    }
+
+    if (pack.devDependencies) {
+      for (const dependency of Object.keys(pack.devDependencies)) {
+        pack.devDependencies[dependency] = pack.devDependencies[dependency]
+          .replace("~", "")
+          .replace("^", "");
+      }
+    }
+
     return pack;
   }
 
@@ -140,11 +182,15 @@ class NodeProjectCreator extends ProjectCreator {
     const craExec = path.join(this._context.extensionPath, "node_modules/.bin/create-react-app");
     return pExec(`${craExec} ${(this._options.typescript) ? "--typescript " : ""}${this._options.name}`, { cwd: this._options.parentPath })
       .then(({ stdout, stderr }) => {
-        if (stderr) { throw new Error(stderr); }
-        // TODO: [TLS-12] display stdout somehow
+        if (stderr) {
+          this._logger.writeLn(`Error: ${stderr}`);
+          this._logger.show();
+        }
+        this._logger.writeLn(stdout);
 
         // configure the package.json
-        const pack = this._getPackageJson();
+        let pack = this._getPackageJson();
+        pack = this._configureExactDepencies(pack);
 
         // TODO: [TLS-13] pack.repository
         // write the package.json file.
@@ -157,7 +203,7 @@ class NodeProjectCreator extends ProjectCreator {
         ];
 
         // install the dependencies
-        this._installDependencies(dependencies);
+        return this._installDependencies(dependencies);
       });
   }
 
@@ -169,9 +215,14 @@ class NodeProjectCreator extends ProjectCreator {
 
     return pExec(`${crlExec} --no-git --skip-prompts  ${(this._options.typescript) ? "--template=typescript " : ""}${this._options.name}`, { cwd: this._options.parentPath })
       .then(({ stdout, stderr }) => {
-        // if (stderr) { throw new Error(stderr); }
+        if (stderr) {
+          this._logger.writeLn(`Error: ${stderr}`);
+          this._logger.show();
+        }
+        this._logger.writeLn(stdout);
         // configure the package.json
-        const pack = this._getPackageJson();
+        let pack = this._getPackageJson();
+        pack = this._configureExactDepencies(pack);
 
         // TODO: [TLS-13] pack.repository
         // write the package.json file.
@@ -181,7 +232,7 @@ class NodeProjectCreator extends ProjectCreator {
         const dependencies = ["styled-components"];
 
         // install the dependencies
-        this._installDependencies(dependencies);
+        return this._installDependencies(dependencies);
       });
   }
 
