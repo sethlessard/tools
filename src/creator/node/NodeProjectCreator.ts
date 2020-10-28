@@ -102,7 +102,7 @@ class NodeProjectCreator extends ProjectCreator {
    */
   private _createApi(): Promise<void> {
     // initialize the directory
-    this._createDirectory();
+    this._createProjectDirectory();
 
     // configure the package.json
     const pack = this._getPackageJson();
@@ -144,17 +144,17 @@ class NodeProjectCreator extends ProjectCreator {
   /**
    * Initialize the project directory.
    */
-  protected _createDirectory() {
-    super._createDirectory();
+  protected _createProjectDirectory() {
+    super._createProjectDirectory();
 
     // npm init
-    this._inDir("npm init --yes");
+    return this._inProjectDir(`npm init -y`);
   }
 
   /**
- * Configure the dependencies and devDependencies to use exact versions.
- * @param pack the package.json.
- */
+   * Configure the dependencies and devDependencies to use exact versions.
+   * @param pack the package.json.
+   */
   private _configureExactDepencies(pack: PackageJson) {
     if (pack.dependencies) {
       for (const dependency of Object.keys(pack.dependencies)) {
@@ -203,7 +203,7 @@ class NodeProjectCreator extends ProjectCreator {
         ];
 
         // install the dependencies
-        return this._installDependencies(dependencies);
+        return this._installDependencies(dependencies).then(() => {});
       });
   }
 
@@ -232,7 +232,7 @@ class NodeProjectCreator extends ProjectCreator {
         const dependencies = ["styled-components"];
 
         // install the dependencies
-        return this._installDependencies(dependencies);
+        return this._installDependencies(dependencies).then(() => {});
       });
   }
 
@@ -241,7 +241,7 @@ class NodeProjectCreator extends ProjectCreator {
    */
   private _createSocketioServer(): Promise<void> {
     // initialize the directory
-    this._createDirectory();
+    this._createProjectDirectory();
 
     // configure the package.json
     const pack = this._getPackageJson();
@@ -295,7 +295,7 @@ class NodeProjectCreator extends ProjectCreator {
     }
 
     // install the dependencies
-    this._inDir(installCommand);
+    return this._inProjectDir(installCommand);
   }
 
   /**
@@ -313,10 +313,8 @@ class NodeProjectCreator extends ProjectCreator {
     }
 
     // install the dependencies
-    this._inDir(installCommand);
+    return this._inProjectDir(installCommand);
   }
-
-
 }
 
 export default NodeProjectCreator;

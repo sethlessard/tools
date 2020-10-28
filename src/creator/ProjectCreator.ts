@@ -1,7 +1,11 @@
 import { ExtensionContext } from "vscode";
-import { execSync } from "child_process";
+import { exec } from "child_process";
+import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
+
+const pExec = promisify(exec);
+
 import ProjectOptions from "./ProjectOptions";
 
 abstract class ProjectCreator {
@@ -31,14 +35,13 @@ abstract class ProjectCreator {
   /**
    * Create & the project directory.
    */
-  protected _createDirectory() {
-    const { parentPath: path } = this._options;
+  protected _createProjectDirectory() {
     // create the directory
-    if (!fs.existsSync(path)) {
-      fs.mkdirSync(path, { recursive: true });
+    if (!fs.existsSync(this._projectPath)) {
+      fs.mkdirSync(this._projectPath, { recursive: true });
     } else {
       // TODO: [TLS-10] ask if we should delete/create the directory. For now, just exit.
-      console.error(`${path} already exists.`);
+      console.error(`${this._projectPath} already exists.`);
       process.exit(1);
     }
   }
@@ -47,8 +50,16 @@ abstract class ProjectCreator {
    * Execte a command in the project's directory.
    * @param {string} command the command to execute.
    */
-  protected _inDir(command: string) {
-    execSync(command, { cwd: this._options.parentPath });
+  protected _inParentDir(command: string) {
+    return pExec(command, { cwd: this._options.parentPath });
+  }
+
+  /**
+   * Execte a command in the project's directory.
+   * @param {string} command the command to execute.
+   */
+  protected _inProjectDir(command: string) {
+    return pExec(command, { cwd: this._projectPath });
   }
 }
 
