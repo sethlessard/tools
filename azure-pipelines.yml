@@ -16,10 +16,10 @@ steps:
     inputs:
       filePath: '.azure-pipelines/InstallDependencies.ps1'
 
-  - task: PowerShell@2
+  - task: Bash@3
     displayName: "Start xvfb"
     inputs:
-      filePath: '.azure-pipelines/AdditionalSetup.ps1'
+      filePath: '.azure-pipelines/AdditionalSetup.sh'
 
   - task: Bash@3
     displayName: "Lint & Test"
