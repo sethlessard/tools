@@ -4,6 +4,10 @@
 	"description": "t00ls",
 	"version": "1.0.0",
 	"publisher": "slessard",
+	"repository": {
+		"type": "Git",
+		"url": "https://github.com/sethlessard/tools"
+	},
 	"engines": {
 		"vscode": "^1.50.0"
 	},
