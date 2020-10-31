@@ -5,13 +5,14 @@ import deleteTag from "./commands/git/deleteTag";
 import mergeFeaturesIntoProductionReleaseBranch from "./commands/git/mergeFeaturesIntoProductionReleaseBranch";
 import newFeatureBranch from "./commands/git/newFeatureBranch";
 import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
-import newProject from "./commands/newProject";
 import syncRepo from "./commands/git/syncRepo";
 import release from "./commands/git/release";
+import Logger from "./util/Logger";
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
 	const outputChannel = vscode.window.createOutputChannel("t00ls");
+	Logger.getInstance().initChannel(outputChannel);
 
 	// Git
 	const deleteFeatureBranchDisp = vscode.commands.registerCommand("t00ls.deleteFeatureBranch", deleteFeatureBranch(context, outputChannel));
@@ -37,10 +38,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context, outputChannel));
 	context.subscriptions.push(syncRepoDisposable);
-
-	// Projects
-	const newProjectDisp = vscode.commands.registerCommand("t00ls.newProject", newProject(context, outputChannel));
-	context.subscriptions.push(newProjectDisp);
 }
 
 export function deactivate() {}

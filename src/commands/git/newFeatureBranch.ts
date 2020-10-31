@@ -35,7 +35,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     // get the base branch to create the feature branch from.
-    const baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: "What is the base branch for this feature branch?" });
+    const baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch}'?` });
     if (!baseBranch) { return; }
     
     // get the current branch
@@ -76,7 +76,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       await showErrorMessage(outputChannel, `There was an error creating '${featureBranch}': ${e}`);
       return;
     }
-    await vscode.window.showInformationMessage(`Created new production release branch '${featureBranch}'.`);
+    await vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`);
   };
 };
 

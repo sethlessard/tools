@@ -4,6 +4,10 @@
 	"description": "t00ls",
 	"version": "1.0.0",
 	"publisher": "slessard",
+	"repository": {
+		"type": "Git",
+		"url": "https://github.com/sethlessard/tools"
+	},
 	"engines": {
 		"vscode": "^1.50.0"
 	},
@@ -18,7 +22,6 @@
 		"onCommand:t00ls.mergeFeaturesIntoProductionRelease",
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
-		"onCommand:t00ls.newProject",
 		"onCommand:t00ls.syncRepo"
 	],
 	"main": "./out/extension.js",
@@ -47,10 +50,6 @@
 			{
 				"command": "t00ls.newProductionReleaseBranch",
 				"title": "t00ls: New Production Release Branch"
-			},
-			{
-				"command": "t00ls.newProject",
-				"title": "t00ls: New Project"
 			},
 			{
 				"command": "t00ls.release",
@@ -88,7 +87,7 @@
 	"dependencies": {
 		"chalk": "4.1.0",
 		"clui": "0.3.6",
-		"create-react-app": "3.4.1",
+		"create-react-app": "4.0.0",
 		"create-react-library": "3.1.1",
 		"lodash": "4.17.20",
 		"fs-extra": "9.0.1",
@@ -96,15 +95,18 @@
 		"rimraf": "3.0.2"
 	},
 	"devDependencies": {
+		"@types/chai": "4.2.14",
 		"@types/fs-extra": "9.0.2",
 		"@types/glob": "7.1.3",
-		"@types/mocha": "8.0.3",
-		"@types/node": "14.14.3",
 		"@types/lodash": "4.14.108",
+		"@types/mocha": "8.0.3",
+		"@types/node": "14.14.5",
+		"@types/rimraf": "3.0.0",
 		"@types/vscode": "1.50.0",
 		"@typescript-eslint/eslint-plugin": "4.1.1",
 		"@typescript-eslint/parser": "4.1.1",
-		"eslint": "7.9.0",
+		"chai": "4.2.0",
+		"eslint": "7.12.0",
 		"glob": "7.1.6",
 		"mocha": "8.2.0",
 		"typescript": "4.0.5",

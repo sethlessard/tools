@@ -1,0 +1,63 @@
+trigger:
+  branches:
+    exclude:
+      - "*"
+  tags:
+    include:
+      - v*
+    exclude:
+      - v*-rc
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: PowerShell@2
+    displayName: "Check Building a Release Tag"
+    inputs:
+      filePath: '.azure-pipelines/CheckBuildingReleaseTag.ps1'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '12.x'
+
+  - task: PowerShell@2
+    displayName: "Install dependencies"
+    inputs:
+      filePath: '.azure-pipelines/InstallDependencies.ps1'
+    
+  - task: Bash@3
+    displayName: "Start xvfb"
+    inputs:
+      filePath: '.azure-pipelines/AdditionalSetup.sh'
+
+  - task: Bash@3
+    displayName: "Lint & Test"
+    inputs:
+      filePath: '.azure-pipelines/Test.sh'
+    env:
+      DISPLAY: ':99.0'
+
+  - task: PowerShell@2
+    displayName: "Build"
+    inputs:
+      filePath: '.azure-pipelines/Build.ps1'
+
+  - task: GitHubRelease@1
+    displayName: Release to GitHub
+    inputs:
+      gitHubConnection: github_sethlessard
+      repositoryName: 'sethlessard/tools'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      tagPattern: 'v'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+
+  - task: PowerShell@2
+    displayName: Publish to VS Code Marketplace
+    inputs:
+      filePath: '.azure-pipelines/Publish.ps1'
+    env:
+      VSCE_PAT: $(VSCE_PAT)

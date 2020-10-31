@@ -2,10 +2,6 @@ trigger:
   branches:
     include:
       - master
-      - v*-prep
-  tags:
-    include:
-      - v*
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -14,49 +10,25 @@ steps:
   - task: NodeTool@0
     inputs:
       versionSpec: '12.x'
-  - task: Bash@3
+
+  - task: PowerShell@2
     displayName: "Install dependencies"
     inputs:
-      targetType: 'inline'
-      script: |
-        npm install -g vsce
-        npm install
+      filePath: '.azure-pipelines/InstallDependencies.ps1'
+
   - task: Bash@3
     displayName: "Start xvfb"
     inputs:
-      targetType: 'inline'
-      script: |
-        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        echo ">>> Started xvfb"
+      filePath: '.azure-pipelines/AdditionalSetup.sh'
+
   - task: Bash@3
-    displayName: "Lint & Test t00ls"
+    displayName: "Lint & Test"
     inputs:
-      targetType: 'inline'
-      script: 'npm test'
+      filePath: '.azure-pipelines/Test.sh'
     env:
       DISPLAY: ':99.0'
-  - task: Bash@3
-    displayName: "Build VS Code Extension"
+
+  - task: PowerShell@2
+    displayName: "Build"
     inputs:
-      targetType: 'inline'
-      script: 'vsce package'
-  - task: GitHubRelease@1
-    displayName: Release to GitHub
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-    inputs:
-      gitHubConnection: github_sethlessard
-      repositoryName: 'sethlessard/tools'
-      action: 'create'
-      target: '$(Build.SourceVersion)'
-      tagSource: 'gitTag'
-      tagPattern: 'v'
-      changeLogCompareToRelease: 'lastFullRelease'
-      changeLogType: 'commitBased'
-  - task: Bash@3
-    displayName: Publish to VS Code Marketplace
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-    inputs:
-      targetType: 'inline'
-      script: 'vsce publish'
-    env:
-      VSCE_PAT: $(VSCE_PAT)
+      filePath: '.azure-pipelines/Build.ps1'

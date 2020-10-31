@@ -7,7 +7,7 @@ import * as fs from "fs";
  */
 const createDirectoryTo = (file: string) => {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-}
+};
 
 export {
   createDirectoryTo

@@ -4,7 +4,7 @@ import Git, { Branch } from "../../util/Git";
 import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
- * Create a new feature branch
+ * Delete a feature branch.
  * @param context the t00ls extension context.
  * @param outputChannel the t00ls output channel.
  */
