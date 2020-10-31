@@ -18,7 +18,6 @@
 		"onCommand:t00ls.mergeFeaturesIntoProductionRelease",
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
-		"onCommand:t00ls.newProject",
 		"onCommand:t00ls.syncRepo"
 	],
 	"main": "./out/extension.js",
@@ -47,10 +46,6 @@
 			{
 				"command": "t00ls.newProductionReleaseBranch",
 				"title": "t00ls: New Production Release Branch"
-			},
-			{
-				"command": "t00ls.newProject",
-				"title": "t00ls: New Project"
 			},
 			{
 				"command": "t00ls.release",
