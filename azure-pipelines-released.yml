@@ -12,6 +12,11 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+  - task: PowerShell@2
+    displayName: "Check Building a Release Tag"
+    inputs:
+      filePath: '.azure-pipelines/CheckBuildingReleaseTag.ps1'
+
   - task: NodeTool@0
     inputs:
       versionSpec: '12.x'
