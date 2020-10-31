@@ -4,7 +4,7 @@ import Git, { Branch } from "../../util/Git";
 import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
- * Create a new production release branch
+ * Delete a production release branch
  * @param context the t00ls extension context.
  * @param outputChannel the t00ls output channel.
  */

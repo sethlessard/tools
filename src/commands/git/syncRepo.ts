@@ -46,10 +46,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
-    if (featureBranches.length === 0) {
-      await showErrorMessage(outputChannel, "There are no feature branches to delete.");
-      return;
-    }
+    
     // get the local production release branches
     let productionReleaseBranches = [];
     try {
