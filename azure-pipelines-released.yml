@@ -1,7 +1,9 @@
 trigger:
-  branches:
+  tags:
     include:
-      - master
+      - v*
+    exclude:
+      - v*-rc
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -15,7 +17,7 @@ steps:
     displayName: "Install dependencies"
     inputs:
       filePath: '.azure-pipelines/InstallDependencies.ps1'
-
+    
   - task: PowerShell@2
     displayName: "Start xvfb"
     inputs:
@@ -32,3 +34,22 @@ steps:
     displayName: "Build"
     inputs:
       filePath: '.azure-pipelines/Build.ps1'
+
+  - task: GitHubRelease@1
+    displayName: Release to GitHub
+    inputs:
+      gitHubConnection: github_sethlessard
+      repositoryName: 'sethlessard/tools'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      tagPattern: 'v'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+
+  - task: PowerShell@2
+    displayName: Publish to VS Code Marketplace
+    inputs:
+      filePath: '.azure-pipelines/Publish.ps1'
+    env:
+      VSCE_PAT: $(VSCE_PAT)
