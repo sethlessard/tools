@@ -4,6 +4,6 @@ updates:
     directory: /
     schedule:
         interval: daily
-    target-branch: "v1.0.0-prep"
+    target-branch: "v1.0.1-prep"
     reviewers:
       - "sethlessard"
