@@ -23,10 +23,10 @@ steps:
     inputs:
       filePath: '.azure-pipelines/AdditionalSetup.ps1'
 
-  - task: PowerShell@2
+  - task: Bash@3
     displayName: "Lint & Test"
     inputs:
-      filePath: '.azure-pipelines/Test.ps1'
+      filePath: '.azure-pipelines/Test.sh'
     env:
       DISPLAY: ':99.0'
 
