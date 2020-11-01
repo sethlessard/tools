@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import Git from "../../util/Git";
 import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import Logger from "../../util/Logger";
+import { update } from "lodash";
 
 /**
  * Create a new feature branch
@@ -155,10 +156,12 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
 
       // check to see if there is a pre-defined production release/feature branch relationship
       const storedBaseBranch: string | undefined = context.workspaceState.get(`${featureBranch.name}.baseBranch`);
+
+      let updateWithBaseBranch = false;
       if (storedBaseBranch) {
         // use the stored base branch
         baseBranch.label = storedBaseBranch;
-        logger.writeLn(`Used pre-existing production release branch/feature branch relationship to update '${featureBranch.name}' with branch '${storedBaseBranch}'.`);
+        logger.writeLn(`Found pre-existing production release branch/feature branch relationship. Will update '${featureBranch.name}' with branch '${storedBaseBranch}'.`);
       } else {
         let baseBranches = [{ label: "master", description: "Local" }];
 
@@ -177,12 +180,14 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      // merge the base branch into the feature branch
-      try {
-        await git.mergeBranch(baseBranch.label);
-      } catch (e) {
-        await showErrorMessage(outputChannel, `Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
-        return;
+      if ((await promptYesNo({ question: `Merge '${baseBranch.label}' into '${featureBranch.name}'` }))) {
+        // merge the base branch into the feature branch
+        try {
+          await git.mergeBranch(baseBranch.label);
+        } catch (e) {
+          await showErrorMessage(outputChannel, `Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
+          return;
+        }
       }
 
       // push
