@@ -8,6 +8,7 @@ import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranc
 import syncRepo from "./commands/git/syncRepo";
 import release from "./commands/git/release";
 import Logger from "./util/Logger";
+import clearProductionReleaseFeatureBranchRelationship from "./commands/git/clearProductionReleaseFeatureBranchRelationship";
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
@@ -15,6 +16,9 @@ export function activate(context: vscode.ExtensionContext) {
 	Logger.getInstance().initChannel(outputChannel);
 
 	// Git
+	const clearProductionReleaseFeatureBranchRelationshipDisp = vscode.commands.registerCommand("t00ls.clearProductionReleaseFeatureBranchRelationship", clearProductionReleaseFeatureBranchRelationship(context, outputChannel));
+	context.subscriptions.push(clearProductionReleaseFeatureBranchRelationshipDisp);
+
 	const deleteFeatureBranchDisp = vscode.commands.registerCommand("t00ls.deleteFeatureBranch", deleteFeatureBranch(context, outputChannel));
 	context.subscriptions.push(deleteFeatureBranchDisp);
 
