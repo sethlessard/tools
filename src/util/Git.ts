@@ -156,6 +156,16 @@ class Git {
   }
 
   /**
+   * Delete a set of tags locally and remotely.
+   * @param tags the tags to delete.
+   * @param remote the remote to use. Default is "origin"
+   */
+  deleteTags(tags: string[], remote: string = "origin"): Promise<ExecOutput[]> {
+    return this._inDir(`git tag -d ${tags.join(" ")}`)
+      .then(() => Promise.all(tags.map(t => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${t}`) : Promise.resolve(EMPTY_EXEC_OUT)))));
+  }
+
+  /**
    * Fetch a remote, pruning branches and tags
    * @param remote the remote to fetch.
    */
