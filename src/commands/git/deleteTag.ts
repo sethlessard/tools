@@ -36,17 +36,15 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
       await showErrorMessage(outputChannel, `There was an error fetching the tags: No return value.`);
       return;
     }
-    
+
     // select the tags to delete
     const selectedTags = await vscode.window.showQuickPick(tags, { canPickMany: true, placeHolder: "Which tag(s) would you like to delete? (This deletes the remote tag as well)" });
     if (!selectedTags || selectedTags.length === 0) { return; }
 
-    for (const tag of selectedTags) {
-      try {
-        await git.deleteTag(tag);
-      } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting tag '${tag}': ${e}`);
-      }
+    try {
+      await git.deleteTags(selectedTags);
+    } catch (e) {
+      await showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
     }
 
     await vscode.window.showInformationMessage("Done.");
