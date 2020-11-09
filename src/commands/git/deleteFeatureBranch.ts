@@ -101,7 +101,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       }
     }
 
-    await vscode.window.showInformationMessage(`Deleted feature branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}`);
+    await vscode.window.showInformationMessage(`Deleted feature branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
   };
 };
 
