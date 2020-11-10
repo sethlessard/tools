@@ -29,7 +29,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
       return;
     }
     if (!featureBranches || featureBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no local feature branches.");
+      await vscode.window.showInformationMessage("There are no local feature branches.");
       return;
     }
 

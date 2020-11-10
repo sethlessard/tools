@@ -3,7 +3,6 @@ import * as _ from "lodash";
 import Git from "../../util/Git";
 import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import Logger from "../../util/Logger";
-import { update } from "lodash";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
@@ -164,32 +163,21 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      let baseBranch: vscode.QuickPickItem | undefined = { label: "master", description: "Local" };
+      let baseBranch: vscode.QuickPickItem | undefined = { label: context.workspaceState.get(`${featureBranch.name}.baseBranch`) || "master", description: "Local" };
+      let baseBranches = [{ label: "master", description: "Local" }];
 
-      // check to see if there is a pre-defined production release/feature branch relationship
-      const storedBaseBranch: string | undefined = context.workspaceState.get(`${featureBranch.name}.baseBranch`);
+      if (productionReleaseBranches.length > 0) {
+        baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
+      }
 
-      let updateWithBaseBranch = false;
-      if (storedBaseBranch) {
-        // use the stored base branch
-        baseBranch.label = storedBaseBranch;
-        logger.writeLn(`Found pre-existing production release branch/feature branch relationship. Will update '${featureBranch.name}' with branch '${storedBaseBranch}'.`);
-      } else {
-        let baseBranches = [{ label: "master", description: "Local" }];
+      baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?` });
+      if (!baseBranch) {
+        baseBranch = { label: "master", description: "Local" };
+      }
 
-        if (productionReleaseBranches.length > 0) {
-          baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
-        }
-
-        baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?` });
-        if (!baseBranch) {
-          baseBranch = { label: "master", description: "Local" };
-        }
-
-        // ask if the user wants to save the production release branch/feature branch relationship for next time.
-        if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
-          await context.workspaceState.update(`${featureBranch.name}.baseBranch`, baseBranch.label);
-        }
+      // ask if the user wants to save the production release branch/feature branch relationship for next time.
+      if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
+        await context.workspaceState.update(`${featureBranch.name}.baseBranch`, baseBranch.label);
       }
 
       if ((await promptYesNo({ question: `Merge '${baseBranch.label}' into '${featureBranch.name}'` }))) {
