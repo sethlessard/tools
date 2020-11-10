@@ -15,6 +15,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onCommand:t00ls.changeGitMode",
 		"onCommand:t00ls.clearProductionReleaseFeatureBranchRelationship",
 		"onCommand:t00ls.deleteFeatureBranch",
 		"onCommand:t00ls.deleteProductionReleaseBranch",
@@ -23,11 +24,16 @@
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
 		"onCommand:t00ls.release",
-		"onCommand:t00ls.syncRepo"
+		"onCommand:t00ls.syncRepo",
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
+			{
+				"command": "t00ls.changeGitMode",
+				"title": "t00ls: Change Git Mode"
+			},
 			{
 				"command": "t00ls.clearProductionReleaseFeatureBranchRelationship",
 				"title": "t00ls: Clear Production Release/Feature Branch Relationship"

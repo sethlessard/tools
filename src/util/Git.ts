@@ -1,6 +1,7 @@
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
+import { t00lsMode } from "./StatusBarManager";
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
@@ -20,14 +21,17 @@ const EMPTY_EXEC_OUT = { stdout: "", stderr: "" };
 class Git {
 
   private readonly _path: string;
+  private readonly _mode: t00lsMode;
 
   /**
    * Create a new Git instance.
    * @param repoPath the path to the Git repository.
+   * @param mode the Git mode to use. Local or Normal.
    */
-  constructor(repoPath: string) {
+  constructor(repoPath: string, mode: t00lsMode) {
     if (!repoPath) { throw new Error("repoPath must be specified."); }
     this._path = repoPath;
+    this._mode = mode;
     this._testRepo();
   }
 
@@ -122,6 +126,8 @@ class Git {
    * @param branch the branch to delete.
    */
   deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<ExecOutput> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
@@ -136,6 +142,8 @@ class Git {
    * @param branch the branch to delete.
    */
   deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<ExecOutput> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
@@ -291,6 +299,8 @@ class Git {
    * Get all remote branches
    */
   getAllRemoteBranches(): Promise<Branch[]> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
@@ -309,6 +319,8 @@ class Git {
    * Get all remote feature branches.
    */
   getAllRemoteFeatureBranches(): Promise<Branch[]> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+
     return this.getAllRemoteBranches()
       .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
   }
@@ -317,6 +329,8 @@ class Git {
   * Get all remote production release branches.
   */
   getAllRemoteProductionReleaseBranches(): Promise<Branch[]> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+
     return this.getAllRemoteProductionReleaseBranches()
       .then(branches => branches.filter(branch => REGEX_PRODUCTION_RELEASE.test(branch.name)));
   }
@@ -325,6 +339,8 @@ class Git {
    * Get all remotes in the Git repository.
    */
   getAllRemotes(): Promise<string[]> {
+    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+
     return this._inDir("git remote")
       .then(({ stdout }) => stdout.split("\n").map(r => r.trim()).filter(r => r));
   }
@@ -358,6 +374,8 @@ class Git {
    * Check to see if a remote has been configured the repository.
    */
   hasRemote(): Promise<boolean> {
+    if (this._mode === t00lsMode.Local) { return Promise.resolve(false); }
+
     return this.getAllRemotes().then((remotes) => remotes && remotes.length > 0);
   }
 

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import Git from "../../util/Git";
+import { t00lsMode } from "../../util/StatusBarManager";
 
 import { promptInput, promptVersion, showErrorMessage } from "../../util/WindowUtils";
 
@@ -15,7 +16,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo);
+    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
 
     // get the new production release version
     const version = await promptVersion("Which version are you preparing for?");

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import Git from "../../util/Git";
 import Logger from "../../util/Logger";
+import { t00lsMode } from "../../util/StatusBarManager";
 
 import { showErrorMessage } from "../../util/WindowUtils";
 
@@ -16,7 +17,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo);
+    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
     const logger = Logger.getInstance();
 
     // get the feature branches
@@ -28,7 +29,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
       return;
     }
     if (!featureBranches || featureBranches.length === 0) {
-      await vscode.window.showErrorMessage("There are no local feature branches.");
+      await vscode.window.showInformationMessage("There are no local feature branches.");
       return;
     }
 

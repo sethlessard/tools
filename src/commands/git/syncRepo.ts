@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import Git from "../../util/Git";
 import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import Logger from "../../util/Logger";
-import { update } from "lodash";
+import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
  * Create a new feature branch
@@ -18,14 +18,17 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     }
     const logger = Logger.getInstance();
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo);
+    const mode: t00lsMode = context.workspaceState.get("t00ls.mode") as t00lsMode;
+    const git = new Git(gitRepo, mode);
 
-    // fetch the latest updates from remote
-    try {
-      await git.fetch();
-    } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
-      return;
+    if (mode === t00lsMode.Normal) {
+      // fetch the latest updates from remote
+      try {
+        await git.fetch();
+      } catch (e) {
+        await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
+        return;
+      }
     }
 
     // get the current branch
@@ -70,13 +73,16 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       }
     }
 
-    // pull master
-    try {
-      await git.pull();
-    } catch (e) {
-      await showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
-      return;
+    if (mode === t00lsMode.Normal) {
+      // pull master
+      try {
+        await git.pull();
+      } catch (e) {
+        await showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
+        return;
+      }
     }
+
 
     // update the production release branches, if any
     for (const prodRelease of productionReleaseBranches) {
@@ -90,7 +96,8 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      if (remote) {
+
+      if (mode === t00lsMode.Normal && remote) {
         // pull the latest changes from remote
         try {
           await git.pull();
@@ -108,24 +115,26 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      // push
-      if (!remote) {
-        // ask the user if they want to publish the production release branch.
-        const publish = await promptYesNo({ question: `Publish '${prodRelease.name}'?`, noIsDefault: true });
-        if (publish) {
-          // publish the production release branch
-          try {
-            await git.setupTrackingAndPush();
-          } catch (e) {
-            await showErrorMessage(outputChannel, `Error publishing production release branch '${prodRelease.name}': ${e}`);
+      if (mode === t00lsMode.Normal) {
+        // push
+        if (!remote) {
+          // ask the user if they want to publish the production release branch.
+          const publish = await promptYesNo({ question: `Publish '${prodRelease.name}'?`, noIsDefault: true });
+          if (publish) {
+            // publish the production release branch
+            try {
+              await git.setupTrackingAndPush();
+            } catch (e) {
+              await showErrorMessage(outputChannel, `Error publishing production release branch '${prodRelease.name}': ${e}`);
+            }
           }
-        }
-      } else {
-        // push to remote
-        try {
-          await git.push();
-        } catch (e) {
-          await showErrorMessage(outputChannel, `Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
+        } else {
+          // push to remote
+          try {
+            await git.push();
+          } catch (e) {
+            await showErrorMessage(outputChannel, `Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
+          }
         }
       }
     }
@@ -142,42 +151,33 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      if (hasRemote) {
-        // pull the latest changes from remote
-        try {
-          await git.pull();
-        } catch (e) {
-          await showErrorMessage(outputChannel, `Error pulling feature branch '${featureBranch.name}': ${e}`);
-          return;
+      if (mode === t00lsMode.Normal) {
+        if (hasRemote) {
+          // pull the latest changes from remote
+          try {
+            await git.pull();
+          } catch (e) {
+            await showErrorMessage(outputChannel, `Error pulling feature branch '${featureBranch.name}': ${e}`);
+            return;
+          }
         }
       }
 
-      let baseBranch: vscode.QuickPickItem | undefined = { label: "master", description: "Local" };
+      let baseBranch: vscode.QuickPickItem | undefined = { label: context.workspaceState.get(`${featureBranch.name}.baseBranch`) || "master", description: "Local" };
+      let baseBranches = [{ label: "master", description: "Local" }];
 
-      // check to see if there is a pre-defined production release/feature branch relationship
-      const storedBaseBranch: string | undefined = context.workspaceState.get(`${featureBranch.name}.baseBranch`);
+      if (productionReleaseBranches.length > 0) {
+        baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
+      }
 
-      let updateWithBaseBranch = false;
-      if (storedBaseBranch) {
-        // use the stored base branch
-        baseBranch.label = storedBaseBranch;
-        logger.writeLn(`Found pre-existing production release branch/feature branch relationship. Will update '${featureBranch.name}' with branch '${storedBaseBranch}'.`);
-      } else {
-        let baseBranches = [{ label: "master", description: "Local" }];
+      baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?` });
+      if (!baseBranch) {
+        baseBranch = { label: "master", description: "Local" };
+      }
 
-        if (productionReleaseBranches.length > 0) {
-          baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
-        }
-
-        baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?` });
-        if (!baseBranch) {
-          baseBranch = { label: "master", description: "Local" };
-        }
-
-        // ask if the user wants to save the production release branch/feature branch relationship for next time.
-        if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
-          await context.workspaceState.update(`${featureBranch.name}.baseBranch`, baseBranch.label);
-        }
+      // ask if the user wants to save the production release branch/feature branch relationship for next time.
+      if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
+        await context.workspaceState.update(`${featureBranch.name}.baseBranch`, baseBranch.label);
       }
 
       if ((await promptYesNo({ question: `Merge '${baseBranch.label}' into '${featureBranch.name}'` }))) {
@@ -190,24 +190,26 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      // push
-      if (!hasRemote) {
-        // ask the user if they want to publish the production release branch.
-        const publish = await promptYesNo({ question: `Publish '${featureBranch.name}'?`, noIsDefault: true });
-        if (publish) {
-          // publish the production release branch
-          try {
-            await git.setupTrackingAndPush();
-          } catch (e) {
-            await showErrorMessage(outputChannel, `Error publishing feature branch '${featureBranch.name}': ${e}`);
+      if (mode === t00lsMode.Normal) {
+        // push
+        if (!hasRemote) {
+          // ask the user if they want to publish the production release branch.
+          const publish = await promptYesNo({ question: `Publish '${featureBranch.name}'?`, noIsDefault: true });
+          if (publish) {
+            // publish the production release branch
+            try {
+              await git.setupTrackingAndPush();
+            } catch (e) {
+              await showErrorMessage(outputChannel, `Error publishing feature branch '${featureBranch.name}': ${e}`);
+            }
           }
-        }
-      } else {
-        // push to remote
-        try {
-          await git.push();
-        } catch (e) {
-          await showErrorMessage(outputChannel, `Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
+        } else {
+          // push to remote
+          try {
+            await git.push();
+          } catch (e) {
+            await showErrorMessage(outputChannel, `Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
+          }
         }
       }
     }

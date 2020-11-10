@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import Git, { Branch } from "../../util/Git";
+import { t00lsMode } from "../../util/StatusBarManager";
 
 import { promptInput, promptVersion, showErrorMessage } from "../../util/WindowUtils";
 
@@ -15,7 +16,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo);
+    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
 
     // get the new production release version
     const featureBranch = await promptInput({ prompt: "What would you like to name the feature branch?", requireValue: true, placeHolder: "feature..." });
