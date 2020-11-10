@@ -42,7 +42,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     }
 
     // get the local feature branches in the repository
-    let featureBranches = [];
+    let featureBranches: Branch[] = [];
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
@@ -58,50 +58,52 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     const mappedFeatureBrances = featureBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
     // select the to delete
-    const selected = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: false, placeHolder: "Which feature branch would you like to delete?" });
+    const selected = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branch would you like to delete?" });
     if (!selected) { return; }
 
-    const branch = _.find<Branch>(featureBranches, { name: selected.label });
-    if (!branch) { throw new Error("Error selecting feature branch..."); }
-
-    if (branch.name === currentBranch) {
-      // switch to master
-      try {
-        await git.checkoutBranch("master");
-      } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
-        return;
+    for (const b of selected) {
+      const branch = _.find(featureBranches, { name: b.label });
+      if (!branch) { throw new Error("Error...."); }
+      if (b.label === currentBranch) {
+        // switch to master
+        try {
+          await git.checkoutBranch("master");
+        } catch (e) {
+          await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
+          return;
+        }
       }
+      
+      if (branch.remote) {
+        // this feature branch only exists in the remote repository
+        try {
+          await git.deleteRemoteBranchForce(branch.name);
+        } catch (e) {
+          await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+          return;
+        }
+      } else {
+        try {
+          await git.deleteBranchForce(branch.name);
+        } catch (e) {
+          await showErrorMessage(outputChannel, `There was an error deleting the feature branch '${branch.name}': ${e}`);
+          return;
+        }
+        // there may also be a remote repository
+        try {
+          await git.deleteRemoteBranchForce(branch.name);
+        } catch (e) {
+          await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+          return;
+        }
+      }
+
+      vscode.window.showInformationMessage(`Deleted feature branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
     }
 
     // TODO: [TLS-19] Before deleting a feature branch, check to see if 
     // the branch has been merged into master or a feature branch.
-
-    if (branch.remote) {
-      // this feature branch only exists in the remote repository
-      try {
-        await git.deleteRemoteBranchForce(branch.name);
-      } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
-        return;
-      }
-    } else {
-      try {
-        await git.deleteBranchForce(branch.name);
-      } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the feature branch '${branch.name}': ${e}`);
-        return;
-      }
-      // there may also be a remote repository
-      try {
-        await git.deleteRemoteBranchForce(branch.name);
-      } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
-        return;
-      }
-    }
-
-    await vscode.window.showInformationMessage(`Deleted feature branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
+    await vscode.window.showInformationMessage("Done.");
   };
 };
 
