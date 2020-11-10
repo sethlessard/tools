@@ -66,11 +66,12 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       const branch = _.find(featureBranches, { name: b.label });
       if (!branch) { throw new Error("Error...."); }
       if (b.label === currentBranch) {
-        // switch to master
+        // switch to the base branch or master
+        const branch = context.workspaceState.get<string>(`${b.label}.baseBranch`) || "master";
         try {
-          await git.checkoutBranch("master");
+          await git.checkoutBranch(branch);
         } catch (e) {
-          await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
+          await showErrorMessage(outputChannel, `There was an error switching to '${branch}': ${e}`);
           return;
         }
       }
