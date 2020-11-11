@@ -83,6 +83,14 @@
 			{
 				"language": "javascript",
 				"path": "./snippets/javascript.code-snippets"
+			},
+			{
+				"language": "typescript",
+				"path": "./snippets/typescript.code-snippets"
+			},
+			{
+				"language": "typescriptreact",
+				"path": "./snippets/typescript-react.code-snippets"
 			}
 		]
 	},

@@ -1,0 +1,83 @@
+{
+  "Class": {
+    "prefix": "tclass",
+    "description": "TypeScript Class",
+    "body": [
+      "class $1 {",
+      "",
+      "  constructor($2) {",
+      "",
+      "  }",
+      "}",
+      "",
+      "export default $1;",
+      ""
+    ]
+  },
+  "Express Router": {
+    "prefix": "texpressrouter",
+    "description": "Express Router",
+    "body": [
+      "import { Router, Request, Response } from \"express\";",
+      "const router = Router();",
+      "",
+      "/**",
+      " * Handle GET /",
+      " */",
+      "router.get('/', (req: Request, res: Response) => {",
+      "  res.send(\"Not implemented\");",
+      "});",
+      "",
+      "/**",
+      " * Handle POST /",
+      " **/",
+      "router.post('/', (req: Request, res: Response) => {",
+      "  res.send(\"Not implemented\");",
+      "});",
+      "",
+      "/**",
+      " * Handle PUT /",
+      " */",
+      "router.put('/', (req: Request, res: Response) => {",
+      "  res.send(\"Not implemented\");",
+      "});",
+      "",
+      "/**",
+      " * Handle DELETE /",
+      " */",
+      "router.delete('/', (req: Request, res: Response) => {",
+      "  res.send(\"Not implemented\");",
+      "});",
+      "",
+      "export default router;",
+      ""
+    ]
+  },
+  "Singleton": {
+    "prefix": "tsingleton",
+    "description": "TypeScript Singleton",
+    "body": [
+      "class $1 {",
+      "",
+      "\tprivate static _instance?: $1;",
+      "",
+      "\t/*",
+      "\t * Get the $1 instance.",
+      "\t */",
+      "\tstatic getInstance(): $1 {",
+      "\t\tif (!$1._instance) {",
+      "\t\t\t$1._instance = new $1();",
+      "\t\t}",
+      "\treturn $1._instance;",
+      "}",
+      "",
+      "\tconstructor() {",
+      "",
+      "\t}",
+      "}",
+      "",
+      "export default $1;",
+      ""
+    ]
+  }
+}
