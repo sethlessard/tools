@@ -242,7 +242,7 @@ class Git {
   getAllLocalBranches(): Promise<Branch[]> {
     return this._inDir("git show-branch --list")
       .then(out => {
-        const rawLines = out.stdout.trim().split("\n");
+        const rawLines = out.stdout.split("\n");
         const filteredLines = rawLines.filter(line => REGEX_SHOW_BRANCH.test(line));
         const mappedLines = filteredLines.map(line => {
           const matches = line.match(REGEX_SHOW_BRANCH)!!;
@@ -305,7 +305,7 @@ class Git {
       .then(hasRemote => {
         if (hasRemote) {
           return this._inDir("git show-branch --list --remote")
-            .then(out => out.stdout.trim().split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
+            .then(out => out.stdout.split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
               const matches = line.match(REGEX_SHOW_BRANCH)!!;
               const name = matches[1].split("/");
               return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
@@ -357,8 +357,16 @@ class Git {
    * Get the current branch in the local Git repository.
    */
   getCurrentBranch(): Promise<string> {
-    return this._inDir(`git branch --show-current`)
+    return this._inDir("git branch --show-current")
       .then((out: ExecOutput) => out.stdout);
+  }
+
+  /**
+   * Get the root directory of the Git repository.
+   */
+  getRepositoryDirectory(): Promise<string> {
+    return this._inDir("git rev-parse --show-toplevel")
+      .then(({ stdout }) => stdout);
   }
 
   /**
@@ -390,11 +398,26 @@ class Git {
   }
 
   /**
+   * Check to see if there are working changes (tracked and untracked) in the current Git repository.
+   */
+  hasWorkingChanges() {
+    return this._inDir("git status --porcelain")
+      .then(({ stdout }) => stdout.length > 0);
+  }
+
+  /**
    * Merge a branch into the current Git branch.
    * @param branch the branch to merge.
    */
   mergeBranch(branch: string): Promise<ExecOutput> {
     return this._inDir(`git merge ${branch}`);
+  }
+
+  /**
+   * Pop the latest stash.
+   */
+  popStash(): Promise<ExecOutput> {
+    return this._inDir("git stash pop");
   }
 
   /**
@@ -428,6 +451,22 @@ class Git {
     // TODO: [TLS-28] add ability to specify the remote
     return this.hasRemote()
       .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u origin ${branch}`)) : Promise.resolve(EMPTY_EXEC_OUT));
+  }
+
+  /**
+   * Stage a file or a directory.
+   * @param path the path to stage.
+   */
+  stage(path: string): Promise<ExecOutput> {
+    return this._inDir(`git add ${path}`);
+  }
+
+  /**
+   * Stash the currently staged files.
+   * @param message the stash message.
+   */
+  stash(message: string): Promise<ExecOutput> {
+    return this._inDir(`git stash create ${message}`);
   }
 
   /**

@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
+import * as path from "path";
 import * as _ from "lodash";
 import Git from "../../util/Git";
-import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import Logger from "../../util/Logger";
+import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
@@ -16,7 +16,6 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       showErrorMessage(outputChannel, "A Git repository is not open.");
       return;
     }
-    const logger = Logger.getInstance();
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const mode: t00lsMode = context.workspaceState.get("t00ls.mode") as t00lsMode;
     const git = new Git(gitRepo, mode);
@@ -61,7 +60,22 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       await showErrorMessage(outputChannel, `There was an error gathering the local production release branches: ${e}`);
       return;
     }
-    // TODO: [TLS-30] check to see if there are working changes in the directory. If so, stash or commit them
+
+    // check to see if there are working changes in the directory.
+    let stashCreated = false;
+    try {
+      if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them (recommended)?`, ignoreFocusOut: true }))) {
+        const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
+        if (!stashMessage) { return; };
+
+        await git.stage(path.join((await git.getRepositoryDirectory()), "*"))
+          .then(() => git.stash(stashMessage));
+        stashCreated = true;
+      }
+    } catch (e) {
+      await showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
+      return;
+    }
 
     // switch to master
     if (currentBranch !== "master") {
@@ -218,6 +232,10 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     if (await git.hasLocalBranch(currentBranch)) {
       try {
         await git.checkoutBranch(currentBranch);
+        // pop the stash
+        if (stashCreated) {
+          await git.popStash();
+        }
       } catch (e) {
         await showErrorMessage(outputChannel, `Error switching back to the original branch '${currentBranch}': ${e}`);
         return;
@@ -226,6 +244,10 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       // the branch must've been deleted. Switch to master.
       try {
         await git.checkoutBranch("master");
+        // ask about poping stash
+        if (await promptYesNo({ question: `'${currentBranch}' was deleted. Do you want to pop the stash that was created anyways?` })) {
+          await git.popStash();
+        }
       } catch (e) {
         await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
