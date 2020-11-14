@@ -20,7 +20,6 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
 
     // check to see if there are working changes in the directory.
-    let stashCreated = false;
     try {
       if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them?`, ignoreFocusOut: true }))) {
         const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
@@ -28,7 +27,6 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
 
         await git.stage(path.join((await git.getRepositoryDirectory()), "*"))
           .then(() => git.stash(stashMessage));
-        stashCreated = true;
       }
     } catch (e) {
       await showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);

@@ -1,7 +1,9 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
+import * as path from "path";
+
 import Git, { Branch } from "../../util/Git";
-import { showErrorMessage } from "../../util/WindowUtils";
+import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
@@ -28,6 +30,19 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     }
     if (productionReleaseBranches.length === 0) {
       await showErrorMessage(outputChannel, "There are no production release branches to update.");
+      return;
+    }
+
+    // check to see if there are working changes in the directory.
+    try {
+      if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them?`, ignoreFocusOut: true }))) {
+        const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
+        if (!stashMessage) { return; };
+        await git.stage(path.join((await git.getRepositoryDirectory()), "*"))
+          .then(() => git.stash(stashMessage));
+      }
+    } catch (e) {
+      await showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
       return;
     }
 
@@ -59,11 +74,11 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
 
     // select the feature branches to merge into the production release branch.
     const selectedFeatureBranches = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branches would you like to merge into the production release branch?", ignoreFocusOut: true });
-    if (!selectedFeatureBranches || selectedFeatureBranches.length === 0) { 
+    if (!selectedFeatureBranches || selectedFeatureBranches.length === 0) {
       await showErrorMessage(outputChannel, "No feature branches selected.");
       return;
     };
-    
+
     // switch to the production release branch
     try {
       await git.checkoutBranch(selectedProductionRelease.label);
