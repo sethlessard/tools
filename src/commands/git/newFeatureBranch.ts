@@ -3,7 +3,7 @@ import * as path from "path";
 import Git, { Branch } from "../../util/Git";
 import { t00lsMode } from "../../util/StatusBarManager";
 
-import { promptInput, showErrorMessage } from "../../util/WindowUtils";
+import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new feature branch.
