@@ -98,6 +98,8 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
 
+    // TODO: [TLS-44] clear branch relationship
+
     vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
   };
 };

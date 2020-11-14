@@ -78,6 +78,8 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       }
     }
 
+    // TODO: [TLS-44] clear branch relationship
+
     if (branch.remote) {
       // this production release branch only exists in the remote repository
       try {

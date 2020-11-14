@@ -96,7 +96,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
         }
       }
 
-      // TODO: clear branch relationship
+      // TODO: [TLS-44] clear branch relationship
 
       if (branch.remote) {
         // this feature branch only exists in the remote repository
