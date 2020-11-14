@@ -458,6 +458,9 @@ class Git {
    * @param path the path to stage.
    */
   stage(path: string): Promise<ExecOutput> {
+    if (path.indexOf(" ") !== -1) {
+      path = `"${path}"`;
+    }
     return this._inDir(`git add ${path}`);
   }
 
@@ -466,7 +469,7 @@ class Git {
    * @param message the stash message.
    */
   stash(message: string): Promise<ExecOutput> {
-    return this._inDir(`git stash create ${message}`);
+    return this._inDir(`git stash save "${message}"`);
   }
 
   /**

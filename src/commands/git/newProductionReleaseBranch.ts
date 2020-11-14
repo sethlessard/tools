@@ -24,7 +24,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them?`, ignoreFocusOut: true }))) {
         const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
         if (!stashMessage) { return; };
-        await git.stage(path.join(gitRepo, "*"))
+        await git.stage(path.join(gitRepo, "."))
           .then(() => git.stash(stashMessage));
       }
     } catch (e) {
