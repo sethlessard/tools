@@ -59,7 +59,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     const mappedFeatureBrances = featureBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
     // select the to delete
-    const selected = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branch would you like to delete?" });
+    const selected = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branch would you like to delete?", ignoreFocusOut: true });
     if (!selected) { return; }
 
     for (const b of selected) {

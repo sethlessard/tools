@@ -39,7 +39,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
     }
 
     // select the tags to delete
-    const selectedTags = await vscode.window.showQuickPick(tags, { canPickMany: true, placeHolder: "Which tag(s) would you like to delete? (This deletes the remote tag as well)" });
+    const selectedTags = await vscode.window.showQuickPick(tags, { canPickMany: true, placeHolder: "Which tag(s) would you like to delete? (This deletes the remote tag as well)", ignoreFocusOut: true });
     if (!selectedTags || selectedTags.length === 0) { return; }
 
     try {

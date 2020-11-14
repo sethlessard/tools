@@ -2,17 +2,18 @@ import { commands, OutputChannel, Uri, window } from "vscode";
 
 const SEMVER_REGEX = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
-export type InputOptions = {
-  prompt: string,
-  placeHolder?: string,
-  value?: string,
-  requireValue?: boolean
+export interface InputOptions {
+  prompt: string;
+  placeHolder?: string;
+  value?: string;
+  requireValue?: boolean;
+  ignoreFocusOut?: boolean;
 };
 
 export type YesNoOptions = {
-  question: string,
-  noIsDefault?: boolean,
-  ignoreFocusOut?: boolean
+  question: string;
+  noIsDefault?: boolean;
+  ignoreFocusOut?: boolean;
 };
 
 /**
@@ -32,8 +33,11 @@ const openFolder = (path: string, newWindow?: boolean) => {
  * @param value the default value.
  */
 const promptInput = (options: InputOptions) => {
+  if (options.ignoreFocusOut === undefined) {
+    options.ignoreFocusOut = true;
+  }
   const validateInput = (options.requireValue) ? (value?: string) => (value) ? null : "You must enter a value" : undefined;
-  return window.showInputBox({ prompt: options.prompt, placeHolder: options.placeHolder, value: options.value, validateInput });
+  return window.showInputBox({ prompt: options.prompt, placeHolder: options.placeHolder, value: options.value, ignoreFocusOut: options.ignoreFocusOut, validateInput });
 };
 
 /**
@@ -58,7 +62,8 @@ const promptVersion = (prompt: string) => {
  * @param options the options.
  */
 const promptYesNo = (options: YesNoOptions) => {
-  const { ignoreFocusOut, noIsDefault, question } = options;
+  let { ignoreFocusOut, noIsDefault, question } = options;
+  if (ignoreFocusOut === undefined) { ignoreFocusOut = true; }
   return window.showQuickPick((noIsDefault) ? ["No", "Yes"] : ["Yes", "No"], { canPickMany: false, ignoreFocusOut, placeHolder: question })
     .then(value => value === "Yes");
 };
