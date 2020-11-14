@@ -32,7 +32,7 @@ const changeGitMode = (context: vscode.ExtensionContext, outputChannel: vscode.O
     const mode = await vscode.window.showQuickPick(MODES, { canPickMany: false, placeHolder: "Select the mode", ignoreFocusOut: true });
     if (!mode) { return; };
 
-    await context.workspaceState.update("t00ls.mode", mode.label)
+    context.workspaceState.update("t00ls.mode", mode.label)
       .then(() => StatusBarManager.getInstance().setMode(mode.label))
       .then(() => vscode.window.showInformationMessage((mode.label === "Local") ? LOCAL_ONLY_MODE_MESSAGE : NORMAL_MODE_MESSAGE));
   };

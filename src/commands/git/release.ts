@@ -67,7 +67,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     ];
     const action = await vscode.window.showQuickPick(completeActions, { canPickMany: false, placeHolder: `How would you like to complete '${branch}'`, ignoreFocusOut: true });
     if (!action) {
-      await vscode.window.showInformationMessage("No action selected.");
+      vscode.window.showInformationMessage("No action selected.");
       return;
     }
 
@@ -98,7 +98,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
 
-    await vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
+    vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
   };
 };
 

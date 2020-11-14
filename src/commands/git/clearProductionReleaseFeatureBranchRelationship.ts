@@ -25,18 +25,18 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await vscode.window.showErrorMessage(`Unable to gather the local feature branches: ${e}`);
+      vscode.window.showErrorMessage(`Unable to gather the local feature branches: ${e}`);
       return;
     }
     if (!featureBranches || featureBranches.length === 0) {
-      await vscode.window.showInformationMessage("There are no local feature branches.");
+      vscode.window.showInformationMessage("There are no local feature branches.");
       return;
     }
 
     // get the feature branches that have a saved production release branch/feature branch relationship.
     const filteredFeatureBranches = featureBranches.filter(f => context.workspaceState.get(`${f.name}.baseBranch`) !== undefined).map(b => ({ label: b.name, description: `Base Branch: (${context.workspaceState.get(`${b.name}.baseBranch`)})` }));
     if (!filteredFeatureBranches || filteredFeatureBranches.length === 0) {
-      await vscode.window.showInformationMessage("No feature branches currently have a defined production release branch/feature branch relationship.");
+      vscode.window.showInformationMessage("No feature branches currently have a defined production release branch/feature branch relationship.");
       return;
     }
 
@@ -48,7 +48,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
       return context.workspaceState.update(`${b.label}.baseBranch`, undefined);
     }));
 
-    await vscode.window.showInformationMessage("Done.");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 

@@ -48,7 +48,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
       await showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
     }
 
-    await vscode.window.showInformationMessage("Done.");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 

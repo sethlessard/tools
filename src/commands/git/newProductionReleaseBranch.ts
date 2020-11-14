@@ -83,7 +83,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       await showErrorMessage(outputChannel, `There was an error creating '${branch}': ${e}`);
       return;
     }
-    await vscode.window.showInformationMessage(`Created new production release branch '${branch}'.`);
+    vscode.window.showInformationMessage(`Created new production release branch '${branch}'.`);
   };
 };
 

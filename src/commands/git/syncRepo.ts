@@ -254,7 +254,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       }
     }
 
-    await vscode.window.showInformationMessage("Done.");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 

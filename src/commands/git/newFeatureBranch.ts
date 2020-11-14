@@ -94,7 +94,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       await showErrorMessage(outputChannel, `There was an error creating '${featureBranch}': ${e}`);
       return;
     }
-    await vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`);
+    vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`);
   };
 };
 
