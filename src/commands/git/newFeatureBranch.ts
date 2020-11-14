@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import Git, { Branch } from "../../util/Git";
 import { t00lsMode } from "../../util/StatusBarManager";
 
-import { promptInput, promptVersion, showErrorMessage } from "../../util/WindowUtils";
+import { promptInput, showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new feature branch.
