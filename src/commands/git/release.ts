@@ -48,7 +48,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     const mappedProdReleaseBranches = productionReleaseBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
     // select the branch to complete.
-    const selected = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to complete?" });
+    const selected = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to complete?", ignoreFocusOut: true });
     if (!selected) { return; }
 
     const branch = _.find<Branch>(productionReleaseBranches, { name: selected.label });
@@ -65,7 +65,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
         description: "Creates a production release tag and merges directly into 'master'."
       }
     ];
-    const action = await vscode.window.showQuickPick(completeActions, { canPickMany: false, placeHolder: `How would you like to complete '${branch}'` });
+    const action = await vscode.window.showQuickPick(completeActions, { canPickMany: false, placeHolder: `How would you like to complete '${branch}'`, ignoreFocusOut: true });
     if (!action) {
       await vscode.window.showInformationMessage("No action selected.");
       return;
@@ -98,7 +98,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
 
-    await vscode.window.showInformationMessage("Done. Running 't00ls: Sync Repo'!");
+    await vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
   };
 };
 

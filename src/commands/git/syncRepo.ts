@@ -184,7 +184,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
       }
 
-      baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?` });
+      baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?`, ignoreFocusOut: true });
       if (!baseBranch) {
         baseBranch = { label: "master", description: "Local" };
       }

@@ -53,7 +53,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     // get the base branch to create the feature branch from.
-    const baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch}'?` });
+    const baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch}'?`, ignoreFocusOut: true });
     if (!baseBranch) { return; }
     
     // get the current branch

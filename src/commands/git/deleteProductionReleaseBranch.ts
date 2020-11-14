@@ -55,7 +55,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     const mappedProdReleaseBranches = productionReleaseBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
     // select the to delete
-    const selected = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to delete?" });
+    const selected = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to delete?", ignoreFocusOut: true });
     if (!selected) { return; }
 
     const branch = _.find<Branch>(productionReleaseBranches, { name: selected.label });

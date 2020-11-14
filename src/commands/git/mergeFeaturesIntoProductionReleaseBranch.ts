@@ -35,7 +35,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     const mappedProdReleaseBranches = productionReleaseBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
     // select the to production release branch to update.
-    const selectedProductionRelease = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to update?" });
+    const selectedProductionRelease = await vscode.window.showQuickPick(mappedProdReleaseBranches, { canPickMany: false, placeHolder: "Which production release branch would you like to update?", ignoreFocusOut: true });
     if (!selectedProductionRelease) { return; }
 
     const branch = _.find<Branch>(productionReleaseBranches, { name: selectedProductionRelease.label });
@@ -58,7 +58,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     const mappedFeatureBrances = featureBranches.map(branch => ({ label: branch.name, description: branch.lastCommitMessage }));
 
     // select the feature branches to merge into the production release branch.
-    const selectedFeatureBranches = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branches would you like to merge into the production release branch?" });
+    const selectedFeatureBranches = await vscode.window.showQuickPick(mappedFeatureBrances, { canPickMany: true, placeHolder: "Which feature branches would you like to merge into the production release branch?", ignoreFocusOut: true });
     if (!selectedFeatureBranches || selectedFeatureBranches.length === 0) { 
       await showErrorMessage(outputChannel, "No feature branches selected.");
       return;
