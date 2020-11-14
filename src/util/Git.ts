@@ -133,7 +133,7 @@ class Git {
         if (hasRemote) {
           return this._inDir(`git push ${origin} --delete ${branch}`);
         }
-        return Promise.resolve(EMPTY_EXEC_OUT);
+        return EMPTY_EXEC_OUT;
       });
   }
 
@@ -149,7 +149,7 @@ class Git {
         if (hasRemote) {
           return this._inDir(`git push ${origin} --force --delete ${branch}`);
         }
-        return Promise.resolve(EMPTY_EXEC_OUT);
+        return EMPTY_EXEC_OUT;
       });
   }
 
@@ -160,7 +160,7 @@ class Git {
    */
   deleteTag(tag: string, remote: string = "origin"): Promise<ExecOutput> {
     return this._inDir(`git tag -d ${tag}`)
-      .then(() => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${tag}`) : Promise.resolve(EMPTY_EXEC_OUT)));
+      .then(() => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${tag}`) : EMPTY_EXEC_OUT));
   }
 
   /**
@@ -170,7 +170,7 @@ class Git {
    */
   deleteTags(tags: string[], remote: string = "origin"): Promise<ExecOutput[]> {
     return this._inDir(`git tag -d ${tags.join(" ")}`)
-      .then(() => Promise.all(tags.map(t => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${t}`) : Promise.resolve(EMPTY_EXEC_OUT)))));
+      .then(() => Promise.all(tags.map(t => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${t}`) : EMPTY_EXEC_OUT))));
   }
 
   /**
@@ -181,7 +181,7 @@ class Git {
     return this.hasRemote()
       .then(hasRemote => {
         if (!hasRemote) {
-          return Promise.resolve(EMPTY_EXEC_OUT);
+          return EMPTY_EXEC_OUT;
         }
         return this._inDir(`git fetch -p ${remote}`)
           .then(() => this._inDir(`git fetch --prune ${remote} "+refs/tags/*:refs/tags/*"`));
@@ -311,7 +311,7 @@ class Git {
               return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
             }));
         }
-        return Promise.resolve([]);
+        return [];
       });
   }
 
@@ -359,6 +359,17 @@ class Git {
   getCurrentBranch(): Promise<string> {
     return this._inDir("git branch --show-current")
       .then((out: ExecOutput) => out.stdout);
+  }
+
+  /**
+   * Get the number of commits one branch is ahead from another.
+   * @param baseBranch the base branch to compare from.
+   * @param branchToCompareAgainst the branch to compare against.
+   * @returns the number of commits that branchToCompareAgainst is ahead of baseBranch.
+   */
+  getNumberOfCommitsAheadOfBranch(baseBranch: string, branchToCompareAgainst: string): Promise<number> {
+    return this._inDir(`git rev-list --count ${baseBranch}...${branchToCompareAgainst}`)
+      .then(({ stdout }) => parseInt(stdout, 10));
   }
 
   /**
@@ -425,7 +436,7 @@ class Git {
    */
   pull(): Promise<ExecOutput> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git pull") : Promise.resolve(EMPTY_EXEC_OUT));
+      .then(hasRemote => (hasRemote) ? this._inDir("git pull") : EMPTY_EXEC_OUT);
   }
 
   /**
@@ -433,7 +444,7 @@ class Git {
    */
   push(): Promise<ExecOutput> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git push") : Promise.resolve(EMPTY_EXEC_OUT));
+      .then(hasRemote => (hasRemote) ? this._inDir("git push") : EMPTY_EXEC_OUT);
   }
 
   /**
@@ -441,7 +452,7 @@ class Git {
    */
   pushTags(): Promise<ExecOutput> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git push --tags") : Promise.resolve(EMPTY_EXEC_OUT));
+      .then(hasRemote => (hasRemote) ? this._inDir("git push --tags") : EMPTY_EXEC_OUT);
   }
 
   /**
@@ -450,7 +461,7 @@ class Git {
    */
   setupTrackingAndPush(remote: string = "origin"): Promise<ExecOutput> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u ${remote} ${branch}`)) : Promise.resolve(EMPTY_EXEC_OUT));
+      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u ${remote} ${branch}`)) : EMPTY_EXEC_OUT);
   }
 
   /**

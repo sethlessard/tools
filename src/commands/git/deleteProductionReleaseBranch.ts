@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
-import { showErrorMessage } from "../../util/WindowUtils";
+import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
@@ -61,6 +61,13 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     const branch = _.find<Branch>(productionReleaseBranches, { name: selected.label });
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
+    // Before deleting a production release branch, check to see if
+    // the branch has been merged into master.
+    const numCommitsAheadOfMaster = await git.getNumberOfCommitsAheadOfBranch("master", selected.label);
+    if (numCommitsAheadOfMaster > 0) {
+      if (!(await promptYesNo({ question: `There are commits in '${selected.label}' that do not exist in 'master'. Delete?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
+    }
+
     if (branch.name === currentBranch) {
       // switch to master
       try {
@@ -70,9 +77,6 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
         return;
       }
     }
-
-    // TODO: [TLS-18] Before deleting a production release branch, check to see if 
-    // the branch has been merged into master.
 
     if (branch.remote) {
       // this production release branch only exists in the remote repository
