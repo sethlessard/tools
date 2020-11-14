@@ -22,7 +22,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     try {
       await git.fetch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the current branch
@@ -30,11 +30,11 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
       return;
     }
     if (!currentBranch) {
-      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
+      showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -43,11 +43,11 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
+      showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
       return;
     }
     if (productionReleaseBranches.length === 0) {
-      await showErrorMessage(outputChannel, "There are no production release branches to delete.");
+      showErrorMessage(outputChannel, "There are no production release branches to delete.");
       return;
     }
 
@@ -66,7 +66,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
         return;
       }
     }
@@ -79,21 +79,21 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
+        showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
         return;
       }
     } else {
       try {
         await git.deleteBranchForce(branch.name);
       } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the production release branch '${branch.name}': ${e}`);
+        showErrorMessage(outputChannel, `There was an error deleting the production release branch '${branch.name}': ${e}`);
         return;
       }
       // there may also be a remote repository
       try {
         await git.deleteRemoteBranchForce(branch.name);
       } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
+        showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
         return;
       }
     }

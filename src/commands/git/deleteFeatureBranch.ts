@@ -24,7 +24,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       await git.fetch();
     } catch (e) {
       const error = `There was an error fetching the latest updates from remote: ${e}`;
-      await showErrorMessage(outputChannel, error);
+      showErrorMessage(outputChannel, error);
       outputChannel.appendLine(error);
     }
 
@@ -34,11 +34,11 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
       const error = `There was an error fetching the current branch: ${e}`;
-      await showErrorMessage(outputChannel, error);
+      showErrorMessage(outputChannel, error);
       return;
     }
     if (!currentBranch) {
-      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
+      showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -47,11 +47,11 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
+      showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
     if (featureBranches.length === 0) {
-      await showErrorMessage(outputChannel, "There are no feature branches to delete.");
+      showErrorMessage(outputChannel, "There are no feature branches to delete.");
       return;
     }
 
@@ -71,7 +71,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
         try {
           await git.checkoutBranch(branch);
         } catch (e) {
-          await showErrorMessage(outputChannel, `There was an error switching to '${branch}': ${e}`);
+          showErrorMessage(outputChannel, `There was an error switching to '${branch}': ${e}`);
           return;
         }
       }
@@ -81,21 +81,21 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
         try {
           await git.deleteRemoteBranchForce(branch.name);
         } catch (e) {
-          await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+          showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
           return;
         }
       } else {
         try {
           await git.deleteBranchForce(branch.name);
         } catch (e) {
-          await showErrorMessage(outputChannel, `There was an error deleting the feature branch '${branch.name}': ${e}`);
+          showErrorMessage(outputChannel, `There was an error deleting the feature branch '${branch.name}': ${e}`);
           return;
         }
         // there may also be a remote repository
         try {
           await git.deleteRemoteBranchForce(branch.name);
         } catch (e) {
-          await showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
+          showErrorMessage(outputChannel, `There was an error deleting the remote feature branch '${branch.name}': ${e}`);
           return;
         }
       }

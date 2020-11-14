@@ -28,7 +28,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     try {
       await git.fetch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the local production release branches in the repository
@@ -36,11 +36,11 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
+      showErrorMessage(outputChannel, `There was an error gathering the production release branches: ${e}`);
       return;
     }
     if (productionReleaseBranches.length === 0) {
-      await showErrorMessage(outputChannel, "There are no production release branches.");
+      showErrorMessage(outputChannel, "There are no production release branches.");
       return;
     }
 
@@ -78,7 +78,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
           .then(() => git.createReleaseCandidateTag())
           .then(() => git.pushTags());
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error creating the Release Candidate tag: ${e}`);
+        showErrorMessage(outputChannel, `Error creating the Release Candidate tag: ${e}`);
         return;
       }
     } else if (_.indexOf(completeActions, action) === 1) {
@@ -90,11 +90,11 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
           .then(() => git.checkoutBranch("master"))
           .then(() => git.mergeBranch(branch.name));
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
+        showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;
       }
     } else {
-      await showErrorMessage(outputChannel, "No action selected.");
+      showErrorMessage(outputChannel, "No action selected.");
       return;
     }
 

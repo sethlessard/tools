@@ -24,12 +24,11 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them?`, ignoreFocusOut: true }))) {
         const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
         if (!stashMessage) { return; };
-
-        await git.stage(path.join((await git.getRepositoryDirectory()), "*"))
+        await git.stage(path.join(gitRepo, "*"))
           .then(() => git.stash(stashMessage));
       }
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
+      showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
       return;
     }
 
@@ -48,11 +47,11 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `Error gathering current Git branch: ${e}`);
+      showErrorMessage(outputChannel, `Error gathering current Git branch: ${e}`);
       return;
     }
     if (!currentBranch) {
-      await showErrorMessage(outputChannel, `Error gathering current Git branch: No value returned.`);
+      showErrorMessage(outputChannel, `Error gathering current Git branch: No value returned.`);
       return;
     }
 
@@ -61,7 +60,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
       }
     }
@@ -70,7 +69,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
     try {
       await git.pull();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error pulling 'master': ${e}`);
+      showErrorMessage(outputChannel, `There was an error pulling 'master': ${e}`);
       // don't return here... it's fine that master may be out-of-date. Sync Repo will clear that up when it is run. 
     }
 
@@ -78,7 +77,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
     try {
       await git.checkoutNewBranch(branch);
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error creating '${branch}': ${e}`);
+      showErrorMessage(outputChannel, `There was an error creating '${branch}': ${e}`);
       return;
     }
     vscode.window.showInformationMessage(`Created new production release branch '${branch}'.`);

@@ -25,7 +25,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       try {
         await git.fetch();
       } catch (e) {
-        await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
+        showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
         return;
       }
     }
@@ -35,11 +35,11 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     try {
       currentBranch = await git.getCurrentBranch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the current branch: ${e}`);
       return;
     }
     if (!currentBranch) {
-      await showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
+      showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 
@@ -48,7 +48,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
+      showErrorMessage(outputChannel, `There was an error gathering the local feature branches: ${e}`);
       return;
     }
 
@@ -57,7 +57,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     try {
       productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error gathering the local production release branches: ${e}`);
+      showErrorMessage(outputChannel, `There was an error gathering the local production release branches: ${e}`);
       return;
     }
 
@@ -67,13 +67,12 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       if ((await git.hasWorkingChanges()) && (await promptYesNo({ question: `There are working changes. Do you want to stash them (recommended)?`, ignoreFocusOut: true }))) {
         const stashMessage = await promptInput({ prompt: "Enter the stash message.", placeHolder: "blah blah blah..." });
         if (!stashMessage) { return; };
-
-        await git.stage(path.join((await git.getRepositoryDirectory()), "*"))
+        await git.stage(path.join(gitRepo, "*"))
           .then(() => git.stash(stashMessage));
         stashCreated = true;
       }
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
+      showErrorMessage(outputChannel, `There was an error stashing the current working changes: ${e}`);
       return;
     }
 
@@ -82,7 +81,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       try {
         await git.checkoutBranch("master");
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
       }
     }
@@ -92,7 +91,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       try {
         await git.pull();
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
         return;
       }
     }
@@ -100,23 +99,23 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
 
     // update the production release branches, if any
     for (const prodRelease of productionReleaseBranches) {
-      const remote = await git.hasRemoteBranch(prodRelease.name);
+      const hasRemoteBranch = await git.hasRemoteBranch(prodRelease.name);
 
       // switch to the production release branch
       try {
         await git.checkoutBranch(prodRelease.name);
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching to production release branch '${prodRelease.name}': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to production release branch '${prodRelease.name}': ${e}`);
         return;
       }
 
 
-      if (mode === t00lsMode.Normal && remote) {
+      if (mode === t00lsMode.Normal && hasRemoteBranch) {
         // pull the latest changes from remote
         try {
           await git.pull();
         } catch (e) {
-          await showErrorMessage(outputChannel, `Error pulling production release branch '${prodRelease.name}': ${e}`);
+          showErrorMessage(outputChannel, `Error pulling production release branch '${prodRelease.name}': ${e}`);
           return;
         }
       }
@@ -125,21 +124,29 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       try {
         await git.mergeBranch("master");
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error merging 'master' into '${prodRelease.name}': ${e}`);
+        showErrorMessage(outputChannel, `Error merging 'master' into '${prodRelease.name}': ${e}`);
         return;
       }
 
       if (mode === t00lsMode.Normal) {
         // push
-        if (!remote) {
+        if (!hasRemoteBranch) {
           // ask the user if they want to publish the production release branch.
           const publish = await promptYesNo({ question: `Publish '${prodRelease.name}'?`, noIsDefault: true });
           if (publish) {
+            // determine the remote to track against.
+            const remotes = await git.getAllRemotes();
+            let remote: string | undefined = remotes[0];
+            if (remotes.length > 1) { 
+              remote = await vscode.window.showQuickPick(remotes, {});
+              if (!remote) { return; }
+            }
+
             // publish the production release branch
             try {
-              await git.setupTrackingAndPush();
+              await git.setupTrackingAndPush(remote);
             } catch (e) {
-              await showErrorMessage(outputChannel, `Error publishing production release branch '${prodRelease.name}': ${e}`);
+              showErrorMessage(outputChannel, `Error publishing production release branch '${prodRelease.name}': ${e}`);
             }
           }
         } else {
@@ -147,7 +154,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
           try {
             await git.push();
           } catch (e) {
-            await showErrorMessage(outputChannel, `Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
+            showErrorMessage(outputChannel, `Error pushing latest updates from production release branch '${prodRelease.name}': ${e}`);
           }
         }
       }
@@ -155,23 +162,23 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
 
     // update the feature branches, if any
     for (const featureBranch of featureBranches) {
-      const hasRemote = git.hasRemoteBranch(featureBranch.name);
+      const hasRemoteBranch = git.hasRemoteBranch(featureBranch.name);
 
       // switch to the feature branch
       try {
         await git.checkoutBranch(featureBranch.name);
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching to feature branch '${featureBranch.name}': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to feature branch '${featureBranch.name}': ${e}`);
         return;
       }
 
       if (mode === t00lsMode.Normal) {
-        if (hasRemote) {
+        if (hasRemoteBranch) {
           // pull the latest changes from remote
           try {
             await git.pull();
           } catch (e) {
-            await showErrorMessage(outputChannel, `Error pulling feature branch '${featureBranch.name}': ${e}`);
+            showErrorMessage(outputChannel, `Error pulling feature branch '${featureBranch.name}': ${e}`);
             return;
           }
         }
@@ -199,22 +206,30 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         try {
           await git.mergeBranch(baseBranch.label);
         } catch (e) {
-          await showErrorMessage(outputChannel, `Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
+          showErrorMessage(outputChannel, `Error merging '${baseBranch.label}' into '${featureBranch.name}': ${e}`);
           return;
         }
       }
 
       if (mode === t00lsMode.Normal) {
         // push
-        if (!hasRemote) {
+        if (!hasRemoteBranch) {
           // ask the user if they want to publish the production release branch.
           const publish = await promptYesNo({ question: `Publish '${featureBranch.name}'?`, noIsDefault: true });
           if (publish) {
+            // determine the remote to track against.
+            const remotes = await git.getAllRemotes();
+            let remote: string | undefined = remotes[0];
+            if (remotes.length > 1) { 
+              remote = await vscode.window.showQuickPick(remotes, {});
+              if (!remote) { return; }
+            }
+
             // publish the production release branch
             try {
-              await git.setupTrackingAndPush();
+              await git.setupTrackingAndPush(remote);
             } catch (e) {
-              await showErrorMessage(outputChannel, `Error publishing feature branch '${featureBranch.name}': ${e}`);
+              showErrorMessage(outputChannel, `Error publishing feature branch '${featureBranch.name}': ${e}`);
             }
           }
         } else {
@@ -222,7 +237,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
           try {
             await git.push();
           } catch (e) {
-            await showErrorMessage(outputChannel, `Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
+            showErrorMessage(outputChannel, `Error pushing latest updates from feature branch '${featureBranch.name}': ${e}`);
           }
         }
       }
@@ -237,7 +252,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
           await git.popStash();
         }
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching back to the original branch '${currentBranch}': ${e}`);
+        showErrorMessage(outputChannel, `Error switching back to the original branch '${currentBranch}': ${e}`);
         return;
       }
     } else {
@@ -249,7 +264,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
           await git.popStash();
         }
       } catch (e) {
-        await showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
         return;
       }
     }

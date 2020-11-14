@@ -22,7 +22,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
     try {
       await git.fetch();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the latest updates from remote: ${e}`);
     }
 
     // get the tags
@@ -30,11 +30,11 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
     try {
       tags = await git.getAllTags();
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error fetching the tags: ${e}`);
+      showErrorMessage(outputChannel, `There was an error fetching the tags: ${e}`);
       return;
     }
     if (!tags || tags.length === 0) {
-      await showErrorMessage(outputChannel, `There was an error fetching the tags: No return value.`);
+      showErrorMessage(outputChannel, `There was an error fetching the tags: No return value.`);
       return;
     }
 
@@ -45,7 +45,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
     try {
       await git.deleteTags(selectedTags);
     } catch (e) {
-      await showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
+      showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
     }
 
     vscode.window.showInformationMessage("Done.");

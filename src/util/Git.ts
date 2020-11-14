@@ -446,11 +446,11 @@ class Git {
 
   /**
    * Setup remote tracking and push the current branch.
+   * @param remote the remote repository to setup tracking against.
    */
-  setupTrackingAndPush(): Promise<ExecOutput> {
-    // TODO: [TLS-28] add ability to specify the remote
+  setupTrackingAndPush(remote: string = "origin"): Promise<ExecOutput> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u origin ${branch}`)) : Promise.resolve(EMPTY_EXEC_OUT));
+      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u ${remote} ${branch}`)) : Promise.resolve(EMPTY_EXEC_OUT));
   }
 
   /**
@@ -478,7 +478,7 @@ class Git {
       .then((out: { stdout: string, stderr: string }) => {
         out.stderr = out.stderr.trim();
         out.stdout = out.stdout.trim();
-        return Promise.resolve(out);
+        return out;
       });
   }
 
