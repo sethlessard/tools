@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
-import { showErrorMessage } from "../../util/WindowUtils";
+import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 /**
@@ -55,6 +55,14 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       return;
     }
 
+    let productionReleaseBranches: Branch[] = [];
+    try {
+      productionReleaseBranches = await git.getAllLocalProductionReleaseBranches();
+    } catch (e) {
+      showErrorMessage(outputChannel, `There was an error gathering the local production release branches: ${e}`);
+      return;
+    }
+
     // map to a VS Code-friendly form
     const mappedFeatureBrances = featureBranches.map(branch => ({ label: branch.name, description: (branch.remote) ? branch.origin : "local" }));
 
@@ -65,6 +73,18 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     for (const b of selected) {
       const branch = _.find(featureBranches, { name: b.label });
       if (!branch) { throw new Error("Error...."); }
+
+      // Before deleting a feature branch, check to see if 
+      // the branch has been merged into master or a production release branch.
+      let isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch("master", branch.name)) === 0;
+      if (!isMergedIntoProductionReleaseOrMaster) {
+        for (const p of productionReleaseBranches) {
+          isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch(p.name, branch.name)) === 0;
+          if (isMergedIntoProductionReleaseOrMaster) { break; }
+        }
+      }
+      if (!isMergedIntoProductionReleaseOrMaster && !(await promptYesNo({ question: `'${branch.name}' hasn't been staged for release. Delete anyways?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
+
       if (b.label === currentBranch) {
         // switch to the base branch or master
         const branch = context.workspaceState.get<string>(`${b.label}.baseBranch`) || "master";
@@ -75,7 +95,9 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
           return;
         }
       }
-      
+
+      // TODO: clear branch relationship
+
       if (branch.remote) {
         // this feature branch only exists in the remote repository
         try {
@@ -103,8 +125,6 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       vscode.window.showInformationMessage(`Deleted feature branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
     }
 
-    // TODO: [TLS-19] Before deleting a feature branch, check to see if 
-    // the branch has been merged into master or a feature branch.
     vscode.window.showInformationMessage("Done.");
   };
 };
