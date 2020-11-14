@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import Git from "../../util/Git";
 import { showErrorMessage } from "../../util/WindowUtils";
 import StatusBarManager, { t00lsMode } from "../../util/StatusBarManager";
 
