@@ -98,7 +98,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       }
     }
 
-    await vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
+    vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
   };
 };
 

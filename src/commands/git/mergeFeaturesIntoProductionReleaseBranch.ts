@@ -80,7 +80,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
       }
     }
 
-    await vscode.window.showInformationMessage("Done.");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 

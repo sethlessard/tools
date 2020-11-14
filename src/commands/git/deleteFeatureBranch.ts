@@ -105,7 +105,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
 
     // TODO: [TLS-19] Before deleting a feature branch, check to see if 
     // the branch has been merged into master or a feature branch.
-    await vscode.window.showInformationMessage("Done.");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 
