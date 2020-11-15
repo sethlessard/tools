@@ -4,6 +4,7 @@ import Git, { Branch } from "../../util/Git";
 import { t00lsMode } from "../../util/StatusBarManager";
 
 import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
+import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
  * Create a new feature branch.
@@ -91,6 +92,12 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       showErrorMessage(outputChannel, `There was an error creating '${featureBranch}': ${e}`);
       return;
     }
+
+    // define the relationship
+    if (baseBranch !== "master") {
+      BranchRelationshipCache.getInstance().setRelationship(featureBranch, baseBranch);
+    }
+
     vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`);
   };
 };

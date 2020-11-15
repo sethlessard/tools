@@ -96,8 +96,15 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
         return;
       }
-    }
 
+      // push master
+      try {
+        await git.push();
+      } catch (e) {
+        showErrorMessage(outputChannel, `Error pushing to remote 'master': ${e}`);
+        return;
+      }
+    }
 
     // update the production release branches, if any
     for (const prodRelease of productionReleaseBranches) {
@@ -110,7 +117,6 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         showErrorMessage(outputChannel, `Error switching to production release branch '${prodRelease.name}': ${e}`);
         return;
       }
-
 
       if (mode === t00lsMode.Normal && hasRemoteBranch) {
         // pull the latest changes from remote
@@ -139,7 +145,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
             // determine the remote to track against.
             const remotes = await git.getAllRemotes();
             let remote: string | undefined = remotes[0];
-            if (remotes.length > 1) { 
+            if (remotes.length > 1) {
               remote = await vscode.window.showQuickPick(remotes, {});
               if (!remote) { return; }
             }
@@ -221,7 +227,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
             // determine the remote to track against.
             const remotes = await git.getAllRemotes();
             let remote: string | undefined = remotes[0];
-            if (remotes.length > 1) { 
+            if (remotes.length > 1) {
               remote = await vscode.window.showQuickPick(remotes, {});
               if (!remote) { return; }
             }
