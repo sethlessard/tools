@@ -19,6 +19,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // check to see if there are working changes in the directory.
     try {

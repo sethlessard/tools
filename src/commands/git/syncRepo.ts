@@ -20,6 +20,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const mode: t00lsMode = context.workspaceState.get("t00ls.mode") as t00lsMode;
     const git = new Git(gitRepo, mode);
+    await git.initialize();
     const relationshipCache = BranchRelationshipCache.getInstance();
 
     if (mode === t00lsMode.Normal) {
@@ -193,21 +194,44 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      let baseBranch: vscode.QuickPickItem | undefined = { label: relationshipCache.getRelationship(featureBranch.name)?.productionReleaseBranch || (await git.getMainBranchName()), description: "Local" };
-      let baseBranches = [{ label: (await git.getMainBranchName()), description: "Local" }];
-
-      if (productionReleaseBranches.length > 0) {
-        baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
-        baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?`, ignoreFocusOut: true });
-        if (!baseBranch) {
-          baseBranch = { label: (await git.getMainBranchName()), description: "Local" };
+      let savedRelationship = relationshipCache.getRelationship(featureBranch.name);
+      if (savedRelationship) {
+        // verify the production release branch still exists locally
+        if (_.find(productionReleaseBranches, { name: savedRelationship.productionReleaseBranch }) === undefined) {
+          // it doesn't exist, so delete all relationships related to the production release branch
+          // clear the relationship for the feature branch as well.
+          await relationshipCache.clearRelationshipsForProductionReleaseBranch(savedRelationship.productionReleaseBranch);
+          await relationshipCache.clearRelationshipForFeatureBranch(featureBranch.name);
+          savedRelationship = undefined;
         }
       }
 
-      // ask if the user wants to save the production release branch/feature branch relationship for next time.
-      if (baseBranch.label !== (await git.getMainBranchName()) && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
-        await relationshipCache.setRelationship(featureBranch.name, baseBranch.label);
+      let baseBranches: vscode.QuickPickItem[] = [{ label: mainBranchName, description: "Local" }];
+      let baseBranch: vscode.QuickPickItem | undefined = baseBranches[0];
+      if (productionReleaseBranches.length > 0) {
+        baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
       }
+
+      // if the base branch isn't saved, and there is more than one base branch to select from,
+      // show a prompt to the user
+      if (baseBranch.label === mainBranchName && baseBranches.length > 1 && savedRelationship === undefined) {
+        baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?`, ignoreFocusOut: true });
+        if (!baseBranch) {
+          return;
+        }
+      }
+
+      if (savedRelationship === undefined) {
+        // ask if the user wants to save the production release branch/feature branch relationship for next time.
+        if (baseBranch.label !== mainBranchName && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
+          await relationshipCache.setRelationship(featureBranch.name, baseBranch.label);
+        }
+      } else {
+        // use the production release branch defined by the saved relationship 
+        // as the base branch for the production release branch.
+        baseBranch.label = savedRelationship.productionReleaseBranch;
+      }
+      
 
       if ((await promptYesNo({ question: `Merge '${baseBranch.label}' into '${featureBranch.name}'` }))) {
         // merge the base branch into the feature branch
@@ -266,7 +290,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     } else {
       // the branch must've been deleted. Switch to the main branch.
       try {
-        await git.checkoutBranch((await git.getMainBranchName()));
+        await git.checkoutBranch(mainBranchName);
         // ask about poping stash
         if (await promptYesNo({ question: `'${currentBranch}' was deleted. Do you want to pop the stash that was created anyways?` })) {
           await git.popStash();

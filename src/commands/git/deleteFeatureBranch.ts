@@ -19,6 +19,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
 
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
     const relationshipCache = BranchRelationshipCache.getInstance();
 
     // fetch the latest updates from remote

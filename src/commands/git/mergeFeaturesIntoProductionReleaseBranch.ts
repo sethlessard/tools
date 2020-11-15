@@ -19,6 +19,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // get the local production release branches in the repository
     let productionReleaseBranches = [];

@@ -18,6 +18,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // fetch the latest updates from remote
     try {
