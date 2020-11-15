@@ -18,6 +18,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // check to see if there are working changes in the directory.
     try {
@@ -55,22 +56,23 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       return;
     }
 
-    // switch to master
-    if (currentBranch !== "master") {
+    // switch to the main branch
+    const mainBranchName = await git.getMainBranchName();
+    if (currentBranch !== mainBranchName) {
       try {
-        await git.checkoutBranch("master");
+        await git.checkoutBranch(mainBranchName);
       } catch (e) {
-        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to '${mainBranchName}': ${e}`);
         return;
       }
     }
 
-    // pull master
+    // pull
     try {
       await git.pull();
     } catch (e) {
-      showErrorMessage(outputChannel, `There was an error pulling 'master': ${e}`);
-      // don't return here... it's fine that master may be out-of-date. Sync Repo will clear that up when it is run. 
+      showErrorMessage(outputChannel, `There was an error pulling '${mainBranchName}': ${e}`);
+      // don't return here... it's fine that the main branch may be out-of-date. Sync Repo will clear that up when it is run. 
     }
 
     // create the production release branch

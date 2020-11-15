@@ -2,10 +2,11 @@ import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
 import { t00lsMode } from "./StatusBarManager";
+import NeedsAsyncInitialization from "../types/NeedsAsyncInitialization";
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
-const REGEX_PRODUCTION_RELEASE = /(.*)-?v(\d+\.\d+\.\d+)-prep/;
+const REGEX_PRODUCTION_RELEASE = /((.*)-)?v(\d+\.\d+\.\d+)-prep/;
 
 export type Branch = {
   name: string,
@@ -14,14 +15,19 @@ export type Branch = {
   origin?: string
 };
 
-export type ExecOutput = { stdout: string, stderr: string };
-const EMPTY_EXEC_OUT = { stdout: "", stderr: "" };
+export interface ExecOutput {
+  stdout: string;
+  stderr: string;
+};
+
+const EMPTY_EXEC_OUT: ExecOutput = { stdout: "", stderr: "" };
 
 
-class Git {
+class Git implements NeedsAsyncInitialization {
 
   private readonly _path: string;
   private readonly _mode: t00lsMode;
+  private _mainBranchName?: string;
 
   /**
    * Create a new Git instance.
@@ -62,8 +68,8 @@ class Git {
           throw new Error(`'${branch}' is not a production release branch.`);
         }
         const matches = branch.match(REGEX_PRODUCTION_RELEASE);
-        const projectPrefix = matches!![1];
-        const version = matches!![2];
+        const projectPrefix = matches!![2];
+        const version = matches!![3];
         const prodTag = (projectPrefix) ? `${projectPrefix}-v${version}` : `v${version}`;
         if (!message) {
           message = (projectPrefix) ? `${projectPrefix} v${version}` : `v${version}`;
@@ -89,8 +95,8 @@ class Git {
           throw new Error(`'${branch}' is not a production release branch.`);
         }
         const matches = branch.match(REGEX_PRODUCTION_RELEASE);
-        const projectPrefix = matches!![1];
-        const version = matches!![2];
+        const projectPrefix = matches!![2];
+        const version = matches!![3];
         const rcTag = (projectPrefix) ? `${projectPrefix}-v${version}-rc` : `v${version}-rc`;
         if (!message) {
           message = (projectPrefix) ? `${projectPrefix} v${version}` : `v${version}`;
@@ -154,7 +160,7 @@ class Git {
   }
 
   /**
-   * 
+   * Delete a tag locally and remotely.
    * @param tag the tag.
    * @param remote the remote to delete the tag from.
    */
@@ -183,6 +189,7 @@ class Git {
         if (!hasRemote) {
           return EMPTY_EXEC_OUT;
         }
+        // fetch and prune the tags.
         return this._inDir(`git fetch -p ${remote}`)
           .then(() => this._inDir(`git fetch --prune ${remote} "+refs/tags/*:refs/tags/*"`));
       });
@@ -256,9 +263,10 @@ class Git {
    * Get all local feature branches.
    */
   getAllLocalFeatureBranches(): Promise<Branch[]> {
+    this._checkInitialized();
     return this.getAllLocalBranches()
       .then(branches => {
-        const filtered = branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name));
+        const filtered = branches.filter(branch => branch.name !== this._mainBranchName && !REGEX_PRODUCTION_RELEASE.test(branch.name));
         return filtered;
       });
   }
@@ -320,9 +328,10 @@ class Git {
    */
   getAllRemoteFeatureBranches(): Promise<Branch[]> {
     if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+    this._checkInitialized();
 
     return this.getAllRemoteBranches()
-      .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
+      .then(branches => branches.filter(branch => branch.name !== this._mainBranchName && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
   }
 
   /**
@@ -359,6 +368,15 @@ class Git {
   getCurrentBranch(): Promise<string> {
     return this._inDir("git branch --show-current")
       .then((out: ExecOutput) => out.stdout);
+  }
+
+  /**
+   * Get the main branch name. 'main' or 'master'
+   */
+  getMainBranchName(): Promise<string> {
+    if (this._mainBranchName !== undefined) { return Promise.resolve(this._mainBranchName); }
+    return this.getAllLocalBranches()
+      .then(branches => (_.findIndex(branches, { name: "main" }) !== -1) ? "main" : "master");
   }
 
   /**
@@ -414,6 +432,13 @@ class Git {
   hasWorkingChanges() {
     return this._inDir("git status --porcelain")
       .then(({ stdout }) => stdout.length > 0);
+  }
+
+  /**
+   * Initialize the repository.
+   */
+  async initialize() {
+    this._mainBranchName = await this.getMainBranchName();
   }
 
   /**
@@ -481,6 +506,15 @@ class Git {
    */
   stash(message: string): Promise<ExecOutput> {
     return this._inDir(`git stash save "${message}"`);
+  }
+
+  /**
+   * Check to see if the Git instance has been initialized.
+   */
+  private _checkInitialized() {
+    if (!this._mainBranchName) {
+      throw new Error("You must call initialize()");
+    }
   }
 
   /**

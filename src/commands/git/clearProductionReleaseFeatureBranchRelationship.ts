@@ -19,6 +19,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
     const logger = Logger.getInstance();
     const relationshipCache = BranchRelationshipCache.getInstance();
 
@@ -36,7 +37,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
     }
 
     // get the feature branches that have a saved production release branch/feature branch relationship.
-    const filteredFeatureBranches = featureBranches.filter(f => relationshipCache.getRelationship(f.name) !== undefined).map(b => ({ label: b.name, description: `Base Branch: (${relationshipCache.getRelationship(b.name)})` }));
+    const filteredFeatureBranches = featureBranches.filter(f => relationshipCache.getRelationship(f.name) !== undefined).map(b => ({ label: b.name, description: `Base Branch: (${relationshipCache.getRelationship(b.name)?.productionReleaseBranch})` }));
     if (!filteredFeatureBranches || filteredFeatureBranches.length === 0) {
       vscode.window.showInformationMessage("No feature branches currently have a defined production release branch/feature branch relationship.");
       return;

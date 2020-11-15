@@ -5,6 +5,14 @@ All notable changes to the "t00ls" extension will be documented in this file.
 ## Unreleased
  - None
 
+## v1.1.2
+### Added
+ - Added support for the `main` branch. t00ls will recognized either `main` or `master` as the main repository branch.
+
+### Fixed
+ - Resolved an issue with `t00ls: Sync Repo` where branch relationships weren't being saved.
+ - Resolved an issue with `t00ls: Sync Repo` where production release branches were being treated as feature branches.
+
 ## v1.1.1
 ### Fixed
  - Fixed an issue where `t00ls: New Feature Branch` wasn't storing the production release branch/feature branch relationship. 

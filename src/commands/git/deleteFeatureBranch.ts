@@ -19,6 +19,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
 
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
     const relationshipCache = BranchRelationshipCache.getInstance();
 
     // fetch the latest updates from remote
@@ -77,19 +78,20 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       if (!branch) { throw new Error("Error...."); }
 
       // Before deleting a feature branch, check to see if 
-      // the branch has been merged into master or a production release branch.
-      let isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch("master", branch.name)) === 0;
-      if (!isMergedIntoProductionReleaseOrMaster) {
+      // the branch has been merged into the main branch or a production release branch.
+      const mainBranchName = await git.getMainBranchName();
+      let isMergedIntoProductionReleaseOrMain = (await git.getNumberOfCommitsAheadOfBranch(mainBranchName, branch.name)) === 0;
+      if (!isMergedIntoProductionReleaseOrMain) {
         for (const p of productionReleaseBranches) {
-          isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch(p.name, branch.name)) === 0;
-          if (isMergedIntoProductionReleaseOrMaster) { break; }
+          isMergedIntoProductionReleaseOrMain = (await git.getNumberOfCommitsAheadOfBranch(p.name, branch.name)) === 0;
+          if (isMergedIntoProductionReleaseOrMain) { break; }
         }
       }
-      if (!isMergedIntoProductionReleaseOrMaster && !(await promptYesNo({ question: `'${branch.name}' hasn't been staged for release. Delete anyways?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
+      if (!isMergedIntoProductionReleaseOrMain && !(await promptYesNo({ question: `'${branch.name}' hasn't been staged for release. Delete anyways?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
 
       if (b.label === currentBranch) {
-        // switch to the base branch or master
-        const branch = relationshipCache.getRelationship(b.label)?.productionReleaseBranch || "master";
+        // switch to the base branch or the main branch
+        const branch = relationshipCache.getRelationship(b.label)?.productionReleaseBranch || mainBranchName;
         try {
           await git.checkoutBranch(branch);
         } catch (e) {

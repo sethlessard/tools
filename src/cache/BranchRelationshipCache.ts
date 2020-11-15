@@ -1,11 +1,12 @@
 import { ExtensionContext } from "vscode";
+import NeedsSyncInitialization from "../types/NeedsSyncInitialization";
 
 export interface BranchRelationship {
   featureBranch: string;
   productionReleaseBranch: string;
 }
 
-class BranchRelationshipCache {
+class BranchRelationshipCache implements NeedsSyncInitialization {
 
   private static _instance?: BranchRelationshipCache;
 

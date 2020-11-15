@@ -73,7 +73,7 @@ Description: Create a new production release branch.
 
 #### t00ls: Release
 
-Description: Complete a production release branch and merge into master.
+Description: Complete a production release branch and merge into the main branch.
 
 #### t00ls: Sync Repo
 

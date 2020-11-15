@@ -19,6 +19,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // check to see if there are working changes in the directory.
     try {
@@ -37,7 +38,8 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     const featureBranch = await promptInput({ prompt: "What would you like to name the feature branch?", requireValue: true, placeHolder: "feature..." });
     if (!featureBranch) { return; }
 
-    let baseBranches = ["master"];
+    const mainBranchName = await git.getMainBranchName();
+    let baseBranches = [mainBranchName];
     
     // get the local production release branches
     let productionReleaseBranches: Branch[] = [];
@@ -82,7 +84,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       await git.pull();
     } catch (e) {
       showErrorMessage(outputChannel, `There was an error pulling '${baseBranch}': ${e}`);
-      // don't return here... it's fine that master may be out-of-date. Sync Repo will clear that up when it is run. 
+      // don't return here... it's fine that the base branch may be out-of-date. Sync Repo will clear that up when it is run. 
     }
 
     // create the feature branch
@@ -94,7 +96,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     // define the relationship
-    if (baseBranch !== "master") {
+    if (baseBranch !== mainBranchName) {
       BranchRelationshipCache.getInstance().setRelationship(featureBranch, baseBranch);
     }
 

@@ -10,7 +10,7 @@ import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
  * 
  * Completes a production release branch by:
  * 1. Creating a tag for the new version.
- * 2. Merging into master
+ * 2. Merging into the main branch
  * 
  * Or CI handles the merge with a Release Candidate tag.
  * @param context the t00ls extension context.
@@ -24,6 +24,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    await git.initialize();
 
     // fetch the latest updates from remote
     try {
@@ -62,8 +63,8 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
         description: "Creates a release candidate tag and expects CI to complete/merge the production release branch."
       },
       {
-        label: "Merge into master",
-        description: "Creates a production release tag and merges directly into 'master'."
+        label: "Merge into the main Branch",
+        description: "Creates a production release tag and merges directly into '${mainBranchName}'."
       }
     ];
     const action = await vscode.window.showQuickPick(completeActions, { canPickMany: false, placeHolder: `How would you like to complete '${branch}'`, ignoreFocusOut: true });
@@ -77,6 +78,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       try {
         await git.checkoutBranch(branch.name)
           .then(() => git.createReleaseCandidateTag())
+          .then(() => git.push())
           .then(() => git.pushTags());
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating the Release Candidate tag: ${e}`);
@@ -84,12 +86,14 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       }
     } else if (_.indexOf(completeActions, action) === 1) {
       try {
-        // create the production tag and merge into master.
+        // create the production tag and merge into the main branch.
         await git.checkoutBranch(branch.name)
           .then(() => git.createProductionTag())
-          .then(() => git.pushTags())
-          .then(() => git.checkoutBranch("master"))
-          .then(() => git.mergeBranch(branch.name));
+          .then(() => git.getMainBranchName())
+          .then(mainBranchName => git.checkoutBranch(mainBranchName))
+          .then(() => git.mergeBranch(branch.name))
+          .then(() => git.push())
+          .then(() => git.pushTags());
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;
