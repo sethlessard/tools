@@ -63,8 +63,9 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
     // Before deleting a production release branch, check to see if
-    // the branch has been merged into master.
-    const numCommitsAheadOfMaster = await git.getNumberOfCommitsAheadOfBranch("master", selected.label);
+    // the branch has been merged into the main branch.
+    const mainBranchName = await git.getMainBranchName();
+    const numCommitsAheadOfMaster = await git.getNumberOfCommitsAheadOfBranch(mainBranchName, selected.label);
     if (numCommitsAheadOfMaster > 0) {
       if (!(await promptYesNo({ question: `There are commits in '${selected.label}' that do not exist in 'master'. Delete?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
     }
@@ -72,7 +73,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     if (branch.name === currentBranch) {
       // switch to master
       try {
-        await git.checkoutBranch("master");
+        await git.checkoutBranch(mainBranchName);
       } catch (e) {
         showErrorMessage(outputChannel, `There was an error switching to 'master': ${e}`);
         return;

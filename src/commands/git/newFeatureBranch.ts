@@ -37,7 +37,8 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     const featureBranch = await promptInput({ prompt: "What would you like to name the feature branch?", requireValue: true, placeHolder: "feature..." });
     if (!featureBranch) { return; }
 
-    let baseBranches = ["master"];
+    const mainBranchName = await git.getMainBranchName();
+    let baseBranches = [mainBranchName];
     
     // get the local production release branches
     let productionReleaseBranches: Branch[] = [];
@@ -94,7 +95,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     // define the relationship
-    if (baseBranch !== "master") {
+    if (baseBranch !== mainBranchName) {
       BranchRelationshipCache.getInstance().setRelationship(featureBranch, baseBranch);
     }
 

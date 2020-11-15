@@ -77,8 +77,9 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       if (!branch) { throw new Error("Error...."); }
 
       // Before deleting a feature branch, check to see if 
-      // the branch has been merged into master or a production release branch.
-      let isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch("master", branch.name)) === 0;
+      // the branch has been merged into the main branch or a production release branch.
+      const mainBranchName = await git.getMainBranchName();
+      let isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch(mainBranchName, branch.name)) === 0;
       if (!isMergedIntoProductionReleaseOrMaster) {
         for (const p of productionReleaseBranches) {
           isMergedIntoProductionReleaseOrMaster = (await git.getNumberOfCommitsAheadOfBranch(p.name, branch.name)) === 0;
@@ -89,7 +90,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
 
       if (b.label === currentBranch) {
         // switch to the base branch or master
-        const branch = relationshipCache.getRelationship(b.label)?.productionReleaseBranch || "master";
+        const branch = relationshipCache.getRelationship(b.label)?.productionReleaseBranch || mainBranchName;
         try {
           await git.checkoutBranch(branch);
         } catch (e) {

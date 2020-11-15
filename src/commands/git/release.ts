@@ -88,7 +88,8 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
         await git.checkoutBranch(branch.name)
           .then(() => git.createProductionTag())
           .then(() => git.pushTags())
-          .then(() => git.checkoutBranch("master"))
+          .then(() => git.getMainBranchName())
+          .then(mainBranchName => git.checkoutBranch(mainBranchName))
           .then(() => git.mergeBranch(branch.name));
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
