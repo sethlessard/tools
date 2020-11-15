@@ -28,7 +28,7 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
    */
   clearRelationshipForFeatureBranch(featureBranch: string): Thenable<void> {
     this._checkInitialized();
-    let relationships = this._getAllRelationships();
+    let relationships = this.getAllRelationships();
     // search for any relationships where this feature branch is declared.
     // if any are found, clear them.
     relationships = relationships.filter(r => r.featureBranch !== featureBranch);
@@ -41,11 +41,18 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
    */
   clearRelationshipsForProductionReleaseBranch(productionReleaseBranch: string): Thenable<void> {
     this._checkInitialized();
-    let relationships = this._getAllRelationships();
+    let relationships = this.getAllRelationships();
     // search for any relationships where the production release branch branch is declared
     // if any are found, clear them.
     relationships = relationships.filter(r => r.productionReleaseBranch !== productionReleaseBranch);
     return this._updateRelationships(relationships);
+  }
+
+  /**
+  * Get all branch relationships.
+  */
+  getAllRelationships(): BranchRelationship[] {
+    return this._context!!.workspaceState.get<BranchRelationship[]>("branchRelationships", []);
   }
 
   /**
@@ -54,7 +61,7 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
    */
   getRelationship(featureBranch: string): BranchRelationship | undefined {
     this._checkInitialized();
-    const relationships = this._getAllRelationships().filter(b => b.featureBranch === featureBranch);
+    const relationships = this.getAllRelationships().filter(b => b.featureBranch === featureBranch);
     return (relationships.length > 0) ? relationships[0] : undefined;
   }
 
@@ -62,9 +69,9 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
    * Get all feature branch relationships for a specified production release branch.
    * @param productionReleaseBranch the production release branch.
    */
-  getRelationships(productionReleaseBranch: string): BranchRelationship[] {
+  getRelationshipsForProductionReleaseBranch(productionReleaseBranch: string): BranchRelationship[] {
     this._checkInitialized();
-    return this._getAllRelationships().filter(r => r.productionReleaseBranch === productionReleaseBranch);
+    return this.getAllRelationships().filter(r => r.productionReleaseBranch === productionReleaseBranch);
   }
 
   /**
@@ -85,7 +92,7 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
     this._checkInitialized();
     this.clearRelationshipForFeatureBranch(featureBranch);
 
-    let relationships = this._getAllRelationships();
+    let relationships = this.getAllRelationships();
     relationships.push({ featureBranch, productionReleaseBranch });
     return this._updateRelationships(relationships);
   }
@@ -97,13 +104,6 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
     if (!this._context) {
       throw new Error("You forgot to call initialize()!");
     }
-  }
-
-  /**
-   * Get all branch relationships.
-   */
-  private _getAllRelationships(): BranchRelationship[] {
-    return this._context!!.workspaceState.get<BranchRelationship[]>("branchRelationships", []);
   }
 
   /**
