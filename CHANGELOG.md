@@ -5,6 +5,13 @@ All notable changes to the "t00ls" extension will be documented in this file.
 ## Unreleased
  - None
 
+## v1.1.4
+This is the actual release for `v1.1.3`...
+
+## v1.1.3
+### Changed
+ - `t00ls: Clear Production Release Branch/Feature Branch Relationship` now shows all relationships in the repository, allowing for the deletion of stranded relationships.
+
 ## v1.1.2
 ### Added
  - Added support for the `main` branch. t00ls will recognized either `main` or `master` as the main repository branch.
