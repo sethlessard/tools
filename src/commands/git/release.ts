@@ -95,7 +95,8 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
           .then(() => git.push())
           .then(() => git.pushTags())
           .then(() => git.deleteBranchForce(branch.name))
-          .then(() => git.deleteRemoteBranchForce(branch.name));
+          .then(() => git.deleteRemoteBranchForce(branch.name))
+          .then(() => BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;
@@ -104,9 +105,6 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       showErrorMessage(outputChannel, "No action selected.");
       return;
     }
-
-    // clear branch relationship
-    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
 
     vscode.window.showInformationMessage("Done.");
   };
