@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 import Git from "../../util/Git";
 import Logger from "../../util/Logger";
 import { t00lsMode } from "../../util/StatusBarManager";
@@ -19,6 +20,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
     const logger = Logger.getInstance();
+    const relationshipCache = BranchRelationshipCache.getInstance();
 
     // get the feature branches
     let featureBranches = [];
@@ -34,7 +36,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
     }
 
     // get the feature branches that have a saved production release branch/feature branch relationship.
-    const filteredFeatureBranches = featureBranches.filter(f => context.workspaceState.get(`${f.name}.baseBranch`) !== undefined).map(b => ({ label: b.name, description: `Base Branch: (${context.workspaceState.get(`${b.name}.baseBranch`)})` }));
+    const filteredFeatureBranches = featureBranches.filter(f => relationshipCache.getRelationship(f.name) !== undefined).map(b => ({ label: b.name, description: `Base Branch: (${relationshipCache.getRelationship(b.name)})` }));
     if (!filteredFeatureBranches || filteredFeatureBranches.length === 0) {
       vscode.window.showInformationMessage("No feature branches currently have a defined production release branch/feature branch relationship.");
       return;
@@ -45,7 +47,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
 
     await Promise.all(toClear.map(b => {
       logger.writeLn(`Clearing relationship of feature branch '${b.label}' with ${b.description.replace("(", "'").replace(")", "'").toLowerCase()}.`);
-      return context.workspaceState.update(`${b.label}.baseBranch`, undefined);
+      return relationshipCache.clearRelationshipForFeatureBranch(b.label);
     }));
 
     vscode.window.showInformationMessage("Done.");

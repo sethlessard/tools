@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
 import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
+import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
  * Delete a production release branch
@@ -78,7 +79,8 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       }
     }
 
-    // TODO: [TLS-44] clear branch relationship
+    // clear branch relationships
+    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
 
     if (branch.remote) {
       // this production release branch only exists in the remote repository

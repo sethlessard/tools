@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import Git from "../../util/Git";
 import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
+import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
  * Create a new feature branch
@@ -19,6 +20,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const mode: t00lsMode = context.workspaceState.get("t00ls.mode") as t00lsMode;
     const git = new Git(gitRepo, mode);
+    const relationshipCache = BranchRelationshipCache.getInstance();
 
     if (mode === t00lsMode.Normal) {
       // fetch the latest updates from remote
@@ -184,7 +186,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      let baseBranch: vscode.QuickPickItem | undefined = { label: context.workspaceState.get(`${featureBranch.name}.baseBranch`) || "master", description: "Local" };
+      let baseBranch: vscode.QuickPickItem | undefined = { label: relationshipCache.getRelationship(featureBranch.name)?.productionReleaseBranch || "master", description: "Local" };
       let baseBranches = [{ label: "master", description: "Local" }];
 
       if (productionReleaseBranches.length > 0) {
@@ -198,7 +200,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
 
       // ask if the user wants to save the production release branch/feature branch relationship for next time.
       if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
-        await context.workspaceState.update(`${featureBranch.name}.baseBranch`, baseBranch.label);
+        await relationshipCache.setRelationship(featureBranch.name, baseBranch.label);
       }
 
       if ((await promptYesNo({ question: `Merge '${baseBranch.label}' into '${featureBranch.name}'` }))) {

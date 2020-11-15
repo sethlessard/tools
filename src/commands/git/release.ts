@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import Git, { Branch } from "../../util/Git";
 import { showErrorMessage } from "../../util/WindowUtils";
 import { t00lsMode } from "../../util/StatusBarManager";
+import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
  * Release the next production version of the current project.
@@ -98,7 +99,8 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
 
-    // TODO: [TLS-44] clear branch relationship
+    // clear branch relationship
+    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
 
     vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
   };
