@@ -11,6 +11,7 @@ import Logger from "./util/Logger";
 import clearProductionReleaseFeatureBranchRelationship from "./commands/git/clearProductionReleaseFeatureBranchRelationship";
 import changeGitMode from "./commands/git/changeGitMode";
 import StatusBarManager, { t00lsMode } from "./util/StatusBarManager";
+import BranchRelationshipCache from "./cache/BranchRelationshipCache";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 
@@ -28,6 +29,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(t00lsStatusBarItem);
 	t00lsStatusBarItem.show();
 	StatusBarManager.getInstance().initialize(t00lsStatusBarItem).setMode(mode);
+
+	// initialize the BranchRelationshipCache
+	BranchRelationshipCache.getInstance().initialize(context);
 
 	// Git
 	const changegitModeDisp = vscode.commands.registerCommand("t00ls.changeGitMode", changeGitMode(context, outputChannel));

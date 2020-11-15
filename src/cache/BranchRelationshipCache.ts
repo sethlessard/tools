@@ -26,6 +26,7 @@ class BranchRelationshipCache {
    * @param featureBranch the feature branch.
    */
   clearRelationshipForFeatureBranch(featureBranch: string): Thenable<void> {
+    this._checkInitialized();
     let relationships = this._getAllRelationships();
     // search for any relationships where this feature branch is declared.
     // if any are found, clear them.
@@ -38,6 +39,7 @@ class BranchRelationshipCache {
    * @param productionReleaseBranch the production release branch.
    */
   clearRelationshipsForProductionReleaseBranch(productionReleaseBranch: string): Thenable<void> {
+    this._checkInitialized();
     let relationships = this._getAllRelationships();
     // search for any relationships where the production release branch branch is declared
     // if any are found, clear them.
@@ -50,6 +52,7 @@ class BranchRelationshipCache {
    * @param featureBranch the feature branch.
    */
   getRelationship(featureBranch: string): BranchRelationship | undefined {
+    this._checkInitialized();
     const relationships = this._getAllRelationships().filter(b => b.featureBranch === featureBranch);
     return (relationships.length > 0) ? relationships[0] : undefined;
   }
@@ -59,6 +62,7 @@ class BranchRelationshipCache {
    * @param productionReleaseBranch the production release branch.
    */
   getRelationships(productionReleaseBranch: string): BranchRelationship[] {
+    this._checkInitialized();
     return this._getAllRelationships().filter(r => r.productionReleaseBranch === productionReleaseBranch);
   }
 
