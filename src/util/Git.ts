@@ -258,7 +258,7 @@ class Git {
   getAllLocalFeatureBranches(): Promise<Branch[]> {
     return this.getAllLocalBranches()
       .then(branches => {
-        const filtered = branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name));
+        const filtered = branches.filter(async branch => branch.name !== (await this.getMainBranchName()) && !REGEX_PRODUCTION_RELEASE.test(branch.name));
         return filtered;
       });
   }
@@ -322,7 +322,7 @@ class Git {
     if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
 
     return this.getAllRemoteBranches()
-      .then(branches => branches.filter(branch => branch.name !== "master" && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
+      .then(branches => branches.filter(async branch => branch.name !== (await this.getMainBranchName()) && !REGEX_PRODUCTION_RELEASE.test(branch.name)));
   }
 
   /**
@@ -359,6 +359,14 @@ class Git {
   getCurrentBranch(): Promise<string> {
     return this._inDir("git branch --show-current")
       .then((out: ExecOutput) => out.stdout);
+  }
+
+  /**
+   * Get the main branch name. 'main' or 'master'
+   */
+  getMainBranchName(): Promise<string> {
+    return this.getAllLocalBranches()
+      .then(branches => (_.findIndex(branches, { name: "main" })) ? "main" : "master");
   }
 
   /**

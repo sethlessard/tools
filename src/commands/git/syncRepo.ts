@@ -78,30 +78,31 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       return;
     }
 
-    // switch to master
-    if (currentBranch !== "master") {
+    // switch to the main branch.
+    const mainBranchName = await git.getMainBranchName();
+    if (currentBranch !== mainBranchName) {
       try {
-        await git.checkoutBranch("master");
+        await git.checkoutBranch(mainBranchName);
       } catch (e) {
-        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to '${mainBranchName}': ${e}`);
         return;
       }
     }
 
     if (mode === t00lsMode.Normal) {
-      // pull master
+      // pull the main branch
       try {
         await git.pull();
       } catch (e) {
-        showErrorMessage(outputChannel, `Error pulling to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error pulling to '${mainBranchName}': ${e}`);
         return;
       }
 
-      // push master
+      // push the main branch
       try {
         await git.push();
       } catch (e) {
-        showErrorMessage(outputChannel, `Error pushing to remote 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error pushing to remote '${mainBranchName}': ${e}`);
         return;
       }
     }
@@ -128,11 +129,11 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      // merge master into the production release branch
+      // merge the main branch into the production release branch
       try {
-        await git.mergeBranch("master");
+        await git.mergeBranch(mainBranchName);
       } catch (e) {
-        showErrorMessage(outputChannel, `Error merging 'master' into '${prodRelease.name}': ${e}`);
+        showErrorMessage(outputChannel, `Error merging '${mainBranchName}' into '${prodRelease.name}': ${e}`);
         return;
       }
 
@@ -192,19 +193,19 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      let baseBranch: vscode.QuickPickItem | undefined = { label: relationshipCache.getRelationship(featureBranch.name)?.productionReleaseBranch || "master", description: "Local" };
-      let baseBranches = [{ label: "master", description: "Local" }];
+      let baseBranch: vscode.QuickPickItem | undefined = { label: relationshipCache.getRelationship(featureBranch.name)?.productionReleaseBranch || (await git.getMainBranchName()), description: "Local" };
+      let baseBranches = [{ label: (await git.getMainBranchName()), description: "Local" }];
 
       if (productionReleaseBranches.length > 0) {
         baseBranches = baseBranches.concat(productionReleaseBranches.map(p => ({ label: p.name, description: (p.remote) ? "Remote" : "Local" })));
         baseBranch = await vscode.window.showQuickPick(baseBranches, { canPickMany: false, placeHolder: `What is the base branch for feature branch '${featureBranch.name}'?`, ignoreFocusOut: true });
         if (!baseBranch) {
-          baseBranch = { label: "master", description: "Local" };
+          baseBranch = { label: (await git.getMainBranchName()), description: "Local" };
         }
       }
 
       // ask if the user wants to save the production release branch/feature branch relationship for next time.
-      if (baseBranch.label !== "master" && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
+      if (baseBranch.label !== (await git.getMainBranchName()) && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
         await relationshipCache.setRelationship(featureBranch.name, baseBranch.label);
       }
 
@@ -263,15 +264,15 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
     } else {
-      // the branch must've been deleted. Switch to master.
+      // the branch must've been deleted. Switch to the main branch.
       try {
-        await git.checkoutBranch("master");
+        await git.checkoutBranch((await git.getMainBranchName()));
         // ask about poping stash
         if (await promptYesNo({ question: `'${currentBranch}' was deleted. Do you want to pop the stash that was created anyways?` })) {
           await git.popStash();
         }
       } catch (e) {
-        showErrorMessage(outputChannel, `Error switching to 'master': ${e}`);
+        showErrorMessage(outputChannel, `Error switching to '${mainBranchName}': ${e}`);
         return;
       }
     }

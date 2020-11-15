@@ -83,7 +83,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       await git.pull();
     } catch (e) {
       showErrorMessage(outputChannel, `There was an error pulling '${baseBranch}': ${e}`);
-      // don't return here... it's fine that master may be out-of-date. Sync Repo will clear that up when it is run. 
+      // don't return here... it's fine that the base branch may be out-of-date. Sync Repo will clear that up when it is run. 
     }
 
     // create the feature branch
