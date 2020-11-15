@@ -147,7 +147,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
             const remotes = await git.getAllRemotes();
             let remote: string | undefined = remotes[0];
             if (remotes.length > 1) {
-              remote = await vscode.window.showQuickPick(remotes, {});
+              remote = await vscode.window.showQuickPick(remotes, { ignoreFocusOut: true });
               if (!remote) { return; }
             }
 
