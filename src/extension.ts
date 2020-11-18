@@ -1,4 +1,8 @@
 import * as vscode from "vscode";
+import * as path from "path";
+import { existsSync } from "fs";
+import { readJSONSync } from "fs-extra";
+
 import deleteFeatureBranch from "./commands/git/deleteFeatureBranch";
 import deleteProductionReleaseBranch from "./commands/git/deleteProductionReleaseBranch";
 import deleteTag from "./commands/git/deleteTag";
@@ -12,17 +16,22 @@ import clearProductionReleaseFeatureBranchRelationship from "./commands/git/clea
 import changeGitMode from "./commands/git/changeGitMode";
 import StatusBarManager, { t00lsMode } from "./util/StatusBarManager";
 import BranchRelationshipCache from "./cache/BranchRelationshipCache";
+import ConfigManager from "./config/ConfigManager";
+import t00lsConfiguration from "./types/config/t00lsConfiguration";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 
 export async function activate(context: vscode.ExtensionContext) {
 	console.log("Congratulations, your extension \"t00ls\" is now active!");
 	const outputChannel = vscode.window.createOutputChannel("t00ls");
-	Logger.getInstance().initChannel(outputChannel);
+	const logger = Logger.getInstance();
+	logger.initChannel(outputChannel);
 
+	// get the t00ls mode
 	let mode: t00lsMode | undefined = context.workspaceState.get("t00ls.mode");
 	if (!mode) { mode = t00lsMode.Normal; await context.workspaceState.update("t00ls.mode", mode); };
-
+	
+	// initialize the status bar item.
 	t00lsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	t00lsStatusBarItem.command = "t00ls.changeGitMode";
 	t00lsStatusBarItem.tooltip = "The current Git mode.";
@@ -33,9 +42,28 @@ export async function activate(context: vscode.ExtensionContext) {
 	// initialize the BranchRelationshipCache
 	BranchRelationshipCache.getInstance().initialize(context);
 
+	const configManager = ConfigManager.getInstance();
+	// set workspace listeners
+	vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
+		e.added.forEach(w => {
+			// search for a t00ls configuration in the workspace and register it.
+			const configPath = path.join(w.uri.fsPath, "t00ls.json");
+			if (existsSync(configPath)) {
+				logger.writeLn(`Loading t00ls configuration for workspace '${w.name}': ${configPath}`);
+				const configuration: t00lsConfiguration = readJSONSync(configPath);
+				configManager.addConfig(w.uri.fsPath, configuration);
+			}
+		});
+		e.removed.forEach(w => {
+			logger.writeLn(`Unloading any configurations for workspace '${w.name}': ${w.uri.fsPath}`)
+			// remove the workspace t00ls configuration
+			configManager.removeConfig(w.uri.fsPath);
+		});
+	});
+
 	// Git
-	const changegitModeDisp = vscode.commands.registerCommand("t00ls.changeGitMode", changeGitMode(context, outputChannel));
-	context.subscriptions.push(changegitModeDisp);
+	const changeGitModeDisp = vscode.commands.registerCommand("t00ls.changeGitMode", changeGitMode(context, outputChannel));
+	context.subscriptions.push(changeGitModeDisp);
 
 	const clearProductionReleaseFeatureBranchRelationshipDisp = vscode.commands.registerCommand("t00ls.clearProductionReleaseFeatureBranchRelationship", clearProductionReleaseFeatureBranchRelationship(context, outputChannel));
 	context.subscriptions.push(clearProductionReleaseFeatureBranchRelationshipDisp);
