@@ -93,7 +93,10 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
           .then(mainBranchName => git.checkoutBranch(mainBranchName))
           .then(() => git.mergeBranch(branch.name))
           .then(() => git.push())
-          .then(() => git.pushTags());
+          .then(() => git.pushTags())
+          .then(() => git.deleteBranchForce(branch.name))
+          .then(() => git.deleteRemoteBranchForce(branch.name))
+          .then(() => BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;
@@ -103,10 +106,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
 
-    // clear branch relationship
-    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
-
-    vscode.window.showInformationMessage("Done. Don't forget to run 't00ls: Sync Repo'!");
+    vscode.window.showInformationMessage("Done.");
   };
 };
 
