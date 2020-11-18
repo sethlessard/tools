@@ -5,6 +5,10 @@ All notable changes to the "t00ls" extension will be documented in this file.
 ## Unreleased
  - None
 
+## v1.1.5
+### Fixed
+ - `t00ls: Release` now deletes the prodcution release branch after merging into production.
+
 ## v1.1.4
 This is the actual release for `v1.1.3`...
 
