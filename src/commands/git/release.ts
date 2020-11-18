@@ -86,6 +86,14 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       }
     } else if (_.indexOf(completeActions, action) === 1) {
       try {
+        // TODO: [TLS-50] run the preReleaseTask from the t00ls configuration
+
+      } catch (e) {
+        showErrorMessage(outputChannel, `Error running prerelease task: ${e}`);
+        return;
+      }
+
+      try {
         // create the production tag and merge into the main branch.
         await git.checkoutBranch(branch.name)
           .then(() => git.createProductionTag())
@@ -103,6 +111,17 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       }
     } else {
       showErrorMessage(outputChannel, "No action selected.");
+      return;
+    }
+
+    // clear branch relationship
+    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
+
+    try {
+      // TODO: [TLS-50] run the postReleaseTask from the t00ls configuration
+
+    } catch (e) {
+      showErrorMessage(outputChannel, `Error running post-release task: ${e}`);
       return;
     }
 
