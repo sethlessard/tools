@@ -30,7 +30,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// get the t00ls mode
 	let mode: t00lsMode | undefined = context.workspaceState.get("t00ls.mode");
 	if (!mode) { mode = t00lsMode.Normal; await context.workspaceState.update("t00ls.mode", mode); };
-	
+
 	// initialize the status bar item.
 	t00lsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	t00lsStatusBarItem.command = "t00ls.changeGitMode";
@@ -43,17 +43,21 @@ export async function activate(context: vscode.ExtensionContext) {
 	BranchRelationshipCache.getInstance().initialize(context);
 
 	const configManager = ConfigManager.getInstance();
+	// register the current workspaces
+	const registerWorkspace = (w: vscode.WorkspaceFolder) => {
+		// search for a t00ls configuration in the workspace and register it.
+		const configPath = path.join(w.uri.fsPath, "t00ls.json");
+		if (existsSync(configPath)) {
+			logger.writeLn(`Loading t00ls configuration for workspace '${w.name}': ${configPath}`);
+			const configuration: t00lsConfiguration = readJSONSync(configPath);
+			configManager.addConfig(w.uri.fsPath, configuration);
+		}
+	};
+	vscode.workspace.workspaceFolders?.forEach(registerWorkspace);
+
 	// set workspace listeners
 	vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
-		e.added.forEach(w => {
-			// search for a t00ls configuration in the workspace and register it.
-			const configPath = path.join(w.uri.fsPath, "t00ls.json");
-			if (existsSync(configPath)) {
-				logger.writeLn(`Loading t00ls configuration for workspace '${w.name}': ${configPath}`);
-				const configuration: t00lsConfiguration = readJSONSync(configPath);
-				configManager.addConfig(w.uri.fsPath, configuration);
-			}
-		});
+		e.added.forEach(registerWorkspace);
 		e.removed.forEach(w => {
 			logger.writeLn(`Unloading any configurations for workspace '${w.name}': ${w.uri.fsPath}`)
 			// remove the workspace t00ls configuration
@@ -93,4 +97,4 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(syncRepoDisposable);
 }
 
-export function deactivate() {}
+export function deactivate() { }
