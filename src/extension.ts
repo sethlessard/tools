@@ -1,4 +1,3 @@
-require("module-alias/register");
 import * as vscode from "vscode";
 
 import deleteFeatureBranch from "./t00ls.vscode/commands/git/deleteFeatureBranch";
@@ -10,7 +9,7 @@ import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductio
 import syncRepo from "./t00ls.vscode/commands/git/syncRepo";
 import release from "./t00ls.vscode/commands/git/release";
 import Logger from "./t00ls.vscode/util/Logger";
-import clearProductionReleaseFeatureBranchRelationship from "./t00ls.vscode/commands/git/clearProductionReleaseFeatureBranchRelationship";
+import clearProductionReleaseFeatureBranchRelationship from "./t00ls.vscode/commands/git/cleanProductionReleaseFeatureBranchRelationship/presentation/views/clearProductionReleaseFeatureBranchRelationship";
 import changeGitMode from "./t00ls.vscode/commands/git/changeGitMode/presentation/views/changeGitMode";
 import StatusBarManager from "./t00ls.vscode/util/StatusBarManager";
 import VSCodeBranchRelationshipRepository from "./t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
