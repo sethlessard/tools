@@ -13,7 +13,7 @@ import Logger from "./t00ls.vscode/util/Logger";
 import clearProductionReleaseFeatureBranchRelationship from "./t00ls.vscode/commands/git/clearProductionReleaseFeatureBranchRelationship";
 import changeGitMode from "./t00ls.vscode/commands/git/changeGitMode/presentation/views/changeGitMode";
 import StatusBarManager from "./t00ls.vscode/util/StatusBarManager";
-import BranchRelationshipCache from "./t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "./t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 import newCleanArchitectureFeature from "./t00ls.vscode/commands/cleanarchitecture/newCleanArchitectureFeature/presentation/views/newCleanArchitectureFeature";
 import { GitMode } from "./t00ls.git//Git";
 
@@ -34,8 +34,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	t00lsStatusBarItem.show();
 	StatusBarManager.getInstance().initialize(t00lsStatusBarItem).setMode(mode);
 
-	// initialize the BranchRelationshipCache
-	BranchRelationshipCache.getInstance().initialize(context);
+	// initialize the VSCodeBranchRelationshipRepository
+	VSCodeBranchRelationshipRepository.getInstance().initialize(context);
 
 	// Git
 	const changegitModeDisp = vscode.commands.registerCommand("t00ls.changeGitMode", changeGitMode(context, outputChannel));

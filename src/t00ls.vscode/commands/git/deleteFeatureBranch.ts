@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 
 /**
  * Delete a feature branch.
@@ -20,7 +20,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
-    const relationshipCache = BranchRelationshipCache.getInstance();
+    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
 
     // fetch the latest updates from remote
     try {
@@ -91,7 +91,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
 
       if (b.label === currentBranch) {
         // switch to the base branch or the main branch
-        const branch = relationshipCache.getRelationship(b.label)?.productionReleaseBranch || mainBranchName;
+        const branch = relationshipRepository.getRelationship(b.label)?.productionReleaseBranch || mainBranchName;
         try {
           await git.checkoutBranch(branch);
         } catch (e) {
@@ -101,7 +101,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
       }
 
       // clear branch relationship
-      await relationshipCache.clearRelationshipForFeatureBranch(b.label);
+      await relationshipRepository.clearRelationshipForFeatureBranch(b.label);
 
       if (branch.remote) {
         // this feature branch only exists in the remote repository

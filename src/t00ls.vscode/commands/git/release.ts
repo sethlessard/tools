@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 
 /**
  * Release the next production version of the current project.
@@ -96,7 +96,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
           .then(() => git.pushTags())
           .then(() => git.deleteBranchForce(branch.name))
           .then(() => git.deleteRemoteBranchForce(branch.name))
-          .then(() => BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
+          .then(() => VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
       } catch (e) {
         showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
         return;

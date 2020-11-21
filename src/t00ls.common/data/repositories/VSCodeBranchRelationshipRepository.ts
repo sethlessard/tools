@@ -1,23 +1,20 @@
 import { ExtensionContext } from "vscode";
-import NeedsSyncInitialization from "../../t00ls.common/types/NeedsSyncInitialization";
+import BranchRelationshipRepository from "../../domain/respositories/BranchRelationshipRepository";
+import NeedsSyncInitialization from "../../types/NeedsSyncInitialization";
+import BranchRelationship from "../models/BranchRelationship";
 
-export interface BranchRelationship {
-  featureBranch: string;
-  productionReleaseBranch: string;
-}
+class VSCodeBranchRelationshipRepository implements BranchRelationshipRepository, NeedsSyncInitialization {
 
-class BranchRelationshipCache implements NeedsSyncInitialization {
-
-  private static _instance?: BranchRelationshipCache;
+  private static _instance?: VSCodeBranchRelationshipRepository;
 
   /**
-   * Get the BranchRelationshipCache instance.
+   * Get the VSCodeBranchRelationshipRepository instance.
    */
-  static getInstance(): BranchRelationshipCache {
-    if (!BranchRelationshipCache._instance) {
-      BranchRelationshipCache._instance = new BranchRelationshipCache();
+  static getInstance(): VSCodeBranchRelationshipRepository {
+    if (!VSCodeBranchRelationshipRepository._instance) {
+      VSCodeBranchRelationshipRepository._instance = new VSCodeBranchRelationshipRepository();
     }
-    return BranchRelationshipCache._instance;
+    return VSCodeBranchRelationshipRepository._instance;
   }
 
   private _context?: ExtensionContext;
@@ -75,7 +72,7 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
   }
 
   /**
-   * Initialize the BranchRelationshipCache with the 
+   * Initialize the VSCodeBranchRelationshipRepository with the 
    * t00ls VS Code extension context.
    * @param context the t00ls extension context.
    */
@@ -98,7 +95,7 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
   }
 
   /**
-   * Check to see if the BranchRelationshipCache has been initialized.
+   * Check to see if the VSCodeBranchRelationshipRepository has been initialized.
    */
   private _checkInitialized(): void {
     if (!this._context) {
@@ -115,4 +112,4 @@ class BranchRelationshipCache implements NeedsSyncInitialization {
   }
 }
 
-export default BranchRelationshipCache;
+export default VSCodeBranchRelationshipRepository;

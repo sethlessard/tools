@@ -4,7 +4,7 @@ import * as _ from "lodash";
 
 import Git, { GitMode } from "../../../t00ls.git/Git";
 import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 
 /**
  * Create a new feature branch
@@ -21,7 +21,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     const mode: GitMode = context.workspaceState.get("t00ls.mode") as GitMode;
     const git = new Git(gitRepo, mode);
     await git.initialize();
-    const relationshipCache = BranchRelationshipCache.getInstance();
+    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
 
     if (mode === GitMode.Normal) {
       // fetch the latest updates from remote
@@ -194,14 +194,14 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      let savedRelationship = relationshipCache.getRelationship(featureBranch.name);
+      let savedRelationship = relationshipRepository.getRelationship(featureBranch.name);
       if (savedRelationship) {
         // verify the production release branch still exists locally
         if (_.find(productionReleaseBranches, { name: savedRelationship.productionReleaseBranch }) === undefined) {
           // it doesn't exist, so delete all relationships related to the production release branch
           // clear the relationship for the feature branch as well.
-          await relationshipCache.clearRelationshipsForProductionReleaseBranch(savedRelationship.productionReleaseBranch);
-          await relationshipCache.clearRelationshipForFeatureBranch(featureBranch.name);
+          await relationshipRepository.clearRelationshipsForProductionReleaseBranch(savedRelationship.productionReleaseBranch);
+          await relationshipRepository.clearRelationshipForFeatureBranch(featureBranch.name);
           savedRelationship = undefined;
         }
       }
@@ -224,7 +224,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       if (savedRelationship === undefined) {
         // ask if the user wants to save the production release branch/feature branch relationship for next time.
         if (baseBranch.label !== mainBranchName && (await promptYesNo({ question: "Save this relationship for future syncs?" }))) {
-          await relationshipCache.setRelationship(featureBranch.name, baseBranch.label);
+          await relationshipRepository.setRelationship(featureBranch.name, baseBranch.label);
         }
       } else {
         // use the production release branch defined by the saved relationship 

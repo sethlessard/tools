@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 import Logger from "../../util/Logger";
 
 /**
@@ -10,9 +10,9 @@ import Logger from "../../util/Logger";
 const clearProductionReleaseFeatureBranchRelationship = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
     const logger = Logger.getInstance();
-    const relationshipCache = BranchRelationshipCache.getInstance();
+    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
 
-    const relationships = relationshipCache.getAllRelationships();
+    const relationships = relationshipRepository.getAllRelationships();
     if (relationships.length === 0) {
       vscode.window.showInformationMessage("No feature branches currently have a defined production release branch/feature branch relationship.");
       return;
@@ -24,7 +24,7 @@ const clearProductionReleaseFeatureBranchRelationship = (context: vscode.Extensi
 
     await Promise.all(toClear.map(b => {
       logger.writeLn(`Clearing relationship of feature branch '${b.label}' with ${b.description!!.replace("(", "'").replace(")", "'").toLowerCase()}.`);
-      return relationshipCache.clearRelationshipForFeatureBranch(b.label);
+      return relationshipRepository.clearRelationshipForFeatureBranch(b.label);
     }));
 
     vscode.window.showInformationMessage("Done.");

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as _ from "lodash";
 import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 
 /**
  * Delete a production release branch
@@ -81,7 +81,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     }
 
     // clear branch relationships
-    await BranchRelationshipCache.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
+    await VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
 
     if (branch.remote) {
       // this production release branch only exists in the remote repository

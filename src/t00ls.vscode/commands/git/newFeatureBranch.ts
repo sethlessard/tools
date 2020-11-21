@@ -3,7 +3,7 @@ import * as path from "path";
 import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 
 import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
+import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 
 /**
  * Create a new feature branch.
@@ -96,7 +96,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
 
     // define the relationship
     if (baseBranch !== mainBranchName) {
-      BranchRelationshipCache.getInstance().setRelationship(featureBranch, baseBranch);
+      VSCodeBranchRelationshipRepository.getInstance().setRelationship(featureBranch, baseBranch);
     }
 
     vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`);
