@@ -21,6 +21,7 @@
 		"onCommand:t00ls.deleteProductionReleaseBranch",
 		"onCommand:t00ls.deleteTag",
 		"onCommand:t00ls.mergeFeaturesIntoProductionRelease",
+		"onCommand:t00ls.newCleanArchitectureFeature",
 		"onCommand:t00ls.newFeatureBranch",
 		"onCommand:t00ls.newProductionReleaseBranch",
 		"onCommand:t00ls.release",
@@ -55,6 +56,10 @@
 				"title": "t00ls: Merge Features into Production Release"
 			},
 			{
+				"command": "t00ls.newCleanArchitectureFeature",
+				"title": "New Clean Architecture Feature"
+			},
+			{
 				"command": "t00ls.newFeatureBranch",
 				"title": "t00ls: New Feature Branch"
 			},
@@ -71,6 +76,20 @@
 				"title": "t00ls: Sync Repo"
 			}
 		],
+		"menus": {
+			"explorer/context": [
+				{
+					"group": "Clean Architecture",
+					"command": "t00ls.newCleanArchitectureFeature"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "t00ls.newCleanArchitectureFeature",
+					"when": "false"
+				}
+			]
+		},
 		"snippets": [
 			{
 				"language": "c",

@@ -12,6 +12,7 @@ import clearProductionReleaseFeatureBranchRelationship from "./commands/git/clea
 import changeGitMode from "./commands/git/changeGitMode";
 import StatusBarManager, { t00lsMode } from "./util/StatusBarManager";
 import BranchRelationshipCache from "./cache/BranchRelationshipCache";
+import newCleanArchitectureFeature from "./commands/cleanarchitecture/newCleanArchitectureFeature";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 
@@ -63,6 +64,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context, outputChannel));
 	context.subscriptions.push(syncRepoDisposable);
+
+	// new clean architecture feature
+	const newCAFeatureDisposable = vscode.commands.registerCommand("t00ls.newCleanArchitectureFeature", (fileUri) => newCleanArchitectureFeature(fileUri, context, outputChannel));
+	context.subscriptions.push(newCAFeatureDisposable);
 }
 
 export function deactivate() {}
