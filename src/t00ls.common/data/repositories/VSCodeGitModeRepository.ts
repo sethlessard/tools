@@ -1,6 +1,6 @@
 import { ExtensionContext } from "vscode";
-import GitMode from "../../../../../../t00ls.common/data/models/GitMode";
-import GitModeRepository from "../../domain/repositories/GitModeRepository";
+import GitMode from "../models/GitMode";
+import GitModeRepository from "../../../t00ls.vscode/commands/git/changeGitMode/domain/repositories/GitModeRepository";
 
 class VSCodeGitModeRepository implements GitModeRepository {
 

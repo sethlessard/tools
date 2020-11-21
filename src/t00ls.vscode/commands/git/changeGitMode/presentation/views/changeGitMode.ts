@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 import { showErrorMessage } from "../../../../../../t00ls.vscode/util/WindowUtils";
 import setGitMode from "../../domain/usecases/setGitMode";
-import VSCodeGitModeRepository from "../../data/repositories/VSCodeGitModeRepository";
+import VSCodeGitModeRepository from "../../../../../../t00ls.common/data/repositories/VSCodeGitModeRepository";
 import GitMode, { mapToDomainGitMode } from "../../../../../../t00ls.common/presentation/models/GitMode";
 
 const MODES = [
