@@ -48,7 +48,7 @@ interface GitRepository {
    * Delete a remote branch with force.
    * @param branch the branch to delete.
    */
-  deleteRemoteBranchForce(branch: string, origin: string): Promise<void>;
+  deleteRemoteBranchForce(branch: string, origin?: string): Promise<void>;
 
   /**
    * Delete a tag locally and remotely.
