@@ -1,33 +1,18 @@
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
-import NeedsAsyncInitialization from "../t00ls.common/types/NeedsAsyncInitialization";
+
+import NeedsAsyncInitialization from "../../types/NeedsAsyncInitialization";
+import Branch from "../models/Branch";
+import GitRepository from "../../domain/respositories/GitRepository";
+import GitMode from "../models/GitMode";
+
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
 const REGEX_PRODUCTION_RELEASE = /((.*)-)?v(\d+\.\d+\.\d+)-prep/;
 
-export interface Branch {
-  name: string;
-  lastCommitMessage: string;
-  remote: boolean;
-  origin?: string;
-};
-
-export interface ExecOutput {
-  stdout: string;
-  stderr: string;
-};
-
-export enum GitMode {
-  Local = "Local",
-  Normal = "Normal"
-};
-
-const EMPTY_EXEC_OUT: ExecOutput = { stdout: "", stderr: "" };
-
-
-class Git implements NeedsAsyncInitialization {
+class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
 
   private readonly _path: string;
   private readonly _mode: GitMode;
@@ -49,23 +34,25 @@ class Git implements NeedsAsyncInitialization {
    * Checkout a branch.
    * @param branch the branch to checkout.
    */
-  checkoutBranch(branch: string): Promise<ExecOutput> {
-    return this._inDir(`git checkout ${branch}`);
+  checkoutBranch(branch: string): Promise<void> {
+    return this._inDir(`git checkout ${branch}`)
+      .then();
   }
 
   /**
    * Create a new branch.
    * @param branch the new branch to checkout.
    */
-  checkoutNewBranch(branch: string): Promise<ExecOutput> {
-    return this._inDir(`git checkout -b ${branch}`);
+  checkoutNewBranch(branch: string): Promise<void> {
+    return this._inDir(`git checkout -b ${branch}`)
+      .then();
   }
 
   /**
    * Create a production tag for the current version.
    * @param message the message to use when creating the tag.
    */
-  createProductionTag(message?: string): Promise<ExecOutput> {
+  createProductionTag(message?: string): Promise<void> {
     return this.getCurrentBranch()
       .then(branch => {
         if (!REGEX_PRODUCTION_RELEASE.test(branch)) {
@@ -85,82 +72,58 @@ class Git implements NeedsAsyncInitialization {
             }
             return this._inDir(`git tag -a ${prodTag} -m "${message}"`);
           });
-      });
-  }
-
-  /**
-   * Create a release candidate tag for the current version.
-   * @param message the message to use when creating the tag.
-   */
-  createReleaseCandidateTag(message?: string): Promise<ExecOutput> {
-    return this.getCurrentBranch()
-      .then(branch => {
-        if (!REGEX_PRODUCTION_RELEASE.test(branch)) {
-          throw new Error(`'${branch}' is not a production release branch.`);
-        }
-        const matches = branch.match(REGEX_PRODUCTION_RELEASE);
-        const projectPrefix = matches!![2];
-        const version = matches!![3];
-        const rcTag = (projectPrefix) ? `${projectPrefix}-v${version}-rc` : `v${version}-rc`;
-        if (!message) {
-          message = (projectPrefix) ? `${projectPrefix} v${version}` : `v${version}`;
-        }
-        return this.getAllTags()
-          .then(tags => {
-            if (tags.indexOf(rcTag) !== -1) {
-              throw new Error(`'${rcTag}' has already been created.`);
-            }
-            return this._inDir(`git tag -a ${rcTag} -m "${message}"`);
-          });
-      });
+      })
+      .then();
   }
 
   /**
    * Delete a local branch -d
    * @param branch the branch to delete.
    */
-  deleteBranch(branch: string): Promise<ExecOutput> {
-    return this._inDir(`git branch -d ${branch}`);
+  deleteBranch(branch: string): Promise<void> {
+    return this._inDir(`git branch -d ${branch}`)
+      .then();
   }
 
   /**
    * Delete a local branch -D
    * @param branch the branch to delete.
    */
-  deleteBranchForce(branch: string): Promise<ExecOutput> {
-    return this._inDir(`git branch -D ${branch}`);
+  deleteBranchForce(branch: string): Promise<void> {
+    return this._inDir(`git branch -D ${branch}`)
+      .then();
   }
 
   /**
    * Delete a remote branch.
    * @param branch the branch to delete.
    */
-  deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    if (this._mode === GitMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+  deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
 
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
           return this._inDir(`git push ${origin} --delete ${branch}`);
-        }
-        return EMPTY_EXEC_OUT;
-      });
+        };
+      })
+      .then();
   }
 
   /**
    * Delete a remote branch with force.
    * @param branch the branch to delete.
    */
-  deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    if (this._mode === GitMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+  deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
 
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
           return this._inDir(`git push ${origin} --force --delete ${branch}`);
         }
-        return EMPTY_EXEC_OUT;
-      });
+      })
+      .then();
   }
 
   /**
@@ -168,9 +131,14 @@ class Git implements NeedsAsyncInitialization {
    * @param tag the tag.
    * @param remote the remote to delete the tag from.
    */
-  deleteTag(tag: string, remote: string = "origin"): Promise<ExecOutput> {
+  deleteTag(tag: string, remote: string = "origin"): Promise<void> {
     return this._inDir(`git tag -d ${tag}`)
-      .then(() => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${tag}`) : EMPTY_EXEC_OUT));
+      .then(() => this.hasRemote().then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir(`git push ${remote} :refs/tags/${tag}`);
+        }
+      }))
+      .then();
   }
 
   /**
@@ -178,25 +146,31 @@ class Git implements NeedsAsyncInitialization {
    * @param tags the tags to delete.
    * @param remote the remote to use. Default is "origin"
    */
-  deleteTags(tags: string[], remote: string = "origin"): Promise<ExecOutput[]> {
+  deleteTags(tags: string[], remote: string = "origin"): Promise<void> {
     return this._inDir(`git tag -d ${tags.join(" ")}`)
-      .then(() => Promise.all(tags.map(t => this.hasRemote().then(hasRemote => (hasRemote) ? this._inDir(`git push ${remote} :refs/tags/${t}`) : EMPTY_EXEC_OUT))));
+      .then(() => Promise.all(tags.map(t => this.hasRemote().then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir(`git push ${remote} :refs/tags/${t}`);
+        }
+      }))))
+      .then();
   }
 
   /**
    * Fetch a remote, pruning branches and tags
    * @param remote the remote to fetch.
    */
-  fetch(remote: string = "origin"): Promise<ExecOutput> {
+  fetch(remote: string = "origin"): Promise<void> {
     return this.hasRemote()
       .then(hasRemote => {
         if (!hasRemote) {
-          return EMPTY_EXEC_OUT;
+          return;
         }
         // fetch and prune the tags.
         return this._inDir(`git fetch -p ${remote}`)
           .then(() => this._inDir(`git fetch --prune ${remote} "+refs/tags/*:refs/tags/*"`));
-      });
+      })
+      .then();
   }
 
   /**
@@ -371,7 +345,8 @@ class Git implements NeedsAsyncInitialization {
    */
   getCurrentBranch(): Promise<string> {
     return this._inDir("git branch --show-current")
-      .then((out: ExecOutput) => out.stdout);
+      .then((out: { stdout: string, stderr: string }) => out.stdout);
+
   }
 
   /**
@@ -406,7 +381,7 @@ class Git implements NeedsAsyncInitialization {
    * Check to see if a branch exists locally in the Git repository.
    * @param branch the branch.
    */
-  hasLocalBranch(branch: string) {
+  hasLocalBranch(branch: string): Promise<boolean> {
     return this.getAllLocalBranches()
       .then(branches => branches && _.find(branches, { name: branch, remote: false }) !== undefined);
   }
@@ -417,7 +392,7 @@ class Git implements NeedsAsyncInitialization {
   hasRemote(): Promise<boolean> {
     if (this._mode === GitMode.Local) { return Promise.resolve(false); }
 
-    return this.getAllRemotes().then((remotes) => remotes && remotes.length > 0);
+    return this.getAllRemotes().then((remotes) => remotes !== undefined && remotes.length > 0);
   }
 
   /**
@@ -425,7 +400,7 @@ class Git implements NeedsAsyncInitialization {
    * @param branch the branch.
    * @param origin the remote to use. default is 'origin'.
    */
-  hasRemoteBranch(branch: string, origin: string = "origin") {
+  hasRemoteBranch(branch: string, origin: string = "origin"): Promise<boolean> {
     return this.getAllRemoteBranches()
       .then(branches => branches && _.find(branches, { name: branch, remote: true, origin }) !== undefined);
   }
@@ -433,7 +408,7 @@ class Git implements NeedsAsyncInitialization {
   /**
    * Check to see if there are working changes (tracked and untracked) in the current Git repository.
    */
-  hasWorkingChanges() {
+  hasWorkingChanges(): Promise<boolean> {
     return this._inDir("git status --porcelain")
       .then(({ stdout }) => stdout.length > 0);
   }
@@ -449,67 +424,91 @@ class Git implements NeedsAsyncInitialization {
    * Merge a branch into the current Git branch.
    * @param branch the branch to merge.
    */
-  mergeBranch(branch: string): Promise<ExecOutput> {
-    return this._inDir(`git merge ${branch}`);
+  mergeBranch(branch: string): Promise<void> {
+    return this._inDir(`git merge ${branch}`)
+      .then();
   }
 
   /**
    * Pop the latest stash.
    */
-  popStash(): Promise<ExecOutput> {
-    return this._inDir("git stash pop");
+  popStash(): Promise<void> {
+    return this._inDir("git stash pop")
+      .then();
   }
 
   /**
    * Pull the current branch.
    */
-  pull(): Promise<ExecOutput> {
+  pull(): Promise<void> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git pull") : EMPTY_EXEC_OUT);
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir("git pull");
+        }
+      })
+      .then();
   }
 
   /**
    * Push the current branch.
    */
-  push(): Promise<ExecOutput> {
+  push(): Promise<void> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git push") : EMPTY_EXEC_OUT);
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir("git push");
+        }
+      })
+      .then();
   }
 
   /**
    * Push all the tags in the local repository to the remote repository.
    */
-  pushTags(): Promise<ExecOutput> {
+  pushTags(): Promise<void> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this._inDir("git push --tags") : EMPTY_EXEC_OUT);
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this._inDir("git push --tags");
+        }
+      })
+      .then();
   }
 
   /**
    * Setup remote tracking and push the current branch.
    * @param remote the remote repository to setup tracking against.
    */
-  setupTrackingAndPush(remote: string = "origin"): Promise<ExecOutput> {
+  setupTrackingAndPush(remote: string = "origin"): Promise<void> {
     return this.hasRemote()
-      .then(hasRemote => (hasRemote) ? this.getCurrentBranch().then(branch => this._inDir(`git push -u ${remote} ${branch}`)) : EMPTY_EXEC_OUT);
+      .then(hasRemote => {
+        if (hasRemote) {
+          return this.getCurrentBranch().then(branch => this._inDir(`git push -u ${remote} ${branch}`));
+        }
+      })
+      .then();
   }
 
   /**
    * Stage a file or a directory.
    * @param path the path to stage.
    */
-  stage(path: string): Promise<ExecOutput> {
+  stage(path: string): Promise<void> {
     if (path.indexOf(" ") !== -1) {
       path = `"${path}"`;
     }
-    return this._inDir(`git add ${path}`);
+    return this._inDir(`git add ${path}`)
+      .then();
   }
 
   /**
    * Stash the currently staged files.
    * @param message the stash message.
    */
-  stash(message: string): Promise<ExecOutput> {
-    return this._inDir(`git stash save "${message}"`);
+  stash(message: string): Promise<void> {
+    return this._inDir(`git stash save "${message}"`)
+      .then();
   }
 
   /**
@@ -525,7 +524,7 @@ class Git implements NeedsAsyncInitialization {
    * Execute a command in the current directory.
    * @param command the command to execute.
    */
-  private _inDir(command: string): Promise<ExecOutput> {
+  private _inDir(command: string): Promise<{ stdout: string, stderr: string }> {
     return pExec(command, { cwd: this._path })
       .then((out: { stdout: string, stderr: string }) => {
         out.stderr = out.stderr.trim();
@@ -549,4 +548,4 @@ class Git implements NeedsAsyncInitialization {
   }
 }
 
-export default Git;
+export default t00lsGitRepository;

@@ -2,8 +2,10 @@ import * as vscode from "vscode";
 import * as _ from "lodash";
 import * as path from "path";
 
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../t00ls.common/presentation/models/Branch";
 
 /**
  * Merge one or more feature branches into a production release branch.
@@ -17,7 +19,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // get the local production release branches in the repository

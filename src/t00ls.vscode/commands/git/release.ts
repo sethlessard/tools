@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../t00ls.common/presentation/models/Branch";
 
 /**
  * Release the next production version of the current project.
@@ -23,7 +25,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // fetch the latest updates from remote
@@ -56,53 +58,20 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
     const branch = _.find<Branch>(productionReleaseBranches, { name: selected.label });
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
-    // ask how the production release branch should be completed
-    const completeActions = [
-      {
-        label: "Complete with CI",
-        description: "Creates a release candidate tag and expects CI to complete/merge the production release branch."
-      },
-      {
-        label: "Merge into the main Branch",
-        description: "Creates a production release tag and merges directly into '${mainBranchName}'."
-      }
-    ];
-    const action = await vscode.window.showQuickPick(completeActions, { canPickMany: false, placeHolder: `How would you like to complete '${branch}'`, ignoreFocusOut: true });
-    if (!action) {
-      vscode.window.showInformationMessage("No action selected.");
-      return;
-    }
-
-    if (_.indexOf(completeActions, action) === 0) {
-      // create the release candidate tag and let CI handle the merge.
-      try {
-        await git.checkoutBranch(branch.name)
-          .then(() => git.createReleaseCandidateTag())
-          .then(() => git.push())
-          .then(() => git.pushTags());
-      } catch (e) {
-        showErrorMessage(outputChannel, `Error creating the Release Candidate tag: ${e}`);
-        return;
-      }
-    } else if (_.indexOf(completeActions, action) === 1) {
-      try {
-        // create the production tag and merge into the main branch.
-        await git.checkoutBranch(branch.name)
-          .then(() => git.createProductionTag())
-          .then(() => git.getMainBranchName())
-          .then(mainBranchName => git.checkoutBranch(mainBranchName))
-          .then(() => git.mergeBranch(branch.name))
-          .then(() => git.push())
-          .then(() => git.pushTags())
-          .then(() => git.deleteBranchForce(branch.name))
-          .then(() => git.deleteRemoteBranchForce(branch.name))
-          .then(() => VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
-      } catch (e) {
-        showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
-        return;
-      }
-    } else {
-      showErrorMessage(outputChannel, "No action selected.");
+    try {
+      // create the production tag and merge into the main branch.
+      await git.checkoutBranch(branch.name)
+        .then(() => git.createProductionTag())
+        .then(() => git.getMainBranchName())
+        .then(mainBranchName => git.checkoutBranch(mainBranchName))
+        .then(() => git.mergeBranch(branch.name))
+        .then(() => git.push())
+        .then(() => git.pushTags())
+        .then(() => git.deleteBranchForce(branch.name))
+        .then(() => git.deleteRemoteBranchForce(branch.name))
+        .then(() => VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
+    } catch (e) {
+      showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
       return;
     }
 

@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import Git, { GitMode } from "../../../t00ls.git/Git";
 import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
 
 /**
  * Delete a tag.
@@ -16,7 +17,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // fetch the latest updates from remote

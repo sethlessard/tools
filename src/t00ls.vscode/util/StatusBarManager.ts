@@ -1,6 +1,5 @@
-import * as vscode from "vscode";
-
-import { GitMode } from "../../t00ls.git/Git";
+import { StatusBarItem } from "vscode";
+import GitMode from "../../t00ls.common/data/models/GitMode";
 
 class StatusBarManager {
 
@@ -16,13 +15,13 @@ class StatusBarManager {
     return StatusBarManager._instance;
   }
 
-  private _statusBarItem?: vscode.StatusBarItem;
+  private _statusBarItem?: StatusBarItem;
 
   /**
    * Initialize the StatusBarManager with the VS Code StatusBarItem.
    * @param statusBarItem the StatusBarItem.
    */
-  initialize(statusBarItem: vscode.StatusBarItem): StatusBarManager {
+  initialize(statusBarItem: StatusBarItem): StatusBarManager {
     this._statusBarItem = statusBarItem;
     return this;
   }

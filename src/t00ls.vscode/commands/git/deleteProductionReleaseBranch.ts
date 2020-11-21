@@ -1,8 +1,10 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../t00ls.common/presentation/models/Branch";
 
 /**
  * Delete a production release branch
@@ -16,7 +18,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // fetch the latest updates from remote

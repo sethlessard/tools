@@ -1,4 +1,4 @@
-import { GitMode } from "../../../../../../t00ls.git/Git";
+import GitMode from "../../../../../../t00ls.common/domain/entities/GitMode";
 import StatusBarManager from "../../../../../../t00ls.vscode/util/StatusBarManager";
 import GitModeRepository from "../repositories/GitModeRepository";
 

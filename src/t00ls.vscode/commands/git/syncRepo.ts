@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as _ from "lodash";
 
-import Git, { GitMode } from "../../../t00ls.git/Git";
 import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
 
 /**
  * Create a new feature branch
@@ -19,7 +20,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const mode: GitMode = context.workspaceState.get("t00ls.mode") as GitMode;
-    const git = new Git(gitRepo, mode);
+    const git = new t00lsGitRepository(gitRepo, mode);
     await git.initialize();
     const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
 

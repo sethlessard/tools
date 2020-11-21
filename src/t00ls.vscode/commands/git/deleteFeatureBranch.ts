@@ -1,9 +1,12 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import getCurrentBranch from "../../../t00ls.common/domain/usecases/getCurrentBranch";
+import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../t00ls.common/presentation/models/Branch";
 
 /**
  * Delete a feature branch.
@@ -18,7 +21,7 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     }
 
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
     const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
 
@@ -34,14 +37,13 @@ const deleteFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vs
     // get the current branch
     let currentBranch = '';
     try {
-      currentBranch = await git.getCurrentBranch();
+      currentBranch = await getCurrentBranch(git);
+      if (!currentBranch) {
+        throw new Error(`No value returned.`);
+      }
     } catch (e) {
       const error = `There was an error fetching the current branch: ${e}`;
       showErrorMessage(outputChannel, error);
-      return;
-    }
-    if (!currentBranch) {
-      showErrorMessage(outputChannel, `There was an error fetching the current branch: No value returned.`);
       return;
     }
 

@@ -1,6 +1,11 @@
-import { GitMode } from "../../../../../../t00ls.git/Git";
+import GitMode from "../../../../../../t00ls.common/domain/entities/GitMode";
 
 interface GitModeRepository {
+
+  /**
+   * Get the current GitMode.
+   */
+  getGitMode(): GitMode;
 
   /**
    * Set the Git mode.

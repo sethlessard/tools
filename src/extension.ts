@@ -14,7 +14,8 @@ import changeGitMode from "./t00ls.vscode/commands/git/changeGitMode/presentatio
 import StatusBarManager from "./t00ls.vscode/util/StatusBarManager";
 import VSCodeBranchRelationshipRepository from "./t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 import newCleanArchitectureFeature from "./t00ls.vscode/commands/cleanarchitecture/newCleanArchitectureFeature/presentation/views/newCleanArchitectureFeature";
-import { GitMode } from "./t00ls.git//Git";
+import GitMode from "./t00ls.common/presentation/models/GitMode";
+import VSCodeGitModeRepository from "./t00ls.vscode/commands/git/changeGitMode/data/repositories/VSCodeGitModeRepository";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 
@@ -23,8 +24,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	const outputChannel = vscode.window.createOutputChannel("t00ls");
 	Logger.getInstance().initChannel(outputChannel);
 
-	let mode: GitMode | undefined = context.workspaceState.get("t00ls.mode");
-	if (!mode) { mode = GitMode.Normal; await context.workspaceState.update("t00ls.mode", mode); };
+	// TODO: use the GitModeRepository
+	const gitModeRepo = new VSCodeGitModeRepository(context);
+	let mode: GitMode | undefined = gitModeRepo.getGitMode();
+	if (!mode) { mode = GitMode.Normal; await	gitModeRepo.setGitMode(mode);	};
 
 	t00lsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	t00lsStatusBarItem.command = "t00ls.changeGitMode";

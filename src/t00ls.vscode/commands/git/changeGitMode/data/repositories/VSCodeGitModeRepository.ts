@@ -1,5 +1,5 @@
-import { GitMode } from "../../../../../../t00ls.git/Git";
 import { ExtensionContext } from "vscode";
+import GitMode from "../../../../../../t00ls.common/data/models/GitMode";
 import GitModeRepository from "../../domain/repositories/GitModeRepository";
 
 class VSCodeGitModeRepository implements GitModeRepository {
@@ -12,6 +12,12 @@ class VSCodeGitModeRepository implements GitModeRepository {
    */
   constructor(context: ExtensionContext) {
     this._context = context;
+  }
+  /**
+   * Get the current GitMode.
+   */
+  getGitMode(): GitMode {
+    return this._context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal);
   }
 
   /**
