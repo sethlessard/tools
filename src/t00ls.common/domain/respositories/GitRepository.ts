@@ -55,7 +55,7 @@ interface GitRepository {
    * @param tag the tag.
    * @param remote the remote to delete the tag from.
    */
-  deleteTag(tag: string, remote: string): Promise<void>
+  deleteTag(tag: string, remote?: string): Promise<void>
 
 
   /**
@@ -63,7 +63,7 @@ interface GitRepository {
    * @param tags the tags to delete.
    * @param remote the remote to use. Default is "origin"
    */
-  deleteTags(tags: string[], remote: string): Promise<void>;
+  deleteTags(tags: string[], remote?: string): Promise<void>;
 
   /**
    * Fetch a remote, pruning branches and tags

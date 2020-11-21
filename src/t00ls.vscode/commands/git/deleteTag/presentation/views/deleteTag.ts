@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
-import GitMode from "../../../t00ls.common/presentation/models/GitMode";
+import { showErrorMessage } from "../../../../../util/WindowUtils";
+import t00lsGitRepository from "../../../../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../../../../t00ls.common/presentation/models/GitMode";
+import deleteATag from "../../domain/usecases/deleteATag";
+import deleteTags from "../../domain/usecases/deleteTags";
 
 /**
  * Delete a tag.
@@ -36,7 +38,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
       return;
     }
     if (!tags || tags.length === 0) {
-      showErrorMessage(outputChannel, `There was an error fetching the tags: No return value.`);
+      vscode.window.showInformationMessage("There are no tags.");
       return;
     }
 
@@ -44,12 +46,20 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
     const selectedTags = await vscode.window.showQuickPick(tags, { canPickMany: true, placeHolder: "Which tag(s) would you like to delete? (This deletes the remote tag as well)", ignoreFocusOut: true });
     if (!selectedTags || selectedTags.length === 0) { return; }
 
-    try {
-      await git.deleteTags(selectedTags);
-    } catch (e) {
-      showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
+    if (selectedTags.length === 1) {
+      try {
+        await deleteATag(selectedTags[0], git);
+      } catch (e) {
+        showErrorMessage(outputChannel, `There was an error deleting the tag '${selectedTags[0]}': ${e}`);
+      }
+    } else {
+      try {
+        await deleteTags(selectedTags, git);
+      } catch (e) {
+        showErrorMessage(outputChannel, `There was an error deleting the tags (${selectedTags.join(", ")}): ${e}`);
+      }
     }
-
+    
     vscode.window.showInformationMessage("Done.");
   };
 };
