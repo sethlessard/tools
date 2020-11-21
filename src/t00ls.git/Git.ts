@@ -1,23 +1,27 @@
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
-import { t00lsMode } from "./StatusBarManager";
-import NeedsAsyncInitialization from "../types/NeedsAsyncInitialization";
+import NeedsAsyncInitialization from "../t00ls.types/NeedsAsyncInitialization";
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;
 const REGEX_PRODUCTION_RELEASE = /((.*)-)?v(\d+\.\d+\.\d+)-prep/;
 
-export type Branch = {
-  name: string,
-  lastCommitMessage: string,
-  remote: boolean,
-  origin?: string
+export interface Branch {
+  name: string;
+  lastCommitMessage: string;
+  remote: boolean;
+  origin?: string;
 };
 
 export interface ExecOutput {
   stdout: string;
   stderr: string;
+};
+
+export enum GitMode {
+  Local = "Local",
+  Normal = "Normal"
 };
 
 const EMPTY_EXEC_OUT: ExecOutput = { stdout: "", stderr: "" };
@@ -26,7 +30,7 @@ const EMPTY_EXEC_OUT: ExecOutput = { stdout: "", stderr: "" };
 class Git implements NeedsAsyncInitialization {
 
   private readonly _path: string;
-  private readonly _mode: t00lsMode;
+  private readonly _mode: GitMode;
   private _mainBranchName?: string;
 
   /**
@@ -34,7 +38,7 @@ class Git implements NeedsAsyncInitialization {
    * @param repoPath the path to the Git repository.
    * @param mode the Git mode to use. Local or Normal.
    */
-  constructor(repoPath: string, mode: t00lsMode) {
+  constructor(repoPath: string, mode: GitMode) {
     if (!repoPath) { throw new Error("repoPath must be specified."); }
     this._path = repoPath;
     this._mode = mode;
@@ -132,7 +136,7 @@ class Git implements NeedsAsyncInitialization {
    * @param branch the branch to delete.
    */
   deleteRemoteBranch(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+    if (this._mode === GitMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
 
     return this.hasRemote()
       .then(hasRemote => {
@@ -148,7 +152,7 @@ class Git implements NeedsAsyncInitialization {
    * @param branch the branch to delete.
    */
   deleteRemoteBranchForce(branch: string, origin: string = "origin"): Promise<ExecOutput> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
+    if (this._mode === GitMode.Local) { Promise.resolve(EMPTY_EXEC_OUT); }
 
     return this.hasRemote()
       .then(hasRemote => {
@@ -307,7 +311,7 @@ class Git implements NeedsAsyncInitialization {
    * Get all remote branches
    */
   getAllRemoteBranches(): Promise<Branch[]> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+    if (this._mode === GitMode.Local) { Promise.resolve([]); }
 
     return this.hasRemote()
       .then(hasRemote => {
@@ -327,7 +331,7 @@ class Git implements NeedsAsyncInitialization {
    * Get all remote feature branches.
    */
   getAllRemoteFeatureBranches(): Promise<Branch[]> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+    if (this._mode === GitMode.Local) { Promise.resolve([]); }
     this._checkInitialized();
 
     return this.getAllRemoteBranches()
@@ -338,7 +342,7 @@ class Git implements NeedsAsyncInitialization {
   * Get all remote production release branches.
   */
   getAllRemoteProductionReleaseBranches(): Promise<Branch[]> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+    if (this._mode === GitMode.Local) { Promise.resolve([]); }
 
     return this.getAllRemoteProductionReleaseBranches()
       .then(branches => branches.filter(branch => REGEX_PRODUCTION_RELEASE.test(branch.name)));
@@ -348,7 +352,7 @@ class Git implements NeedsAsyncInitialization {
    * Get all remotes in the Git repository.
    */
   getAllRemotes(): Promise<string[]> {
-    if (this._mode === t00lsMode.Local) { Promise.resolve([]); }
+    if (this._mode === GitMode.Local) { Promise.resolve([]); }
 
     return this._inDir("git remote")
       .then(({ stdout }) => stdout.split("\n").map(r => r.trim()).filter(r => r));
@@ -411,7 +415,7 @@ class Git implements NeedsAsyncInitialization {
    * Check to see if a remote has been configured the repository.
    */
   hasRemote(): Promise<boolean> {
-    if (this._mode === t00lsMode.Local) { return Promise.resolve(false); }
+    if (this._mode === GitMode.Local) { return Promise.resolve(false); }
 
     return this.getAllRemotes().then((remotes) => remotes && remotes.length > 0);
   }

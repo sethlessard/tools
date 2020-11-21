@@ -1,9 +1,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as _ from "lodash";
-import Git from "../../util/Git";
+import Git, { GitMode } from "../../../t00ls.git/Git";
 import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import { t00lsMode } from "../../util/StatusBarManager";
 import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
@@ -18,12 +17,12 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const mode: t00lsMode = context.workspaceState.get("t00ls.mode") as t00lsMode;
+    const mode: GitMode = context.workspaceState.get("t00ls.mode") as GitMode;
     const git = new Git(gitRepo, mode);
     await git.initialize();
     const relationshipCache = BranchRelationshipCache.getInstance();
 
-    if (mode === t00lsMode.Normal) {
+    if (mode === GitMode.Normal) {
       // fetch the latest updates from remote
       try {
         await git.fetch();
@@ -90,7 +89,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       }
     }
 
-    if (mode === t00lsMode.Normal) {
+    if (mode === GitMode.Normal) {
       // pull the main branch
       try {
         await git.pull();
@@ -120,7 +119,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      if (mode === t00lsMode.Normal && hasRemoteBranch) {
+      if (mode === GitMode.Normal && hasRemoteBranch) {
         // pull the latest changes from remote
         try {
           await git.pull();
@@ -138,7 +137,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      if (mode === t00lsMode.Normal) {
+      if (mode === GitMode.Normal) {
         // push
         if (!hasRemoteBranch) {
           // ask the user if they want to publish the production release branch.
@@ -182,7 +181,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         return;
       }
 
-      if (mode === t00lsMode.Normal) {
+      if (mode === GitMode.Normal) {
         if (hasRemoteBranch) {
           // pull the latest changes from remote
           try {
@@ -243,7 +242,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
         }
       }
 
-      if (mode === t00lsMode.Normal) {
+      if (mode === GitMode.Normal) {
         // push
         if (!hasRemoteBranch) {
           // ask the user if they want to publish the production release branch.

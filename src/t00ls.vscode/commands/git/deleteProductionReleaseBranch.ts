@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import Git, { Branch } from "../../util/Git";
+import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import { t00lsMode } from "../../util/StatusBarManager";
 import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
 
 /**
@@ -17,7 +16,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // fetch the latest updates from remote

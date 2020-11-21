@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import Git, { Branch } from "../../util/Git";
-import { t00lsMode } from "../../util/StatusBarManager";
+import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
 
 import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
 import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
@@ -18,7 +17,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as t00lsMode));
+    const git = new Git(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
     await git.initialize();
 
     // check to see if there are working changes in the directory.

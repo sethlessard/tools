@@ -1,10 +1,6 @@
 import * as vscode from "vscode";
 import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
-import Git from "../../util/Git";
 import Logger from "../../util/Logger";
-import { t00lsMode } from "../../util/StatusBarManager";
-
-import { showErrorMessage } from "../../util/WindowUtils";
 
 /**
  * Create a new production release branch

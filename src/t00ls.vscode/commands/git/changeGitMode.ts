@@ -1,15 +1,16 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 import { showErrorMessage } from "../../util/WindowUtils";
-import StatusBarManager, { t00lsMode } from "../../util/StatusBarManager";
+import StatusBarManager from "../../util/StatusBarManager";
+import { GitMode } from "../../../t00ls.git/Git";
 
 const MODES = [
   {
-    label: t00lsMode.Normal,
+    label: GitMode.Normal,
     description: "Git commands operate in a normal fashion."
   },
   {
-    label: t00lsMode.Local,
+    label: GitMode.Local,
     description: "Git commands only operate locally."
   }
 ];

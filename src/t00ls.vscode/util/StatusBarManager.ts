@@ -1,9 +1,5 @@
 import * as vscode from "vscode";
-
-export enum t00lsMode {
-  Normal = "Normal",
-  Local = "Local"
-};
+import { GitMode } from "../../t00ls.git/Git";
 
 class StatusBarManager {
 
@@ -34,7 +30,7 @@ class StatusBarManager {
    * Set the t00ls Git mode.
    * @param mode the mode.
    */
-  setMode(mode: t00lsMode) {
+  setMode(mode: GitMode) {
     if (!this._statusBarItem) { throw new Error("It looks like you forgot to call initialize()!"); }
     
     this._statusBarItem.text = `t00ls: ${mode.valueOf()}`;
