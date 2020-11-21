@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
-import { promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
+import Git, { Branch, GitMode } from "@t00ls/git/Git";
+import { promptYesNo, showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import BranchRelationshipCache from "@t00ls/vscode/cache/BranchRelationshipCache";
 
 /**
  * Delete a feature branch.

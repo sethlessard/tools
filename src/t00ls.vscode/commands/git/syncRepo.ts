@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as _ from "lodash";
-import Git, { GitMode } from "../../../t00ls.git/Git";
-import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
+
+import Git, { GitMode } from "@t00ls/git/Git";
+import { promptInput, promptYesNo, showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import BranchRelationshipCache from "@t00ls/vscode/cache/BranchRelationshipCache";
 
 /**
  * Create a new feature branch

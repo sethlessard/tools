@@ -1,19 +1,19 @@
 import * as vscode from "vscode";
-import deleteFeatureBranch from "./t00ls.vscode/commands/git/deleteFeatureBranch";
-import deleteProductionReleaseBranch from "./t00ls.vscode/commands/git/deleteProductionReleaseBranch";
-import deleteTag from "./t00ls.vscode/commands/git/deleteTag";
-import mergeFeaturesIntoProductionReleaseBranch from "./t00ls.vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch";
-import newFeatureBranch from "./t00ls.vscode/commands/git/newFeatureBranch";
-import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductionReleaseBranch";
-import syncRepo from "./t00ls.vscode/commands/git/syncRepo";
-import release from "./t00ls.vscode/commands/git/release";
-import Logger from "./t00ls.vscode/util/Logger";
-import clearProductionReleaseFeatureBranchRelationship from "./t00ls.vscode/commands/git/clearProductionReleaseFeatureBranchRelationship";
-import changeGitMode from "./t00ls.vscode/commands/git/changeGitMode";
-import StatusBarManager from "./t00ls.vscode/util/StatusBarManager";
-import BranchRelationshipCache from "./t00ls.vscode/cache/BranchRelationshipCache";
-import newCleanArchitectureFeature from "./t00ls.vscode/commands/cleanarchitecture/newCleanArchitectureFeature";
-import { GitMode } from "./t00ls.git/Git";
+import deleteFeatureBranch from "@t00ls/vscode/commands/git/deleteFeatureBranch";
+import deleteProductionReleaseBranch from "@t00ls/vscode/commands/git/deleteProductionReleaseBranch";
+import deleteTag from "@t00ls/vscode/commands/git/deleteTag";
+import mergeFeaturesIntoProductionReleaseBranch from "@t00ls/vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch";
+import newFeatureBranch from "@t00ls/vscode/commands/git/newFeatureBranch";
+import newProductionReleaseBranch from "@t00ls/vscode/commands/git/newProductionReleaseBranch";
+import syncRepo from "@t00ls/vscode/commands/git/syncRepo";
+import release from "@t00ls/vscode/commands/git/release";
+import Logger from "@t00ls/vscode/util/Logger";
+import clearProductionReleaseFeatureBranchRelationship from "@t00ls/vscode/commands/git/clearProductionReleaseFeatureBranchRelationship";
+import changeGitMode from "@t00ls/vscode/commands/git/changeGitMode/presentation/views/changeGitMode";
+import StatusBarManager from "@t00ls/vscode/util/StatusBarManager";
+import BranchRelationshipCache from "@t00ls/vscode/cache/BranchRelationshipCache";
+import newCleanArchitectureFeature from "@t00ls/vscode/commands/cleanarchitecture/newCleanArchitectureFeature/presentation/views/newCleanArchitectureFeature";
+import { GitMode } from "@t00ls/git/Git";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 

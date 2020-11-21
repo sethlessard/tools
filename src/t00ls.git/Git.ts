@@ -1,7 +1,7 @@
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
-import NeedsAsyncInitialization from "../t00ls.types/NeedsAsyncInitialization";
+import NeedsAsyncInitialization from "@t00ls/common/types/NeedsAsyncInitialization";
 const pExec = promisify(exec);
 
 const REGEX_SHOW_BRANCH = /\*?\s*\[(.*)\]\s+(.*)/;

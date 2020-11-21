@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
+import Git, { Branch, GitMode } from "@t00ls/git/Git";
 
-import { promptInput, promptYesNo, showErrorMessage } from "../../util/WindowUtils";
-import BranchRelationshipCache from "../../cache/BranchRelationshipCache";
+import { promptInput, promptYesNo, showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import BranchRelationshipCache from "@t00ls/vscode/cache/BranchRelationshipCache";
 
 /**
  * Create a new feature branch.

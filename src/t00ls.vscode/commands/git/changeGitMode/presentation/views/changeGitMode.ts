@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import { showErrorMessage } from "../../util/WindowUtils";
-import StatusBarManager from "../../util/StatusBarManager";
-import { GitMode } from "../../../t00ls.git/Git";
+
+import { showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import { GitMode } from "@t00ls/git/Git";
+import setGitMode from "../../domain/usecases/setGitMode";
 
 const MODES = [
   {
@@ -33,9 +34,12 @@ const changeGitMode = (context: vscode.ExtensionContext, outputChannel: vscode.O
     const mode = await vscode.window.showQuickPick(MODES, { canPickMany: false, placeHolder: "Select the mode", ignoreFocusOut: true });
     if (!mode) { return; };
 
-    context.workspaceState.update("t00ls.mode", mode.label)
-      .then(() => StatusBarManager.getInstance().setMode(mode.label))
-      .then(() => vscode.window.showInformationMessage((mode.label === "Local") ? LOCAL_ONLY_MODE_MESSAGE : NORMAL_MODE_MESSAGE));
+    try {
+      await setGitMode(mode.label, context)
+        .then(() => vscode.window.showInformationMessage((mode.label === "Local") ? LOCAL_ONLY_MODE_MESSAGE : NORMAL_MODE_MESSAGE));
+    } catch (error) {
+      vscode.window.showErrorMessage(`An error occurred changing the Git mode: ${error}`);
+    }
   };
 };
 
