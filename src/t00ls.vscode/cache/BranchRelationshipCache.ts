@@ -1,5 +1,5 @@
 import { ExtensionContext } from "vscode";
-import NeedsSyncInitialization from "@t00ls/common/types/NeedsSyncInitialization";
+import NeedsSyncInitialization from "../../t00ls.common/types/NeedsSyncInitialization";
 
 export interface BranchRelationship {
   featureBranch: string;

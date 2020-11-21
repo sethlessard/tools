@@ -1,8 +1,8 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
-import Git, { GitMode } from "@t00ls/git/Git";
-import { promptInput, promptVersion, promptYesNo, showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import Git, { GitMode } from "../../../t00ls.git/Git";
+import { promptInput, promptVersion, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 
 /**
  * Create a new production release branch

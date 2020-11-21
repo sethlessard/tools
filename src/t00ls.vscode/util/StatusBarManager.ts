@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { GitMode } from "@t00ls/git/Git";
+import { GitMode } from "../../t00ls.git/Git";
 
 class StatusBarManager {
 

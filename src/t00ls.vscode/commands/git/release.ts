@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import Git, { Branch, GitMode } from "@t00ls/git/Git";
-import { showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
-import BranchRelationshipCache from "@t00ls/vscode/cache/BranchRelationshipCache";
+import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
+import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
+import BranchRelationshipCache from "../../../t00ls.vscode/cache/BranchRelationshipCache";
 
 /**
  * Release the next production version of the current project.

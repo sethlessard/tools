@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import Git, { GitMode } from "@t00ls/git/Git";
-import { showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import Git, { GitMode } from "../../../t00ls.git/Git";
+import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 
 /**
  * Delete a tag.

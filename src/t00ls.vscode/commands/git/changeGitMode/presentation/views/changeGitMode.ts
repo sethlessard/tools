@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import { showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
-import { GitMode } from "@t00ls/git/Git";
+import { showErrorMessage } from "../../../../../../t00ls.vscode/util/WindowUtils";
+import { GitMode } from "../../../../../../t00ls.git/Git";
 import setGitMode from "../../domain/usecases/setGitMode";
+import VSCodeGitModeRepository from "../../data/repositories/VSCodeGitModeRepository";
 
 const MODES = [
   {
@@ -35,7 +36,7 @@ const changeGitMode = (context: vscode.ExtensionContext, outputChannel: vscode.O
     if (!mode) { return; };
 
     try {
-      await setGitMode(mode.label, context)
+      await setGitMode(mode.label, new VSCodeGitModeRepository(context))
         .then(() => vscode.window.showInformationMessage((mode.label === "Local") ? LOCAL_ONLY_MODE_MESSAGE : NORMAL_MODE_MESSAGE));
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred changing the Git mode: ${error}`);

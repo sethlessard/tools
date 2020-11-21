@@ -2,8 +2,8 @@ import * as vscode from "vscode";
 import * as _ from "lodash";
 import * as path from "path";
 
-import Git, { Branch, GitMode } from "@t00ls/git/Git";
-import { promptInput, promptYesNo, showErrorMessage } from "@t00ls/vscode/util/WindowUtils";
+import Git, { Branch, GitMode } from "../../../t00ls.git/Git";
+import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
 
 /**
  * Merge one or more feature branches into a production release branch.

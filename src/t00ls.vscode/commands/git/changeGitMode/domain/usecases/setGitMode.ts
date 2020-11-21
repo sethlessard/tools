@@ -1,15 +1,15 @@
-import { ExtensionContext } from "vscode";
-
-import { GitMode } from "@t00ls/git/Git";
-import StatusBarManager from "@t00ls/vscode/util/StatusBarManager";
+import { GitMode } from "../../../../../../t00ls.git/Git";
+import StatusBarManager from "../../../../../../t00ls.vscode/util/StatusBarManager";
+import GitModeRepository from "../repositories/GitModeRepository";
 
 /**
- * 
+ * Set the Git mode.
  * @param mode the GitMode
  * @param context the ExtensionContext.
  */
-const setGitMode = (mode: GitMode, context: ExtensionContext) => {
-  return context.workspaceState.update("t00ls.mode", mode.valueOf())
+const setGitMode = (mode: GitMode, gitModeRepository: GitModeRepository) => {
+  return gitModeRepository.setGitMode(mode)
+    // update the status bar item
     .then(() => StatusBarManager.getInstance().setMode(mode));
 };
 
