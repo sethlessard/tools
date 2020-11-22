@@ -5,7 +5,7 @@ import deleteProductionReleaseBranch from "./t00ls.vscode/commands/git/deletePro
 import deleteTag from "./t00ls.vscode/commands/git/deleteTag/presentation/views/deleteTag";
 import mergeFeaturesIntoProductionReleaseBranch from "./t00ls.vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch/presentation/views/mergeFeaturesIntoProductionReleaseBranch";
 import newFeatureBranch from "./t00ls.vscode/commands/git/newFeatureBranch/presentation/views/newFeatureBranch";
-import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductionReleaseBranch";
+import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductionReleaseBranch/presentation/views/newProductionReleaseBranch";
 import syncRepo from "./t00ls.vscode/commands/git/syncRepo/presentation/views/syncRepo";
 import release from "./t00ls.vscode/commands/git/release/presentation/views/release";
 import Logger from "./t00ls.vscode/util/Logger";
