@@ -61,7 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
 		e.added.forEach(registerWorkspace);
 		e.removed.forEach(w => {
-			logger.writeLn(`Unloading any configurations for workspace '${w.name}': ${w.uri.fsPath}`)
+			logger.writeLn(`Unloading any configurations for workspace '${w.name}': ${w.uri.fsPath}`);
 			// remove the workspace t00ls configuration
 			configManager.removeConfig(w.uri.fsPath);
 		});
