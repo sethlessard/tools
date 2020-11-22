@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
-import { promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
-import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
-import GitMode from "../../../t00ls.common/presentation/models/GitMode";
-import Branch from "../../../t00ls.common/presentation/models/Branch";
+import { promptYesNo, showErrorMessage } from "../../../../../util/WindowUtils";
+import VSCodeBranchRelationshipRepository from "../../../../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import t00lsGitRepository from "../../../../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../../../../t00ls.common/presentation/models/Branch";
+import deleteAProductionReleaseBranch from "../../domain/usecases/deleteAProductionReleaseBranch";
 
 /**
  * Delete a production release branch
@@ -64,52 +65,12 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     const branch = _.find<Branch>(productionReleaseBranches, { name: selected.label });
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
-    // Before deleting a production release branch, check to see if
-    // the branch has been merged into the main branch.
-    const mainBranchName = await git.getMainBranchName();
-    const numCommitsAheadOfMain = await git.getNumberOfCommitsAheadOfBranch(mainBranchName, selected.label);
-    if (numCommitsAheadOfMain > 0) {
-      if (!(await promptYesNo({ question: `There are commits in '${selected.label}' that do not exist in '${mainBranchName}'. Delete?`, noIsDefault: true, ignoreFocusOut: true }))) { return; }
+    try {
+      await deleteAProductionReleaseBranch(branch, (await promptYesNo({ question: `Force delete '${branch.name}'?` })), git, VSCodeBranchRelationshipRepository.getInstance())
+        .then(() => vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`));
+    } catch (error) {
+      vscode.window.showErrorMessage(`An error occurred when deleting '${branch.name}': ${error}`);
     }
-
-    if (branch.name === currentBranch) {
-      // switch to the main branch
-      try {
-        await git.checkoutBranch(mainBranchName);
-      } catch (e) {
-        showErrorMessage(outputChannel, `There was an error switching to '${mainBranchName}': ${e}`);
-        return;
-      }
-    }
-
-    // clear branch relationships
-    await VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name);
-
-    if (branch.remote) {
-      // this production release branch only exists in the remote repository
-      try {
-        await git.deleteRemoteBranchForce(branch.name);
-      } catch (e) {
-        showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
-        return;
-      }
-    } else {
-      try {
-        await git.deleteBranchForce(branch.name);
-      } catch (e) {
-        showErrorMessage(outputChannel, `There was an error deleting the production release branch '${branch.name}': ${e}`);
-        return;
-      }
-      // there may also be a remote repository
-      try {
-        await git.deleteRemoteBranchForce(branch.name);
-      } catch (e) {
-        showErrorMessage(outputChannel, `There was an error deleting the remote production release branch '${branch.name}': ${e}`);
-        return;
-      }
-    }
-
-    vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`);
   };
 };
 
