@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import deleteFeatureBranch from "./t00ls.vscode/commands/git/deleteFeatureBranch/presentation/views/deleteFeatureBranch";
 import deleteProductionReleaseBranch from "./t00ls.vscode/commands/git/deleteProductionReleaseBranch/presentation/views/deleteProductionReleaseBranch";
 import deleteTag from "./t00ls.vscode/commands/git/deleteTag/presentation/views/deleteTag";
-import mergeFeaturesIntoProductionReleaseBranch from "./t00ls.vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch";
+import mergeFeaturesIntoProductionReleaseBranch from "./t00ls.vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch/presentation/views/mergeFeaturesIntoProductionReleaseBranch";
 import newFeatureBranch from "./t00ls.vscode/commands/git/newFeatureBranch/presentation/views/newFeatureBranch";
 import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductionReleaseBranch";
 import syncRepo from "./t00ls.vscode/commands/git/syncRepo/presentation/views/syncRepo";

@@ -2,10 +2,11 @@ import * as vscode from "vscode";
 import * as _ from "lodash";
 import * as path from "path";
 
-import { promptInput, promptYesNo, showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
-import GitMode from "../../../t00ls.common/presentation/models/GitMode";
-import Branch from "../../../t00ls.common/presentation/models/Branch";
+import { promptInput, promptYesNo, showErrorMessage } from "../../../../../util/WindowUtils";
+import t00lsGitRepository from "../../../../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../../../../t00ls.common/presentation/models/Branch";
+import mergeOneOrMoreFeatureBranchesIntoAProducitonReleaseBranch from "../../domain/usecases/mergeOneOrMoreFeaturesIntoAProducitonReleaseBranch";
 
 /**
  * Merge one or more feature branches into a production release branch.
@@ -59,7 +60,7 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
     // get the local feature branches in the repository
-    let featureBranches = [];
+    let featureBranches: Branch[] = [];
     try {
       featureBranches = await git.getAllLocalFeatureBranches();
     } catch (e) {
@@ -80,24 +81,14 @@ const mergeFeaturesIntoProductionReleaseBranch = (context: vscode.ExtensionConte
       showErrorMessage(outputChannel, "No feature branches selected.");
       return;
     };
+    const featureBranchesToMerge = selectedFeatureBranches.map(f => _.find(featureBranches, { name: f.label })!!);
 
-    // switch to the production release branch
     try {
-      await git.checkoutBranch(selectedProductionRelease.label);
-    } catch (e) {
-      showErrorMessage(outputChannel, `Error switching to production release branch '${selectedProductionRelease.label}': ${e}`);
-      return;
+      await mergeOneOrMoreFeatureBranchesIntoAProducitonReleaseBranch(selectedProductionRelease.label, featureBranchesToMerge, git)
+        .then(() => vscode.window.showInformationMessage("Done. Don't forget to sync."));
+    } catch (error) {
+      showErrorMessage(outputChannel, `Error merging features into '${selectedProductionRelease.label}': ${error}`);
     }
-
-    for (const branch of selectedFeatureBranches) {
-      try {
-        await git.mergeBranch(branch.label);
-      } catch (e) {
-        showErrorMessage(outputChannel, `Error merging '${branch.label}' into '${selectedProductionRelease.label}': ${e}`);
-      }
-    }
-
-    vscode.window.showInformationMessage("Done.");
   };
 };
 
