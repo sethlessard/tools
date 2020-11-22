@@ -1,6 +1,6 @@
 import GitMode from "../../../../../../t00ls.common/domain/entities/GitMode";
 import StatusBarManager from "../../../../../../t00ls.vscode/util/StatusBarManager";
-import GitModeRepository from "../repositories/GitModeRepository";
+import GitModeRepository from "../../../../../../t00ls.common/domain/respositories/GitModeRepository";
 
 /**
  * Set the Git mode.

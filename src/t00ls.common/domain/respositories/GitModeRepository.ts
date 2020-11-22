@@ -1,4 +1,4 @@
-import GitMode from "../../../../../../t00ls.common/domain/entities/GitMode";
+import GitMode from "../entities/GitMode";
 
 interface GitModeRepository {
 
