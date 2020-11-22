@@ -1,23 +1,26 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { existsSync } from "fs";
-import { readJSONSync } from "fs-extra";
 
-import deleteFeatureBranch from "./commands/git/deleteFeatureBranch";
-import deleteProductionReleaseBranch from "./commands/git/deleteProductionReleaseBranch";
-import deleteTag from "./commands/git/deleteTag";
-import mergeFeaturesIntoProductionReleaseBranch from "./commands/git/mergeFeaturesIntoProductionReleaseBranch";
-import newFeatureBranch from "./commands/git/newFeatureBranch";
-import newProductionReleaseBranch from "./commands/git/newProductionReleaseBranch";
-import syncRepo from "./commands/git/syncRepo";
-import release from "./commands/git/release";
-import Logger from "./util/Logger";
-import clearProductionReleaseFeatureBranchRelationship from "./commands/git/clearProductionReleaseFeatureBranchRelationship";
-import changeGitMode from "./commands/git/changeGitMode";
-import StatusBarManager, { t00lsMode } from "./util/StatusBarManager";
-import BranchRelationshipCache from "./cache/BranchRelationshipCache";
+import deleteFeatureBranch from "./t00ls.vscode/commands/git/deleteFeatureBranch/presentation/views/deleteFeatureBranch";
+import deleteProductionReleaseBranch from "./t00ls.vscode/commands/git/deleteProductionReleaseBranch/presentation/views/deleteProductionReleaseBranch";
+import deleteTag from "./t00ls.vscode/commands/git/deleteTag/presentation/views/deleteTag";
+import mergeFeaturesIntoProductionReleaseBranch from "./t00ls.vscode/commands/git/mergeFeaturesIntoProductionReleaseBranch/presentation/views/mergeFeaturesIntoProductionReleaseBranch";
+import newFeatureBranch from "./t00ls.vscode/commands/git/newFeatureBranch/presentation/views/newFeatureBranch";
+import newProductionReleaseBranch from "./t00ls.vscode/commands/git/newProductionReleaseBranch/presentation/views/newProductionReleaseBranch";
+import syncRepo from "./t00ls.vscode/commands/git/syncRepo/presentation/views/syncRepo";
+import release from "./t00ls.vscode/commands/git/release/presentation/views/release";
+import Logger from "./t00ls.vscode/util/Logger";
+import clearProductionReleaseFeatureBranchRelationship from "./t00ls.vscode/commands/git/cleanProductionReleaseFeatureBranchRelationship/presentation/views/clearProductionReleaseFeatureBranchRelationship";
+import changeGitMode from "./t00ls.vscode/commands/git/changeGitMode/presentation/views/changeGitMode";
+import StatusBarManager from "./t00ls.vscode/util/StatusBarManager";
+import VSCodeBranchRelationshipRepository from "./t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import newCleanArchitectureFeature from "./t00ls.vscode/commands/cleanarchitecture/newCleanArchitectureFeature/presentation/views/newCleanArchitectureFeature";
+import GitMode from "./t00ls.common/presentation/models/GitMode";
+import VSCodeGitModeRepository from "./t00ls.common/data/repositories/VSCodeGitModeRepository";
 import ConfigManager from "./config/ConfigManager";
+import { existsSync } from "fs";
 import t00lsConfiguration from "./types/config/t00lsConfiguration";
+import { readJSONSync } from "fs-extra";
 
 let t00lsStatusBarItem: vscode.StatusBarItem;
 
@@ -27,9 +30,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	const logger = Logger.getInstance();
 	logger.initChannel(outputChannel);
 
-	// get the t00ls mode
-	let mode: t00lsMode | undefined = context.workspaceState.get("t00ls.mode");
-	if (!mode) { mode = t00lsMode.Normal; await context.workspaceState.update("t00ls.mode", mode); };
+	const gitModeRepo = new VSCodeGitModeRepository(context);
+	let mode: GitMode = gitModeRepo.getGitMode();
 
 	// initialize the status bar item.
 	t00lsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -39,8 +41,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	t00lsStatusBarItem.show();
 	StatusBarManager.getInstance().initialize(t00lsStatusBarItem).setMode(mode);
 
-	// initialize the BranchRelationshipCache
-	BranchRelationshipCache.getInstance().initialize(context);
+	// initialize the VSCodeBranchRelationshipRepository
+	VSCodeBranchRelationshipRepository.getInstance().initialize(context);
 
 	const configManager = ConfigManager.getInstance();
 	// register the current workspaces
@@ -95,6 +97,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const syncRepoDisposable = vscode.commands.registerCommand("t00ls.syncRepo", syncRepo(context, outputChannel));
 	context.subscriptions.push(syncRepoDisposable);
+
+	// new clean architecture feature
+	const newCAFeatureDisposable = vscode.commands.registerCommand("t00ls.newCleanArchitectureFeature", (fileUri) => newCleanArchitectureFeature(fileUri, context, outputChannel));
+	context.subscriptions.push(newCAFeatureDisposable);
 }
 
 export function deactivate() { }
