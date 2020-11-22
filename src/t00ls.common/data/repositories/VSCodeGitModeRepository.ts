@@ -2,6 +2,7 @@ import { ExtensionContext } from "vscode";
 import GitMode from "../models/GitMode";
 import GitModeRepository from "../../../t00ls.vscode/commands/git/changeGitMode/domain/repositories/GitModeRepository";
 
+const t00ls_MODE_KEY = "t00ls.mode";
 class VSCodeGitModeRepository implements GitModeRepository {
 
   private readonly _context: ExtensionContext;
@@ -17,7 +18,7 @@ class VSCodeGitModeRepository implements GitModeRepository {
    * Get the current GitMode.
    */
   getGitMode(): GitMode {
-    return this._context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal);
+    return this._context.workspaceState.get<GitMode>(t00ls_MODE_KEY, GitMode.Normal);
   }
 
   /**
@@ -25,7 +26,7 @@ class VSCodeGitModeRepository implements GitModeRepository {
  * @param gitMode the Git mode.
  */
   setGitMode(gitMode: GitMode): Thenable<void> {
-    return this._context.workspaceState.update("t00ls.mode", gitMode.valueOf());
+    return this._context.workspaceState.update(t00ls_MODE_KEY, gitMode.valueOf());
   }
 }
 

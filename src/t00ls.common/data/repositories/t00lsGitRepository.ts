@@ -161,6 +161,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * @param remote the remote to fetch.
    */
   fetch(remote: string = "origin"): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
     return this.hasRemote()
       .then(hasRemote => {
         if (!hasRemote) {
@@ -401,6 +402,8 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * @param origin the remote to use. default is 'origin'.
    */
   hasRemoteBranch(branch: string, origin: string = "origin"): Promise<boolean> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(false); }
+
     return this.getAllRemoteBranches()
       .then(branches => branches && _.find(branches, { name: branch, remote: true, origin }) !== undefined);
   }
@@ -441,6 +444,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Pull the current branch.
    */
   pull(): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
@@ -454,6 +458,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Push the current branch.
    */
   push(): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {
@@ -467,6 +472,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Push all the tags in the local repository to the remote repository.
    */
   pushTags(): Promise<void> {
+    if (this._mode === GitMode.Local) { return Promise.resolve(); }
     return this.hasRemote()
       .then(hasRemote => {
         if (hasRemote) {

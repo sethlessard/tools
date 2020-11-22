@@ -186,7 +186,7 @@ interface GitRepository {
    * @param branch the branch.
    * @param origin the remote to use. default is 'origin'.
    */
-  hasRemoteBranch(branch: string, origin: string): Promise<boolean>;
+  hasRemoteBranch(branch: string, origin?: string): Promise<boolean>;
 
   /**
    * Check to see if there are working changes (tracked and untracked) in the current Git repository.
@@ -223,7 +223,7 @@ interface GitRepository {
    * Setup remote tracking and push the current branch.
    * @param remote the remote repository to setup tracking against.
    */
-  setupTrackingAndPush(remote: string): Promise<void>;
+  setupTrackingAndPush(remote?: string): Promise<void>;
 
   /**
    * Stage a file or a directory.
