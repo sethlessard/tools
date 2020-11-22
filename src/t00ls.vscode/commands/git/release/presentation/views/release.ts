@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import * as _ from "lodash";
 
-import { showErrorMessage } from "../../../t00ls.vscode/util/WindowUtils";
-import VSCodeBranchRelationshipRepository from "../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
-import t00lsGitRepository from "../../../t00ls.common/data/repositories/t00lsGitRepository";
-import GitMode from "../../../t00ls.common/presentation/models/GitMode";
-import Branch from "../../../t00ls.common/presentation/models/Branch";
+import { showErrorMessage } from "../../../../../util/WindowUtils";
+import VSCodeBranchRelationshipRepository from "../../../../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
+import t00lsGitRepository from "../../../../../../t00ls.common/data/repositories/t00lsGitRepository";
+import GitMode from "../../../../../../t00ls.common/presentation/models/GitMode";
+import Branch from "../../../../../../t00ls.common/presentation/models/Branch";
+import createTagAndRelease from "../../domain/usecases/createTagAndRelease";
 
 /**
  * Release the next production version of the current project.
@@ -60,22 +61,12 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
 
     try {
       // create the production tag and merge into the main branch.
-      await git.checkoutBranch(branch.name)
-        .then(() => git.createProductionTag())
-        .then(() => git.getMainBranchName())
-        .then(mainBranchName => git.checkoutBranch(mainBranchName))
-        .then(() => git.mergeBranch(branch.name))
-        .then(() => git.push())
-        .then(() => git.pushTags())
-        .then(() => git.deleteBranchForce(branch.name))
-        .then(() => git.deleteRemoteBranchForce(branch.name))
-        .then(() => VSCodeBranchRelationshipRepository.getInstance().clearRelationshipsForProductionReleaseBranch(branch.name));
+      await createTagAndRelease(branch.name, git, VSCodeBranchRelationshipRepository.getInstance())
+        .then(() => vscode.window.showInformationMessage("Done."));
     } catch (e) {
       showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);
       return;
     }
-
-    vscode.window.showInformationMessage("Done.");
   };
 };
 
