@@ -1,9 +1,10 @@
 import DomainFeatureOptions from "../../domain/entities/FeatureOptions";
+import Language from "./Language";
 
 interface FeatureOptions {
   name: string;
   parentDirectory: string;
-  // TODO [TLS-54]: language
+  language: Language;
 }
 
 /**

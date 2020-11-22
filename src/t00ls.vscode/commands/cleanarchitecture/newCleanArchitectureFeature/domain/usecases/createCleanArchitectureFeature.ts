@@ -2,6 +2,7 @@ import * as path from "path";
 import { mkdir, writeFile } from "fs";
 import { promisify } from "util";
 import FeatureOptions from "../entities/FeatureOptions";
+import Language from "../entities/Language";
 
 const pmkdir = promisify(mkdir);
 const pwriteFile = promisify(writeFile);
@@ -34,8 +35,28 @@ const createCleanArchitectureFeature = (options: FeatureOptions) => {
   return Promise.all(
     // create the directory
     directories.map(d => pmkdir(d, { recursive: true })
-      // create the .gitignore
-      .then(() => pwriteFile(path.join(d, ".gitignore"), "Delete this file once the directory is populated.")))
+      // initialize the feature files
+      .then(() => {
+        switch (options.language) {
+          case Language.None:
+            return pwriteFile(path.join(d, ".gitignore"), "Delete this file once the directory is populated.");
+          case Language.Cpp:
+            // TODO: implement
+            break;
+          case Language.JavaScript:
+            // TODO: implement
+            break;
+          case Language.Kotlin:
+            // TODO: implement
+            break;
+          case Language.Python:
+            // TODO: implement
+            break;
+          case Language.TypeScript:
+            // TODO: implement
+            break;
+        }
+      }))
   );
 };
 

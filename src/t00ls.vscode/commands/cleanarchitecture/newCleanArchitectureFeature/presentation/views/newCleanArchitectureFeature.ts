@@ -7,18 +7,18 @@ import { promptInput } from "../../../../../util/WindowUtils";
 import createCleanArchitectureFeature from "../../domain/usecases/createCleanArchitectureFeature";
 import FeatureOptions, { mapToDomainFeatureOptions } from "../models/FeatureOptions";
 import DomainFeatureOptions from "../../domain/entities/FeatureOptions";
+import Language from "../models/Language";
 
 const plstat = promisify(lstat);
 
-// TODO [TLS-54]: implement
-// enum Languages {
-  // Blank = "Blank",
-  // Cpp = "C++",
-  // Kotlin = "Kotlin",
-  // JavaScript = "JavaScript",
-  // Python = "Python",
-  // TypeScript = "TypeScript"
-// };
+const LANGUAGES = [
+  { label: Language.None, detail: "Blank Clean Architecture Feature" },
+  { label: Language.Cpp, detail: "C++ Clean Architecture Feature" },
+  { label: Language.JavaScript, detail: "JavaScript Clean Architecture Feature" },
+  { label: Language.Kotlin, detail: "Kotlin Clean Architecture Feature" },
+  { label: Language.Python, detail: "Python Clean Architecture Feature" },
+  { label: Language.TypeScript, detail: "TypeScript Clean Architecture Feature" }
+];
 
 /**
  * Change the git mode.
@@ -35,9 +35,13 @@ const newCleanArchitectureFeature = async (selectedUri: vscode.Uri, context: vsc
   const featureName = await promptInput({ prompt: "What is the name of the feature?", placeHolder: "newFeature", requireValue: true });
   if (!featureName) { return; }
 
+  const selectedLanguage = await vscode.window.showQuickPick(LANGUAGES, { canPickMany: false, placeHolder: "Which language would you like to use?" });
+  if (!selectedLanguage) { return; }
+
   const featureOptions: FeatureOptions = {
     name: featureName,
-    parentDirectory
+    parentDirectory,
+    language: selectedLanguage.label
   };
   const mappedFeatureOptions: DomainFeatureOptions = mapToDomainFeatureOptions(featureOptions);
 
