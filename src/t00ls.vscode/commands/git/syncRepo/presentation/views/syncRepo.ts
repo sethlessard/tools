@@ -29,7 +29,6 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
 
     // fetch the latest updates from remote
     // and the rest of the Git stuff we need
-    let currentBranch: string = '';
     let featureBranches: BranchWithActions[] = [];
     let productionReleaseBranches: BranchWithActions[] = [];
     let mainBranchName: string = '';
