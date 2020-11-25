@@ -18,9 +18,9 @@ const syncRepository = (git: GitRepository, stashCreated: boolean, localProducti
       return _updateTheMainBranch(git, currentBranch, mainBranchName)
         .then(() => _delay(50))
         // then, update the production release branches
-        .then(() => Promise.all(localProductionReleaseBranches.map(p => _updateProductionReleaseBranch(git, p, mainBranchName).then(() => _delay(50)))))
+        .then(() => Promise.all(localProductionReleaseBranches.map(p => _updateProductionReleaseBranch(git, p, mainBranchName).then(() => _delay(500)))))
         // finally, update the feature branches
-        .then(() => Promise.all(localFeatureBranches.map(f => _updateFeatureBranch(git, f).then(() => _delay(50)))))
+        .then(() => Promise.all(localFeatureBranches.map(f => _updateFeatureBranch(git, f).then(() => _delay(500)))))
         // switch back to the original branch, or the main branch.
         .then(() => git.checkoutBranch(currentBranch).catch(() => {
           onOriginal = false;
