@@ -35,7 +35,6 @@ const syncRepository = (git: GitRepository, stashCreated: boolean, localProducti
             return git.popStash();
           }
         });
-        
     })
     .then();
 };
