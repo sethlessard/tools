@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - master
+      - v*-prep
 
 pool:
   vmImage: 'ubuntu-latest'
