@@ -10,18 +10,8 @@ import DomainFeatureOptions from "../../domain/entities/FeatureOptions";
 
 const plstat = promisify(lstat);
 
-// TODO [TLS-54]: implement
-// enum Languages {
-  // Blank = "Blank",
-  // Cpp = "C++",
-  // Kotlin = "Kotlin",
-  // JavaScript = "JavaScript",
-  // Python = "Python",
-  // TypeScript = "TypeScript"
-// };
-
 /**
- * Change the git mode.
+ * Create a new clean architecture feature.
  * @param selectedUri the URI of the selected item.
  * @param context the t00ls extension context.
  * @param outputChannel the t00ls output channel.
@@ -42,7 +32,7 @@ const newCleanArchitectureFeature = async (selectedUri: vscode.Uri, context: vsc
   const mappedFeatureOptions: DomainFeatureOptions = mapToDomainFeatureOptions(featureOptions);
 
   try {
-      await createCleanArchitectureFeature(mappedFeatureOptions);
+    await createCleanArchitectureFeature(mappedFeatureOptions);
   } catch (error) {
     vscode.window.showErrorMessage(`An error occurred: ${error}`);
     return;
