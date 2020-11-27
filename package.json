@@ -114,12 +114,13 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "npm install && npm run compile",
+		"vscode:prepublish": "npm run clean && npm install && npm run compile",
+		"clean": "rimraf out/",
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"package": "vsce package",
-		"pretest": "npm run compile && npm run lint",
+		"pretest": "npm run clean && npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js"
 	},
 	"dependencies": {
