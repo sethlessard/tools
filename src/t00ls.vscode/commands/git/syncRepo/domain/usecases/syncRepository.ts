@@ -16,10 +16,11 @@ const syncRepository = (git: GitRepository, stashCreated: boolean, localProducti
       let onOriginal = true;
       // update the main branch first
       return _updateTheMainBranch(git, currentBranch, mainBranchName)
+        .then(() => _delay(50))
         // then, update the production release branches
-        .then(() => Promise.all(localProductionReleaseBranches.map(p => _updateProductionReleaseBranch(git, p, mainBranchName))))
+        .then(() => Promise.all(localProductionReleaseBranches.map(p => _updateProductionReleaseBranch(git, p, mainBranchName).then(() => _delay(500)))))
         // finally, update the feature branches
-        .then(() => Promise.all(localFeatureBranches.map(f => _updateFeatureBranch(git, f))))
+        .then(() => Promise.all(localFeatureBranches.map(f => _updateFeatureBranch(git, f).then(() => _delay(500)))))
         // switch back to the original branch, or the main branch.
         .then(() => git.checkoutBranch(currentBranch).catch(() => {
           onOriginal = false;
@@ -34,9 +35,16 @@ const syncRepository = (git: GitRepository, stashCreated: boolean, localProducti
             return git.popStash();
           }
         });
-        
     })
     .then();
+};
+
+/**
+ * Async delay.
+ * @param ms the number of milliseconds to delay by.
+ */
+const _delay = (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 /**
@@ -53,6 +61,7 @@ const _updateTheMainBranch = (git: GitRepository, currentBranch: string, mainBra
         return git.checkoutBranch(mainBranchName);
       }
     })
+    .then(() => _delay(50))
     // pull the main branch
     .then(() => git.pull())
     // push the main branch
@@ -69,6 +78,7 @@ const _updateFeatureBranch = (git: GitRepository, featureBranch: BranchWithActio
   return Promise.resolve()
     // switch to the feature branch.
     .then(() => git.checkoutBranch(featureBranch.name))
+    .then(() => _delay(50))
     // check to see if the branch is published
     .then(() => git.hasRemoteBranch(featureBranch.name))
     // If a remote copy of the feature branch exists, pull the branch.
@@ -89,6 +99,7 @@ const _updateFeatureBranch = (git: GitRepository, featureBranch: BranchWithActio
         return git.mergeBranch(featureBranch.baseBranch!!);
       }
     })
+    .then(() => _delay(50))
     // push the feature branch
     .then(() => git.push());
 };
@@ -103,6 +114,7 @@ const _updateProductionReleaseBranch = (git: GitRepository, productionReleaseBra
   return Promise.resolve()
     // switch to the production release branch.
     .then(() => git.checkoutBranch(productionReleaseBranch.name))
+    .then(() => _delay(50))
     // check to see if the branch is published
     .then(() => git.hasRemoteBranch(productionReleaseBranch.name))
     // If a remote copy of the production release branch exists, pull the branch.
@@ -117,6 +129,7 @@ const _updateProductionReleaseBranch = (git: GitRepository, productionReleaseBra
         return git.setupTrackingAndPush();
       }
     })
+    .then(() => _delay(50))
     // merge the main branch into the production release branch
     .then(() => git.mergeBranch(mainBranchName))
     // push the production release branch

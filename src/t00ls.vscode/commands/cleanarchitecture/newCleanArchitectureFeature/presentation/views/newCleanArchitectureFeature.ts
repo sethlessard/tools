@@ -21,7 +21,7 @@ const LANGUAGES = [
 ];
 
 /**
- * Change the git mode.
+ * Create a new clean architecture feature.
  * @param selectedUri the URI of the selected item.
  * @param context the t00ls extension context.
  * @param outputChannel the t00ls output channel.
@@ -46,7 +46,7 @@ const newCleanArchitectureFeature = async (selectedUri: vscode.Uri, context: vsc
   const mappedFeatureOptions: DomainFeatureOptions = mapToDomainFeatureOptions(featureOptions);
 
   try {
-      await createCleanArchitectureFeature(mappedFeatureOptions);
+    await createCleanArchitectureFeature(mappedFeatureOptions);
   } catch (error) {
     vscode.window.showErrorMessage(`An error occurred: ${error}`);
     return;
