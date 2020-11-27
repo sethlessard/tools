@@ -156,6 +156,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
       .then();
   }
 
+  // TODO: test
   /**
    * Fetch a remote, pruning branches and tags
    * @param remote the remote to fetch.
