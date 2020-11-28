@@ -1,13 +1,43 @@
-import { describe, test } from "mocha";
+import { assert } from "chai";
+import { execSync } from "child_process";
+import { before, describe, test } from "mocha";
+import GitMode from "../../../../t00ls.common/data/models/GitMode";
+import t00lsGitRepository from "../../../../t00ls.common/data/repositories/t00lsGitRepository";
+import TestHelper from "../../../TestHelper";
 
 const MODE_LOCAL_NOTHING_HAPPENS = "Nothing should happen when the mode is set to 'Local'.";
 
-describe("t00ls.common/data/repositories/t00lsGitRepository", () => {
+const testHelper = TestHelper.getInstance();
+
+describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
+  this.timeout(60000);
 
   describe("checkoutBranch", () => {
-    test("It should be able to switch branches.");
-    test("It should throw an error if the branch does not exist.");
-    test("Nothing should happen when switching to the current branch.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    before(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+    });
+
+    test("It should be able to switch branches.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      assert.strictEqual(await git.getCurrentBranch(), "branch-1");
+
+      assert.doesNotThrow(async () => await git.checkoutBranch("main"));
+      assert.strictEqual(await git.getCurrentBranch(), "main");
+
+      assert.doesNotThrow(async () => await git.checkoutBranch("branch-1"));
+      assert.strictEqual(await git.getCurrentBranch(), "branch-1");
+    });
+    test("It should be able to switch to a remote branch.");
+    test("It should throw an error if the branch does not exist.", () => {
+      assert.throws(async () =>  await git.checkoutBranch("this-branch-does-not-exist"));
+    });
+    test("Nothing should happen when switching to the current branch.", () => {
+      execSync("git checkout main", { cwd: repoPath });
+      assert.doesNotThrow(async () => await git.checkoutBranch("main"));
+    });
   });
 
   describe("checkoutNewBranch", () => {
@@ -139,7 +169,25 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", () => {
   });
 
   describe("getCurrentBranch", () => {
-    test("It should return the name of the current branch.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    before(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+    });
+
+    test("It should return the name of the current branch.", async () => {
+      assert.strictEqual(await git.getCurrentBranch(), "main");
+      
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      assert.strictEqual(await git.getCurrentBranch(), "branch-1");
+      
+      execSync("git checkout -b branch-2", { cwd: repoPath });
+      assert.strictEqual(await git.getCurrentBranch(), "branch-2");
+      
+      execSync("git checkout -b branch-3", { cwd: repoPath });
+      assert.strictEqual(await git.getCurrentBranch(), "branch-3");
+    });
   });
 
   describe("getNumberOfCommitsAheadOfBranch", () => {

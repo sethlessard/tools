@@ -126,7 +126,8 @@
 	"dependencies": {
 		"fs-extra": "9.0.1",
 		"lodash": "4.17.20",
-		"rimraf": "3.0.2"
+		"rimraf": "3.0.2",
+		"uuid": "8.3.1"
 	},
 	"devDependencies": {
 		"@types/chai": "4.2.14",
@@ -136,6 +137,7 @@
 		"@types/mocha": "8.0.4",
 		"@types/node": "14.14.10",
 		"@types/rimraf": "3.0.0",
+		"@types/uuid": "8.3.0",
 		"@types/vscode": "1.50.0",
 		"@typescript-eslint/eslint-plugin": "4.8.2",
 		"@typescript-eslint/parser": "4.8.2",
