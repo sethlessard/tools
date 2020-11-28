@@ -65,8 +65,8 @@ class TestHelper {
     const repositoryPath = this._calculateNewRepositoryPath();
     // create the repository directory
     return pmkdir(repositoryPath, { recursive: true })
-      // initialize the local git repository
-      .then(() => pexec("git init", { cwd: repositoryPath }))
+      // initialize the local git repository with a 'main' branch
+      .then(() => pexec("git init -b main", { cwd: repositoryPath }))
       // set the remote
       .then(() => pexec("git remote add origin http://localhost:3000/repository.git", { cwd: repositoryPath }))
       // create the initial files/main branch or pull the remote
