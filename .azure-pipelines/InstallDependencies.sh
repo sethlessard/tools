@@ -1,8 +1,8 @@
 <#
 Install dependencies required to build t00ls
 #>
-Write-Host "Installing 'vsce'"
+echo "Installing 'vsce'"
 npm install -g vsce
 
-Write-Host "Installing t00ls dependencies"
+echo "Installing t00ls dependencies"
 npm install
