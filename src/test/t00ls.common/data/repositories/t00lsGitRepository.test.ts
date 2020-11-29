@@ -1,48 +1,86 @@
-import { assert } from "chai";
+import { assert, use } from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 import { execSync } from "child_process";
-import { before, describe, test } from "mocha";
+import { writeFileSync } from "fs-extra";
+import { beforeEach, describe, test } from "mocha";
+import * as path from "path";
 import GitMode from "../../../../t00ls.common/data/models/GitMode";
 import t00lsGitRepository from "../../../../t00ls.common/data/repositories/t00lsGitRepository";
 import TestHelper from "../../../TestHelper";
+
+// chai should use the 'chai-as-promised' library
+use(chaiAsPromised);
 
 const MODE_LOCAL_NOTHING_HAPPENS = "Nothing should happen when the mode is set to 'Local'.";
 
 const testHelper = TestHelper.getInstance();
 
-describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
+const createAndStage = (fileName: string, fileContents: string) => {
+  writeFileSync(fileName, fileContents, { encoding: "utf-8" });
+  execSync(`git add ${fileName}`, { cwd: path.dirname(fileName) });
+};
+
+describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   this.timeout(60000);
 
   describe("checkoutBranch", () => {
     let repoPath = "";
     let git: t00lsGitRepository;
-    before(async () => {
+    beforeEach(async () => {
       repoPath = await testHelper.newTestRepository();
       git = new t00lsGitRepository(repoPath, GitMode.Normal);
     });
 
     test("It should be able to switch branches.", async () => {
       execSync("git checkout -b branch-1", { cwd: repoPath });
-      assert.strictEqual(await git.getCurrentBranch(), "branch-1");
+      await assert.becomes(git.getCurrentBranch(), "branch-1");
 
-      assert.doesNotThrow(async () => await git.checkoutBranch("main"));
-      assert.strictEqual(await git.getCurrentBranch(), "main");
+      await assert.isFulfilled(git.checkoutBranch("main"));
+      await assert.becomes(git.getCurrentBranch(), "main");
 
-      assert.doesNotThrow(async () => await git.checkoutBranch("branch-1"));
-      assert.strictEqual(await git.getCurrentBranch(), "branch-1");
+      await assert.isFulfilled(git.checkoutBranch("branch-1"));
+      await assert.becomes(git.getCurrentBranch(), "branch-1");
     });
-    test("It should be able to switch to a remote branch.");
-    test("It should throw an error if the branch does not exist.", () => {
-      assert.throws(async () =>  await git.checkoutBranch("this-branch-does-not-exist"));
-    });
-    test("Nothing should happen when switching to the current branch.", () => {
+
+    test("It should be able to switch to a remote branch.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git push -f -u origin branch-1", { cwd: repoPath });
       execSync("git checkout main", { cwd: repoPath });
-      assert.doesNotThrow(async () => await git.checkoutBranch("main"));
+      execSync("git branch -D branch-1", { cwd: repoPath });
+
+      await assert.becomes(git.getCurrentBranch(), "main");
+      await assert.isFulfilled(git.checkoutBranch("branch-1"));
+      await assert.becomes(git.getCurrentBranch(), "branch-1");
+    });
+
+    test("It should throw an error if the branch does not exist.", async () => {
+      await assert.isRejected(git.checkoutBranch("this-branch-does-not-exist"));
+    });
+
+    test("Nothing should happen when switching to the current branch.", async () => {
+      execSync("git checkout main", { cwd: repoPath });
+      await assert.isFulfilled(git.checkoutBranch("main"));
     });
   });
 
   describe("checkoutNewBranch", () => {
-    test("It should be able to create a new local branch.");
-    test("It should throw an error if the branch already exists.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+    });
+
+    test("It should be able to create a new local branch.", async () => {
+      await assert.becomes(git.hasLocalBranch("branch-1"), false);
+      await assert.isFulfilled(git.checkoutNewBranch("branch-1"));
+      await assert.becomes(git.hasLocalBranch("branch-1"), true);
+    });
+    test("It should throw an error if the branch already exists.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git checkout main", { cwd: repoPath });
+      await assert.isRejected(git.checkoutNewBranch("branch-1"));
+    });
   });
 
   describe("createProductionTag", () => {
@@ -99,7 +137,7 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
     test("It should return an array of all branches in the repository, only returning an entry for the local branch if both a local and remote branch exist.");
     test("It should return an empty array if the repository doesn't contain a commit.");
   });
-  
+
   describe("getAllFeatureBranches", () => {
     test("It should return an array of all feature branches in the repository, both local and remote.");
     test("It should return an empty array when there are no feature branches in the repository.");
@@ -119,17 +157,17 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
 
   describe("getAllLocalFeatureBranches", () => {
     test("It should return an array of all local feature branches in the repository.");
-    test("It should return an empty array if the repository doesn't contain local feature branches."); 
+    test("It should return an empty array if the repository doesn't contain local feature branches.");
   });
 
   describe("getAllLocalProductionReleaseBranches", () => {
     test("It should return an array of all local production release branches in the repository.");
-    test("It should return an empty array if the repository doesn't contain local production release branches."); 
+    test("It should return an empty array if the repository doesn't contain local production release branches.");
   });
 
   describe("getAllProductionReleaseBranches", () => {
     test("It should return an array of all production release branches in the repository, both local and remote.");
-    test("It should return an empty array if the repository doesn't contain production release branches."); 
+    test("It should return an empty array if the repository doesn't contain production release branches.");
     test("It should return an array of all local production release branches in the repository when the mode is set to 'Local'.");
   });
 
@@ -171,20 +209,20 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
   describe("getCurrentBranch", () => {
     let repoPath = "";
     let git: t00lsGitRepository;
-    before(async () => {
+    beforeEach(async () => {
       repoPath = await testHelper.newTestRepository();
       git = new t00lsGitRepository(repoPath, GitMode.Normal);
     });
 
     test("It should return the name of the current branch.", async () => {
       assert.strictEqual(await git.getCurrentBranch(), "main");
-      
+
       execSync("git checkout -b branch-1", { cwd: repoPath });
       assert.strictEqual(await git.getCurrentBranch(), "branch-1");
-      
+
       execSync("git checkout -b branch-2", { cwd: repoPath });
       assert.strictEqual(await git.getCurrentBranch(), "branch-2");
-      
+
       execSync("git checkout -b branch-3", { cwd: repoPath });
       assert.strictEqual(await git.getCurrentBranch(), "branch-3");
     });
@@ -199,26 +237,118 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function() {
   });
 
   describe("hasLocalBranch", () => {
-    test("It should return 'true' when a branch exists locally.");
-    test("It should return 'false' when a branch does not exist locally.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+    });
+
+    test("It should return 'true' when a branch exists locally.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git checkout -b branch-2", { cwd: repoPath });
+      execSync("git checkout -b branch-3", { cwd: repoPath });
+      execSync("git checkout -b branch-4", { cwd: repoPath });
+
+      await assert.becomes(git.hasLocalBranch("main"), true);
+      await assert.becomes(git.hasLocalBranch("branch-1"), true);
+      await assert.becomes(git.hasLocalBranch("branch-2"), true);
+      await assert.becomes(git.hasLocalBranch("branch-3"), true);
+      await assert.becomes(git.hasLocalBranch("branch-4"), true);
+    });
+
+    test("It should return 'false' when a branch does not exist locally.", async () => {
+      await assert.becomes(git.hasLocalBranch("branch-1"), false);
+      await assert.becomes(git.hasLocalBranch("branch-2"), false);
+      await assert.becomes(git.hasLocalBranch("branch-3"), false);
+      await assert.becomes(git.hasLocalBranch("branch-4"), false);
+    });
   });
 
   describe("hasRemote", () => {
-    test("It should return 'true' if a remote has been configured.");
-    test("It should return 'false' if a remote has not been configured.");
-    test("It should return 'false' when the mode is set to 'Local'.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+    });
+
+    test("It should return 'true' if a remote has been configured.", async () => {
+      await assert.becomes(git.hasRemote(), true);
+    });
+
+    test("It should return 'false' if a remote has not been configured.", async () => {
+      execSync("git remote remove origin", { cwd: repoPath });
+      await assert.becomes(git.hasRemote(), false);
+    });
+
+    test("It should return 'false' when the mode is set to 'Local'.", async () => {
+      await assert.becomes(localGit.hasRemote(), false);
+    });
   });
 
   describe("hasRemoteBranch", () => {
-    test("It should return 'true' when a branch exists remotely.");
-    test("It should return 'false' when a branch does not exist remotely.");
-    test("It should return 'false' when the mode is set to 'Local'.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+    });
+
+    test("It should return 'true' when a branch exists remotely.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git push -u origin branch-1", { cwd: repoPath });
+      execSync("git checkout -b branch-2", { cwd: repoPath });
+      execSync("git push -u origin branch-2", { cwd: repoPath });
+
+      await assert.becomes(git.hasRemoteBranch("main"), true);
+      await assert.becomes(git.hasRemoteBranch("branch-1"), true);
+      await assert.becomes(git.hasRemoteBranch("branch-1"), true);
+    });
+    test("It should return 'false' when a branch does not exist remotely.", async () => {
+      await assert.becomes(git.hasRemoteBranch("branch-1"), false);
+      await assert.becomes(git.hasRemoteBranch("branch-1"), false);
+    });
+
+    test("It should return 'false' when the mode is set to 'Local'.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git push -u origin branch-1", { cwd: repoPath });
+      execSync("git checkout -b branch-2", { cwd: repoPath });
+      execSync("git push -u origin branch-2", { cwd: repoPath });
+
+      await assert.becomes(localGit.hasRemoteBranch("main"), false);
+      await assert.becomes(localGit.hasRemoteBranch("branch-1"), false);
+      await assert.becomes(localGit.hasRemoteBranch("branch-1"), false);
+    });
   });
 
   describe("hasWorkingChanges", () => {
-    test("It should return 'true' when there are untracked working changes.");
-    test("It should return 'true' when there are tracked working changes.");
-    test("It should return 'false' when there are no tracked or untracked working changes.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+    });
+
+    test("It should return 'true' when there are untracked working changes.", async () => {
+      writeFileSync(path.join(repoPath, "untrackedChanges.txt"), "This is an untracked change", { encoding: "utf-8" });
+
+      await assert.becomes(git.hasWorkingChanges(), true);
+    });
+
+    test("It should return 'true' when there are tracked working changes.", async () => {
+      createAndStage(path.join(repoPath, "trackedChanges.txt"), "This is a tracked change");
+
+      await assert.becomes(git.hasWorkingChanges(), true);
+    });
+
+    test("It should return 'false' when there are no tracked or untracked working changes.", async () => {
+      await assert.becomes(git.hasWorkingChanges(), false);
+    });
   });
 
   describe("initialize", () => {

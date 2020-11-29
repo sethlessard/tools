@@ -228,8 +228,8 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    */
   getAllLocalBranches(): Promise<Branch[]> {
     return this._inDir("git show-branch --list")
-      .then(out => {
-        const rawLines = out.stdout.split("\n");
+      .then(stdout => {
+        const rawLines = stdout.split("\n");
         const filteredLines = rawLines.filter(line => REGEX_SHOW_BRANCH.test(line));
         const mappedLines = filteredLines.map(line => {
           const matches = line.match(REGEX_SHOW_BRANCH)!!;
@@ -293,7 +293,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
       .then(hasRemote => {
         if (hasRemote) {
           return this._inDir("git show-branch --list --remote")
-            .then(out => out.stdout.split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
+            .then(stdout => stdout.split("\n").filter(line => REGEX_SHOW_BRANCH.test(line)).map(line => {
               const matches = line.match(REGEX_SHOW_BRANCH)!!;
               const name = matches[1].split("/");
               return { name: name[1], lastCommitMessage: matches[2], remote: true, origin: name[0] };
@@ -331,7 +331,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
     if (this._mode === GitMode.Local) { Promise.resolve([]); }
 
     return this._inDir("git remote")
-      .then(({ stdout }) => stdout.split("\n").map(r => r.trim()).filter(r => r));
+      .then(stdout => stdout.split("\n").map(r => r.trim()).filter(r => r));
   }
 
   /**
@@ -339,16 +339,14 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    */
   getAllTags(): Promise<string[]> {
     return this._inDir("git tag -l")
-      .then(({ stdout }) => stdout.split("\n").map(t => t.trim()).filter(t => t));
+      .then(stdout => stdout.split("\n").map(t => t.trim()).filter(t => t));
   }
 
   /**
    * Get the current branch in the local Git repository.
    */
   getCurrentBranch(): Promise<string> {
-    return this._inDir("git branch --show-current")
-      .then((out: { stdout: string, stderr: string }) => out.stdout);
-
+    return this._inDir("git branch --show-current");
   }
 
   /**
@@ -368,15 +366,14 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    */
   getNumberOfCommitsAheadOfBranch(baseBranch: string, branchToCompareAgainst: string): Promise<number> {
     return this._inDir(`git rev-list --count ${baseBranch}...${branchToCompareAgainst}`)
-      .then(({ stdout }) => parseInt(stdout, 10));
+      .then(stdout => parseInt(stdout, 10));
   }
 
   /**
    * Get the root directory of the Git repository.
    */
   getRepositoryDirectory(): Promise<string> {
-    return this._inDir("git rev-parse --show-toplevel")
-      .then(({ stdout }) => stdout);
+    return this._inDir("git rev-parse --show-toplevel");
   }
 
   /**
@@ -414,7 +411,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    */
   hasWorkingChanges(): Promise<boolean> {
     return this._inDir("git status --porcelain")
-      .then(({ stdout }) => stdout.length > 0);
+      .then(stdout => stdout.length > 0);
   }
 
   /**
@@ -531,12 +528,11 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Execute a command in the current directory.
    * @param command the command to execute.
    */
-  private _inDir(command: string): Promise<{ stdout: string, stderr: string }> {
+  private _inDir(command: string): Promise<string> {
     return pExec(command, { cwd: this._path })
       .then((out: { stdout: string, stderr: string }) => {
-        out.stderr = out.stderr.trim();
-        out.stdout = out.stdout.trim();
-        return out;
+        if (out.stderr && out.stderr.toLowerCase().indexOf("error") !== -1) { throw new Error(out.stderr); }
+        return out.stdout.trim();
       });
   }
 
