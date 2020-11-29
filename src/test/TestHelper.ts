@@ -32,7 +32,8 @@ class TestHelper {
    */
   constructor() {
     this._initializationTime = new Date();
-    this._testRoot = path.join(tmpdir(), "t00ls", "Tests", `${this._initializationTime.toLocaleDateString().replace(/\//g, "-")} ${this._initializationTime.toLocaleTimeString().replace(/:/g, "")}`);
+    const initializationDateTimestamp = `${this._initializationTime.toLocaleDateString()} ${this._initializationTime.toLocaleTimeString()}`.replace(/\//g, "-").replace(/:/g, "").replace(/\s+/g, "-");
+    this._testRoot = path.join(tmpdir(), "t00ls", "Tests", initializationDateTimestamp);
   }
 
   /**

@@ -17,7 +17,7 @@ const testHelper = TestHelper.getInstance();
 
 const createAndStage = (fileName: string, fileContents: string) => {
   writeFileSync(fileName, fileContents, { encoding: "utf-8" });
-  execSync(`git add '${fileName}'`, { cwd: path.dirname(fileName) });
+  execSync(`git add ${fileName}`, { cwd: path.dirname(fileName) });
 };
 
 describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
