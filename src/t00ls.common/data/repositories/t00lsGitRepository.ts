@@ -1,6 +1,7 @@
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 import * as _ from "lodash";
+import * as path from "path";
 
 import NeedsAsyncInitialization from "../../types/NeedsAsyncInitialization";
 import Branch from "../models/Branch";
@@ -320,7 +321,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
   getAllRemoteProductionReleaseBranches(): Promise<Branch[]> {
     if (this._mode === GitMode.Local) { Promise.resolve([]); }
 
-    return this.getAllRemoteProductionReleaseBranches()
+    return this.getAllRemoteBranches()
       .then(branches => branches.filter(branch => REGEX_PRODUCTION_RELEASE.test(branch.name)));
   }
 
@@ -373,7 +374,8 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Get the root directory of the Git repository.
    */
   getRepositoryDirectory(): Promise<string> {
-    return this._inDir("git rev-parse --show-toplevel");
+    return this._inDir("git rev-parse --show-toplevel")
+      .then(stdout => path.resolve(stdout));
   }
 
   /**

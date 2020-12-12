@@ -86,7 +86,7 @@ class TestHelper {
         }
       })
       // return the repository path
-      .then(() => console.log(`Using Git repository: ${repositoryPath}`))
+      .then(() => console.log(`      Using Git repository: ${repositoryPath}`))
       .then(() => repositoryPath);
   }
 
