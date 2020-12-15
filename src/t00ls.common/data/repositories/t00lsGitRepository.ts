@@ -329,7 +329,7 @@ class t00lsGitRepository implements GitRepository, NeedsAsyncInitialization {
    * Get all remotes in the Git repository.
    */
   getAllRemotes(): Promise<string[]> {
-    if (this._mode === GitMode.Local) { Promise.resolve([]); }
+    if (this._mode === GitMode.Local) { return Promise.resolve([]); }
 
     return this._inDir("git remote")
       .then(stdout => stdout.split("\n").map(r => r.trim()).filter(r => r));

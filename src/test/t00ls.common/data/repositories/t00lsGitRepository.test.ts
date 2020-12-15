@@ -610,7 +610,7 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
       execSync("git checkout -b branch-1", { cwd: repoPath });
       execSync("git checkout -b branch-2", { cwd: repoPath });
       execSync("git checkout -b branch-3", { cwd: repoPath });
-      
+
       const branches = await git.getAllLocalBranches();
       assert.isDefined(_.find(branches, { name: "branch-1", remote: false }));
       assert.isDefined(_.find(branches, { name: "branch-2", remote: false }));
@@ -730,38 +730,170 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   });
 
   describe("getAllProductionReleaseBranchesFavorLocal", () => {
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+    });
+
     test("It should return an array of all production release branches in the repository, only returning an entry for the local branch if both a local and remote branch exist.");
-    test("It should return an empty array when there are no production release branches in the repository.");
+
+    test("It should return an empty array when there are no production release branches in the repository.", async () => {
+      await assert.becomes(git.getAllProductionReleaseBranchesFavorLocal(), []);
+    });
+
     test("It should return an array of all local production release branches in the repository when the mode is set to 'Local'.");
   });
 
   describe("getAllRemoteBranches", () => {
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+      await localGit.initialize();
+    });
+
     test("It should return an array of all remote branches in the repository.");
-    test("It should return an empty array when there are no remote branches in the repository.");
-    test("It should return an empty array when the mode is set to 'Local'.");
+
+    test("It should return an empty array when there are no remote branches in the repository.", async () => {
+      execSync("git push origin --delete main", { cwd: repoPath });
+      await assert.becomes(git.getAllRemoteBranches(), []);
+    });
+
+    test("It should return an empty array when the mode is set to 'Local'.", async () => {
+      execSync("git checkout -b branch-1", { cwd: repoPath });
+      execSync("git push -u origin branch-1", { cwd: repoPath });
+      execSync("git checkout -b branch-2", { cwd: repoPath });
+      execSync("git push -u origin branch-2", { cwd: repoPath });
+      await assert.becomes(localGit.getAllRemoteBranches(), []);
+    });
   });
 
   describe("getAllRemoteFeatureBranches", () => {
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+      await localGit.initialize();
+    });
+
     test("It should return an array of all remote feature branches in the repository.");
-    test("It should return an empty array when there are no remote feature branches in the repository.");
-    test("It should return an empty array when the mode is set to 'Local'.");
+
+    test("It should return an empty array when there are no remote feature branches in the repository.", async () => {
+      await assert.becomes(git.getAllRemoteFeatureBranches(), []);
+    });
+
+    test("It should return an empty array when the mode is set to 'Local'.", async () => {
+      execSync("git checkout -b feature-1", { cwd: repoPath });
+      execSync("git push -u origin feature-1", { cwd: repoPath });
+      execSync("git checkout -b feature-2", { cwd: repoPath });
+      execSync("git push -u origin feature-2", { cwd: repoPath });
+      await assert.becomes(localGit.getAllRemoteFeatureBranches(), []);
+    });
   });
 
   describe("getAllRemoteProductionReleaseBranches", () => {
-    test("It should return an array of all remote production release branches in the repository.");
-    test("It should return an empty array when there are no remote production release branches in the repository.");
-    test("It should return an empty array when the mode is set to 'Local'.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+      await localGit.initialize();
+    });
+
+    test("It should return an array of all remote production release branches in the repository.", async () => {
+      execSync("git checkout -b v1.1.1-prep", { cwd: repoPath });
+      execSync("git push -u origin v1.1.1-prep", { cwd: repoPath });
+      execSync("git checkout -b test-project-v1.2.3-prep", { cwd: repoPath });
+      execSync("git push -u origin test-project-v1.2.3-prep", { cwd: repoPath });
+      const branches = await git.getAllRemoteProductionReleaseBranches();
+      assert.isDefined(_.find(branches, { name: "v1.1.1-prep" }));
+      assert.isDefined(_.find(branches, { name: "test-project-v1.2.3-prep" }));
+      
+      // there should be no local entries
+      assert.isUndefined(_.find(branches, { remote: false }));
+    });
+
+    test("It should return an empty array when there are no remote feature branches in the repository.", async () => {
+      await assert.becomes(git.getAllRemoteProductionReleaseBranches(), []);
+    });
+
+    test("It should return an empty array when the mode is set to 'Local'.", async () => {
+      execSync("git checkout -b v1.1.1-prep", { cwd: repoPath });
+      execSync("git push -u origin v1.1.1-prep", { cwd: repoPath });
+      execSync("git checkout -b test-project-v1.2.3", { cwd: repoPath });
+      execSync("git push -u origin test-project-v1.2.3", { cwd: repoPath });
+      await assert.becomes(localGit.getAllRemoteProductionReleaseBranches(), []);
+    });
   });
 
   describe("getAllRemotes", () => {
-    test("It should return an array of all remotes in the repository.");
-    test("It should return an empty array if a remote has not yet been configured.");
-    test("It should return an empty array when the mode is set to 'Local'.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+      await localGit.initialize();
+    });
+
+    test("It should return an array of all remotes in the repository.", async () => {
+      await assert.becomes(git.getAllRemotes(), ["origin"]);
+
+      execSync("git remote add upstream http://localhost:3000/anotherrepo", { cwd: repoPath });
+      const remotes = await git.getAllRemotes();
+      assert.notStrictEqual(remotes.indexOf("origin"), -1);
+      assert.notStrictEqual(remotes.indexOf("upstream"), -1);
+    });
+
+    test("It should return an empty array if a remote has not yet been configured.", async () => {
+      execSync("git remote remove origin", { cwd: repoPath });
+      await assert.becomes(git.getAllRemotes(), []);
+    });
+
+    test("It should return an empty array when the mode is set to 'Local'.", async () => {
+      await assert.becomes(localGit.getAllRemotes(), []);
+    });
   });
 
   describe("getAllTags", () => {
-    test("It should return an array of all the tags in the local repository.");
-    test("It should return an empty array if there are no tags.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+    });
+
+    test("It should return an array of all the tags in the local repository.", async () => {
+      execSync(`git tag -a tag1 -m "tag1"`, { cwd: repoPath });
+      execSync(`git tag -a tag2 -m "tag2"`, { cwd: repoPath });
+      execSync(`git tag -a tag3 -m "tag3"`, { cwd: repoPath });
+
+      const tags = await git.getAllTags();
+      assert.notStrictEqual(tags.indexOf("tag1"), -1);
+      assert.notStrictEqual(tags.indexOf("tag2"), -1);
+      assert.notStrictEqual(tags.indexOf("tag3"), -1);
+    });
+
+    test("It should return an empty array if there are no tags.", async () => {
+      await assert.becomes(git.getAllTags(), []);
+    });
   });
 
   describe("getCurrentBranch", () => {
