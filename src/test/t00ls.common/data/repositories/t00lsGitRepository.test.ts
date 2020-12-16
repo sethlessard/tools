@@ -752,19 +752,63 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   describe("getAllProductionReleaseBranchesFavorLocal", () => {
     let repoPath = "";
     let git: t00lsGitRepository;
+    let localGit: t00lsGitRepository;
     beforeEach(async () => {
       repoPath = await testHelper.newTestRepository();
       git = new t00lsGitRepository(repoPath, GitMode.Normal);
       await git.initialize();
+      localGit = new t00lsGitRepository(repoPath, GitMode.Local);
+      await localGit.initialize();
     });
 
-    test("It should return an array of all production release branches in the repository, only returning an entry for the local branch if both a local and remote branch exist.");
+    test("It should return an array of all production release branches in the repository, only returning an entry for the local branch if both a local and remote branch exist.", async () => {
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[2]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[2]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+      execSync(`git checkout main`, { cwd: repoPath });
+      execSync(`git branch -D ${PRODUCTION_RELEASE_BRANCHES[2]} ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+
+      const branches = await git.getAllProductionReleaseBranchesFavorLocal();
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[0], remote: false }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[0], remote: true }));
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[1], remote: false }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[1], remote: true }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[2], remote: false }));
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[2], remote: true }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[3], remote: false }));
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[3], remote: true }));
+    });
 
     test("It should return an empty array when there are no production release branches in the repository.", async () => {
       await assert.becomes(git.getAllProductionReleaseBranchesFavorLocal(), []);
     });
 
-    test("It should return an array of all local production release branches in the repository when the mode is set to 'Local'.");
+    test("It should return an array of all local production release branches in the repository when the mode is set to 'Local'.", async () => {
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[2]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[2]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+      execSync(`git checkout main`, { cwd: repoPath });
+      execSync(`git branch -D ${PRODUCTION_RELEASE_BRANCHES[2]} ${PRODUCTION_RELEASE_BRANCHES[3]}`, { cwd: repoPath });
+
+      const branches = await localGit.getAllProductionReleaseBranchesFavorLocal();
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[0], remote: false }));
+      assert.isDefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[1], remote: false }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[2], remote: false }));
+      assert.isUndefined(_.find(branches, { name: PRODUCTION_RELEASE_BRANCHES[3], remote: false }));
+
+      // no remote branches should be returned
+      assert.isUndefined(_.find(branches, { remote: true }));
+    });
   });
 
   describe("getAllRemoteBranches", () => {
@@ -779,7 +823,23 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
       await localGit.initialize();
     });
 
-    test("It should return an array of all remote branches in the repository.");
+    test("It should return an array of all remote branches in the repository.", async () => {
+      execSync(`git checkout -b branch-1`, { cwd: repoPath });
+      execSync(`git push -u origin branch-1`, { cwd: repoPath });
+      execSync(`git checkout -b branch-2`, { cwd: repoPath });
+      execSync(`git push -u origin branch-2`, { cwd: repoPath });
+      execSync(`git checkout -b branch-3`, { cwd: repoPath });
+      execSync(`git push -u origin branch-3`, { cwd: repoPath });
+      
+      const branches = await git.getAllRemoteBranches();
+      assert.isDefined(_.find(branches, { name: "main" }));
+      assert.isDefined(_.find(branches, { name: "branch-1" }));
+      assert.isDefined(_.find(branches, { name: "branch-2" }));
+      assert.isDefined(_.find(branches, { name: "branch-3" }));
+
+      // there should be no local branches
+      assert.isUndefined(_.find(branches, { remote: false }));
+    });
 
     test("It should return an empty array when there are no remote branches in the repository.", async () => {
       execSync(`git push origin --delete main`, { cwd: repoPath });
@@ -807,7 +867,24 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
       await localGit.initialize();
     });
 
-    test("It should return an array of all remote feature branches in the repository.");
+    test("It should return an array of all remote feature branches in the repository.", async () => {
+      execSync(`git checkout -b ${FEATURE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${FEATURE_BRANCHES[0]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${FEATURE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${FEATURE_BRANCHES[1]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${FEATURE_BRANCHES[2]}`, { cwd: repoPath });
+      execSync(`git checkout -b ${FEATURE_BRANCHES[3]}`, { cwd: repoPath });
+      execSync(`git push -u origin ${FEATURE_BRANCHES[3]}`, { cwd: repoPath });
+      
+      const branches = await git.getAllRemoteBranches();
+      assert.isDefined(_.find(branches, { name: FEATURE_BRANCHES[0] }));
+      assert.isDefined(_.find(branches, { name: FEATURE_BRANCHES[1] }));
+      assert.isUndefined(_.find(branches, { name: FEATURE_BRANCHES[2] }));
+      assert.isDefined(_.find(branches, { name: FEATURE_BRANCHES[3] }));
+
+      // there should be no local branches
+      assert.isUndefined(_.find(branches, { remote: false }));
+    });
 
     test("It should return an empty array when there are no remote feature branches in the repository.", async () => {
       await assert.becomes(git.getAllRemoteFeatureBranches(), []);
@@ -1102,7 +1179,28 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   });
 
   describe("mergeBranch", () => {
-    test("It should merge a branch into another.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+    });
+
+    test("It should merge a branch into another.", async () => {
+      execSync(`git checkout -b branch-1`, { cwd: repoPath });
+      const filePath = path.join(repoPath, "branch1File.txt");
+      createAndStage(filePath, "This file was created on branch-1");
+      execSync(`git commit -m "branch-1 changes"`, { cwd: repoPath });
+
+      // if we switch to the main branch, branch1File.txt should not exist
+      execSync(`git checkout main`, { cwd: repoPath });
+      assert.isFalse(existsSync(filePath));
+
+      await assert.isFulfilled(git.mergeBranch("branch-1"));
+      assert.isTrue(existsSync(filePath));
+    });
+
     test("It should throw an error if there is a merge conflict.");
   });
 
