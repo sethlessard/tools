@@ -1205,9 +1205,30 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   });
 
   describe("popStash", () => {
-    test("It should be able to pop the latest stash.");
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+    });
+
+    test("It should be able to pop the latest stash.", async () => {
+      const fileToStash = path.join(repoPath, "fileToStash.txt");
+      createAndStage(fileToStash, "This file will be stashed.");
+      execSync(`git stash`, { cwd: repoPath }); 
+      assert.isFalse(existsSync(fileToStash));
+
+      await assert.isFulfilled(git.popStash());
+      
+      assert.isTrue(existsSync(fileToStash));
+    });
+
     test("It should throw an error if there is a merge conflict.");
-    test("It should throw an error if there is no stash to pop.");
+
+    test("It should throw an error if there is no stash to pop.", async () => {
+      await assert.isRejected(git.popStash());
+    });
   });
 
   describe("pull", () => {
