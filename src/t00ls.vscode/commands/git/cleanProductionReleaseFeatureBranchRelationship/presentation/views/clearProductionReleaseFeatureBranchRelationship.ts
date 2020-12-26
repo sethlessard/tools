@@ -14,7 +14,7 @@ import getAllBranchRelationships from "../../domain/usecases/getAllBranchRelatio
  */
 const clearProductionReleaseFeatureBranchRelationship = (context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) => {
   return async () => {
-    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
+    const relationshipRepository = new VSCodeBranchRelationshipRepository(context);
 
     // get the relationships
     const relationships: BranchRelationship[] = getAllBranchRelationships(relationshipRepository);

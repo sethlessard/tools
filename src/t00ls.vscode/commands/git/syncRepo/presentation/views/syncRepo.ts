@@ -25,7 +25,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     const mode = new VSCodeGitModeRepository(context).getGitMode();
     const git = new t00lsGitRepository(gitRepo, mode);
     await git.initialize();
-    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
+    const relationshipRepository = new VSCodeBranchRelationshipRepository(context);
 
     // fetch the latest updates from remote
     // and the rest of the Git stuff we need

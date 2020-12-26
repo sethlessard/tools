@@ -61,7 +61,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
 
     try {
       // create the production tag and merge into the main branch.
-      await createTagAndRelease(branch.name, git, VSCodeBranchRelationshipRepository.getInstance())
+      await createTagAndRelease(branch.name, git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage("Done."));
     } catch (e) {
       showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);

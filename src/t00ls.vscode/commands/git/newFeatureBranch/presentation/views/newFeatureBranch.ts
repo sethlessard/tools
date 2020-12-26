@@ -62,7 +62,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     try {
-      await createNewFeatureBranch({ name: featureBranch, baseBranch }, git, VSCodeBranchRelationshipRepository.getInstance())
+      await createNewFeatureBranch({ name: featureBranch, baseBranch }, git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`));
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred while creating the feature branch '${featureBranch}': ${error}`);

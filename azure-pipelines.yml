@@ -12,10 +12,15 @@ steps:
     inputs:
       versionSpec: '12.x'
 
-  - task: PowerShell@2
+  - task: Bash@3
     displayName: "Install dependencies"
     inputs:
-      filePath: '.azure-pipelines/InstallDependencies.ps1'
+      filePath: '.azure-pipelines/InstallDependencies.sh'
+
+  - task: Bash@3
+    displayName: "Configure Git"
+    inputs:
+      filePath: '.azure-pipelines/ConfigureGit.sh'
 
   - task: Bash@3
     displayName: "Start xvfb"
@@ -29,7 +34,7 @@ steps:
     env:
       DISPLAY: ':99.0'
 
-  - task: PowerShell@2
+  - task: Bash@3
     displayName: "Build"
     inputs:
-      filePath: '.azure-pipelines/Build.ps1'
+      filePath: '.azure-pipelines/Build.sh'

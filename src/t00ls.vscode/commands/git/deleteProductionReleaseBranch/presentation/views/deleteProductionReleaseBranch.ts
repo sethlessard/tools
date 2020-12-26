@@ -66,7 +66,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
     try {
-      await deleteAProductionReleaseBranch(branch, (await promptYesNo({ question: `Force delete '${branch.name}'?` })), git, VSCodeBranchRelationshipRepository.getInstance())
+      await deleteAProductionReleaseBranch(branch, (await promptYesNo({ question: `Force delete '${branch.name}'?` })), git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`));
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred when deleting '${branch.name}': ${error}`);

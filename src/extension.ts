@@ -41,9 +41,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	t00lsStatusBarItem.show();
 	StatusBarManager.getInstance().initialize(t00lsStatusBarItem).setMode(mode);
 
-	// initialize the VSCodeBranchRelationshipRepository
-	VSCodeBranchRelationshipRepository.getInstance().initialize(context);
-
 	const configManager = ConfigManager.getInstance();
 	// register the current workspaces
 	const registerWorkspace = (w: vscode.WorkspaceFolder) => {
