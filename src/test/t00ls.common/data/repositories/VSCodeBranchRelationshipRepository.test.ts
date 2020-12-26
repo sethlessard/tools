@@ -1,42 +1,11 @@
 import { beforeEach, describe, test } from "mocha";
 import { assert } from "chai";
-import { EnvironmentVariableCollection, ExtensionContext, ExtensionMode, Memento, Uri } from "vscode";
 import * as _ from "lodash";
 
 import VSCodeBranchRelationshipRepository from "../../../../t00ls.common/data/repositories/VSCodeBranchRelationshipRepository";
 import BranchRelationship from "../../../../t00ls.common/data/models/BranchRelationship";
-
-class MockMemento implements Memento {
-  entries: { [key: string]: any } = {};
-
-  get(key: string, defaultValue?: any) {
-    return this.entries[key] || defaultValue;
-  }
-  update(key: string, value: any): Thenable<void> {
-    this.entries[key] = value;
-    return Promise.resolve();
-  }
-};
-
-class MockExtensionContext implements ExtensionContext {
-  subscriptions: { dispose(): any; }[] = [];
-  workspaceState: Memento = new MockMemento();
-  globalState: Memento = new MockMemento();
-  extensionUri: Uri = Uri.file('');
-  extensionPath: string = '';
-  // @ts-ignore
-  environmentVariableCollection: EnvironmentVariableCollection = {};
-  asAbsolutePath(relativePath: string): string {
-    throw new Error("Method not implemented.");
-  }
-  storageUri: Uri | undefined;
-  storagePath: string | undefined;
-  globalStorageUri: Uri = Uri.file('');
-  globalStoragePath: string = '';
-  logUri: Uri = Uri.file('');
-  logPath: string = '';
-  extensionMode: ExtensionMode = ExtensionMode.Test;
-};
+import MockMemento from "../../../mock/MockMemento";
+import MockExtensionContext from "../../../mock/MockExtensionContext";
 
 describe("t00ls.common/data/repositories/VSCodeBranchRelationshipRepository", () => {
 
@@ -51,7 +20,7 @@ describe("t00ls.common/data/repositories/VSCodeBranchRelationshipRepository", ()
     test("It should be able to clear a relationship between a feature branch and a production release branch.", () => {
       (mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"] = [{ featureBranch: "feature-1", productionReleaseBranch: "v1.1.1-prep" }];
       assert.isNotEmpty((mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"]);
-      
+
       relationshipRepo.clearRelationshipForFeatureBranch("feature-1");
       assert.isEmpty((mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"]);
     });
@@ -72,7 +41,7 @@ describe("t00ls.common/data/repositories/VSCodeBranchRelationshipRepository", ()
         { featureBranch: "feature-3", productionReleaseBranch: "v1.2.0-prep", },
       ];
       assert.isNotEmpty((mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"]);
-      
+
       relationshipRepo.clearRelationshipsForProductionReleaseBranch("v1.2.0-prep");
       assert.isUndefined(_.find<BranchRelationship>((mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"], { productionReleaseBranch: "v1.2.0-prep" }));
       assert.isDefined(_.find<BranchRelationship>((mockExtensionContext.workspaceState as MockMemento).entries["branchRelationships"], { productionReleaseBranch: "v1.1.1-prep" }));
