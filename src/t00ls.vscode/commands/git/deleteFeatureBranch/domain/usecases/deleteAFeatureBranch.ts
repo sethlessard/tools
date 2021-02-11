@@ -1,5 +1,5 @@
 import { promises } from "dns";
-import Branch from "../../../../../../t00ls.common/domain/entities/Branch";
+import Branch from "../../../../../../t00ls.common/domain/entities/git/Branch";
 import BranchRelationshipRepository from "../../../../../../t00ls.common/domain/respositories/BranchRelationshipRepository";
 import GitRepository from "../../../../../../t00ls.common/domain/respositories/GitRepository";
 

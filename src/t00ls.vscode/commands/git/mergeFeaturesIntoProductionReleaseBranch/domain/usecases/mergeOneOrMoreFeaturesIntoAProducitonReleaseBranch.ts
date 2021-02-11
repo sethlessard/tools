@@ -1,4 +1,4 @@
-import Branch from "../../../../../../t00ls.common/domain/entities/Branch";
+import Branch from "../../../../../../t00ls.common/domain/entities/git/Branch";
 import GitRepository from "../../../../../../t00ls.common/domain/respositories/GitRepository";
 
 /**
