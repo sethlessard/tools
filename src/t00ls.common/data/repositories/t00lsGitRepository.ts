@@ -3,7 +3,7 @@ import { promisify } from "util";
 import * as _ from "lodash";
 import * as path from "path";
 
-import NeedsAsyncInitialization from "../../types/NeedsAsyncInitialization";
+import NeedsAsyncInitialization from "../../domain/entities/initialization/NeedsAsyncInitialization";
 import Branch from "../models/Branch";
 import GitRepository from "../../domain/respositories/GitRepository";
 import GitMode from "../models/GitMode";

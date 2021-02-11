@@ -1,4 +1,4 @@
-import Branch from "../entities/Branch";
+import Branch from "../entities/git/Branch";
 
 interface GitRepository {
 
