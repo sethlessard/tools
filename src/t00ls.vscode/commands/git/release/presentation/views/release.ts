@@ -26,7 +26,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal)));
     await git.initialize();
 
     // fetch the latest updates from remote
@@ -61,7 +61,7 @@ const release = (context: vscode.ExtensionContext, outputChannel: vscode.OutputC
 
     try {
       // create the production tag and merge into the main branch.
-      await createTagAndRelease(branch.name, git, VSCodeBranchRelationshipRepository.getInstance())
+      await createTagAndRelease(branch.name, git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage("Done."));
     } catch (e) {
       showErrorMessage(outputChannel, `Error creating releasing the next version: ${e}`);

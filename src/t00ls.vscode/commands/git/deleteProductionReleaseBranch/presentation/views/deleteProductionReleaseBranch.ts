@@ -19,7 +19,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal)));
     await git.initialize();
 
     // fetch the latest updates from remote
@@ -66,7 +66,7 @@ const deleteProductionReleaseBranch = (context: vscode.ExtensionContext, outputC
     if (!branch) { throw new Error("Error selecting production release branch..."); }
 
     try {
-      await deleteAProductionReleaseBranch(branch, (await promptYesNo({ question: `Force delete '${branch.name}'?` })), git, VSCodeBranchRelationshipRepository.getInstance())
+      await deleteAProductionReleaseBranch(branch, (await promptYesNo({ question: `Force delete '${branch.name}'?` })), git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage(`Deleted production release branch '${(branch.remote) ? `${branch.origin}/${branch.name}` : branch.name}'.`));
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred when deleting '${branch.name}': ${error}`);

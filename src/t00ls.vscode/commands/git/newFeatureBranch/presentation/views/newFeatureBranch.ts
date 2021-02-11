@@ -20,7 +20,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal)));
     await git.initialize();
 
     // check to see if there are working changes in the directory.
@@ -62,7 +62,7 @@ const newFeatureBranch = (context: vscode.ExtensionContext, outputChannel: vscod
     }
 
     try {
-      await createNewFeatureBranch({ name: featureBranch, baseBranch }, git, VSCodeBranchRelationshipRepository.getInstance())
+      await createNewFeatureBranch({ name: featureBranch, baseBranch }, git, new VSCodeBranchRelationshipRepository(context))
         .then(() => vscode.window.showInformationMessage(`Created new feature branch '${featureBranch}'.`));
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred while creating the feature branch '${featureBranch}': ${error}`);

@@ -19,7 +19,7 @@ const deleteTag = (context: vscode.ExtensionContext, outputChannel: vscode.Outpu
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal)));
     await git.initialize();
 
     // fetch the latest updates from remote

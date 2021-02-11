@@ -34,9 +34,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	t00lsStatusBarItem.show();
 	StatusBarManager.getInstance().initialize(t00lsStatusBarItem).setMode(mode);
 
-	// initialize the VSCodeBranchRelationshipRepository
-	VSCodeBranchRelationshipRepository.getInstance().initialize(context);
-
 	// Git
 	const changegitModeDisp = vscode.commands.registerCommand("t00ls.changeGitMode", changeGitMode(context, outputChannel));
 	context.subscriptions.push(changegitModeDisp);

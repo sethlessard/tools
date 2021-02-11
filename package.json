@@ -126,23 +126,29 @@
 	"dependencies": {
 		"fs-extra": "9.0.1",
 		"lodash": "4.17.20",
-		"rimraf": "3.0.2"
+		"rimraf": "3.0.2",
+		"uuid": "8.3.1"
 	},
 	"devDependencies": {
 		"@types/chai": "4.2.14",
+		"@types/chai-as-promised": "7.1.3",
 		"@types/fs-extra": "9.0.2",
 		"@types/glob": "7.1.3",
 		"@types/lodash": "4.14.108",
-		"@types/mocha": "8.0.3",
-		"@types/node": "14.14.7",
+		"@types/mocha": "8.0.4",
+		"@types/node": "14.14.10",
 		"@types/rimraf": "3.0.0",
+		"@types/uuid": "8.3.0",
 		"@types/vscode": "1.50.0",
-		"@typescript-eslint/eslint-plugin": "4.1.1",
-		"@typescript-eslint/parser": "4.1.1",
+		"@typescript-eslint/eslint-plugin": "4.8.2",
+		"@typescript-eslint/parser": "4.11.1",
 		"chai": "4.2.0",
+		"chai-as-promised": "7.1.1",
 		"eslint": "7.13.0",
 		"glob": "7.1.6",
 		"mocha": "8.2.0",
+		"sinon": "9.2.1",
+		"ts-sinon": "2.0.1",
 		"typescript": "4.0.5",
 		"vscode-test": "1.4.0"
 	}

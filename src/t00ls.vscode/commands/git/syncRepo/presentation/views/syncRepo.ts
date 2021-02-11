@@ -25,7 +25,7 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
     const mode = new VSCodeGitModeRepository(context).getGitMode();
     const git = new t00lsGitRepository(gitRepo, mode);
     await git.initialize();
-    const relationshipRepository = VSCodeBranchRelationshipRepository.getInstance();
+    const relationshipRepository = new VSCodeBranchRelationshipRepository(context);
 
     // fetch the latest updates from remote
     // and the rest of the Git stuff we need
@@ -62,18 +62,16 @@ const syncRepo = (context: vscode.ExtensionContext, outputChannel: vscode.Output
       return;
     }
 
-    // determine if any produciton release branches need to be published
     if (mode === GitMode.Normal) {
+      // determine if any produciton release branches need to be published
       const productionReleaseBranchesToPublish = productionReleaseBranches.filter(async p => !(await git.hasRemoteBranch(p.name)));
       for (const p of productionReleaseBranchesToPublish) {
         if (!(await git.hasRemoteBranch(p.name))) {
           _.find(productionReleaseBranches, { name: p.name })!!.publish = await promptYesNo({ question: `Publish '${p.name}'?` });
         }
       }
-    }
 
-    // determine if any feature branches need to be published
-    if (mode === GitMode.Normal) {
+      // determine if any feature branches need to be published
       const featureBranchesToPublish = featureBranches.filter(async f => !(await git.hasRemoteBranch(f.name)));
       for (const f of featureBranchesToPublish) {
         if (!(await git.hasRemoteBranch(f.name))) {

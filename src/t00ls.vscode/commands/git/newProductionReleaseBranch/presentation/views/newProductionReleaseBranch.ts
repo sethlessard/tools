@@ -18,7 +18,7 @@ const newProductionReleaseBranch = (context: vscode.ExtensionContext, outputChan
       return;
     }
     const gitRepo = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get("t00ls.mode") as GitMode));
+    const git = new t00lsGitRepository(gitRepo, (context.workspaceState.get<GitMode>("t00ls.mode", GitMode.Normal)));
     await git.initialize();
 
     // check to see if there are working changes in the directory.
