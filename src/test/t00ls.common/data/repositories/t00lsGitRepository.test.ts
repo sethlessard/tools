@@ -1017,7 +1017,33 @@ describe("t00ls.common/data/repositories/t00lsGitRepository", function () {
   });
 
   describe("getNumberOfCommitsAheadOfBranch", () => {
-    // TODO
+    let repoPath = "";
+    let git: t00lsGitRepository;
+    beforeEach(async () => {
+      repoPath = await testHelper.newTestRepository();
+      git = new t00lsGitRepository(repoPath, GitMode.Normal);
+      await git.initialize();
+    });
+
+    test("It should return 0 when two branches are even", async () => {
+      execSync(`git checkout -b branch-1`, { cwd: repoPath });
+      await assert.becomes(git.getNumberOfCommitsAheadOfBranch("main", "branch-1"), 0);
+    });
+
+    test("It should return the number of commits one branch is ahead of another", async () => {
+      execSync(`git checkout -b branch-1`, { cwd: repoPath });
+      createAndStage(path.join(repoPath, "change1.txt"), "This is the first change");
+      execSync(`git commit -m "Change 1"`, { cwd: repoPath });
+      createAndStage(path.join(repoPath, "change2.txt"), "This is the second change");
+      execSync(`git commit -m "Change 2"`, { cwd: repoPath });
+      execSync(`git checkout -b branch-2`, { cwd: repoPath });
+      execSync(`git checkout branch-1`, { cwd: repoPath });
+      createAndStage(path.join(repoPath, "change3.txt"), "This is the third change");
+      execSync(`git commit -m "Change 3"`, { cwd: repoPath });
+
+      await assert.becomes(git.getNumberOfCommitsAheadOfBranch("main", "branch-1"), 3);
+      await assert.becomes(git.getNumberOfCommitsAheadOfBranch("main", "branch-2"), 2);
+    });
   });
 
   describe("getRepositoryDirectory", () => {
