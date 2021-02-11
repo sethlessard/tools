@@ -1,4 +1,4 @@
-import DomainBranch from "../../domain/entities/Branch";
+import DomainBranch from "../../domain/entities/git/Branch";
 
 interface Branch {
   name: string;
